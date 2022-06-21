@@ -25,7 +25,7 @@
       </template>
       <template #bottom>
         <slot name="sidebar-bottom" />
-        <SiderBarBottom />
+        <SiderBarBottom v-if="$lang === LOCALE_ZH_HANS" />
       </template>
     </Sidebar>
 
@@ -60,6 +60,7 @@ import Toc from '../components/Toc';
 import { resolveSidebarItems, forbidScroll, BaiduStat } from '../util'
 import navProvider from '../mixin/navProvider';
 import toc from '../mixin/toc';
+import {LOCALE_ZH_HANS} from '@theme-config/i18n';
 
 export default {
   name: 'Layout',
@@ -75,7 +76,8 @@ export default {
   },
   data () {
     return {
-      isSidebarOpen: false
+      isSidebarOpen: false,
+      LOCALE_ZH_HANS
     }
   },
   computed: {

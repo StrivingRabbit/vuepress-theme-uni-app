@@ -1,6 +1,11 @@
 <template>
 	<div id="docsearch">
-		<button type="button" class="DocSearch DocSearch-Button" aria-label="搜索文档" @click="openSearch">
+		<button
+			type="button"
+			class="DocSearch DocSearch-Button"
+			:aria-label="searchText"
+			@click="openSearch"
+		>
 			<span class="DocSearch-Button-Container">
 				<svg width="20" height="20" class="DocSearch-Search-Icon" viewBox="0 0 20 20">
 					<path
@@ -12,7 +17,7 @@
 						stroke-linejoin="round"
 					></path>
 				</svg>
-				<span class="DocSearch-Button-Placeholder">搜索文档</span>
+				<span class="DocSearch-Button-Placeholder">{{ searchText }}</span>
 			</span>
 			<span class="DocSearch-Button-Keys">
 				<span class="DocSearch-Button-Key">
@@ -34,18 +39,21 @@
 
 <script>
 	import '@docsearch/css';
+	import { LOCALE_ZH_HANS } from '@theme-config/i18n';
 
 	export default {
 		name: 'AlgoliaSearchBox',
 
-		watch: {},
-
-		mounted() {},
+		computed: {
+			searchText() {
+				return this.$lang === LOCALE_ZH_HANS ? '搜索文档' : 'Search';
+			},
+		},
 
 		methods: {
-			openSearch(){
-				this.$parent.$refs.dcloudSearchPage.onSearchOpen()
-			}
+			openSearch() {
+				this.$parent.$refs.dcloudSearchPage.onSearchOpen();
+			},
 		},
 	};
 </script>

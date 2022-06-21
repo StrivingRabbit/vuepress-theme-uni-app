@@ -124,7 +124,7 @@
 	  width $vuepress-toc-width
 	  overflow-y auto
 	  // margin-top $navbarHeight
-	  top 0
+	  top $navbarHeight
 	  right 0
 	  box-sizing border-box
 	  background-color #fff

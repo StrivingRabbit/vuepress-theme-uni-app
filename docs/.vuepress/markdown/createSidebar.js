@@ -4,6 +4,11 @@ const MarkdownIt = require('markdown-it');
 const createMarkdownArray = require('./createMarkdownArray')
 const { isExternal } = require('../utils')
 const createSiteMap = require('./createSiteMap');
+const parse = require('../../../scripts/parse')
+
+function translate(content) {
+  return parse(content).target.join('\n')
+}
 
 const links = []
 
@@ -13,7 +18,7 @@ function parseBar(file, options) {
   const contents = []
 
   new MarkdownIt()
-    .parse(fs.readFileSync(file, { encoding: 'utf-8' }))
+    .parse(translate(fs.readFileSync(file, { encoding: 'utf-8' })))
     .forEach(token => {
       if (token.type === 'inline') {
         let [_, text, link] = token.content.match(/\[(.+?)\]\((.+?)\)/) || token.content.match(/(.+)/)

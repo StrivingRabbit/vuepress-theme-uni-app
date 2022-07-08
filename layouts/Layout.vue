@@ -38,6 +38,7 @@
     >
       <template #top>
         <slot name="page-top" />
+        <TocTop/>
       </template>
       <template #bottom>
         <slot name="page-bottom" />
@@ -57,10 +58,11 @@ import Sidebar from '@theme/components/Sidebar.vue'
 import Footer from '@theme/components/Footer.vue';
 import SiderBarBottom from '../components/SiderBarBottom.vue';
 import Toc from '../components/Toc';
+import TocTop from '../components/Toc-top';
 import { resolveSidebarItems, forbidScroll, BaiduStat } from '../util'
 import navProvider from '../mixin/navProvider';
 import toc from '../mixin/toc';
-import {LOCALE_ZH_HANS} from '@theme-config/i18n';
+import { LOCALE_ZH_HANS } from '@theme-config/i18n';
 
 export default {
   name: 'Layout',
@@ -72,7 +74,8 @@ export default {
     Navbar,
     Footer,
     SiderBarBottom,
-    Toc
+    Toc,
+    TocTop
   },
   data () {
     return {

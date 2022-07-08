@@ -77,18 +77,23 @@ body.forbid_scroll
 main.page
 	padding-bottom 0px
 	padding-right 0px
+	@media (min-width $vuepress-display-min-width)
+		&
+			padding-right $vuepress-toc-width
 
-@media (min-width $vuepress-display-min-width)
-	main.page
-		padding-right $vuepress-toc-width
-	.vuepress-toc
-		display block !important
-	.table-of-contents
-		display none !important
 
-@media (max-width $vuepress-display-min-width)
-	.table-of-contents
-		display block !important
+.vuepress-toc
+	@media (min-width $vuepress-display-min-width)
+		&
+			display block !important
+
+.table-of-contents
+	@media (min-width $vuepress-display-min-width)
+		&
+			display none !important
+	@media (max-width $vuepress-display-min-width)
+		&
+			display block !important
 
 @media (min-width 2000px)
 	$vuepress-toc-width = 20rem
@@ -97,13 +102,17 @@ main.page
 	main.page
 		padding-right $vuepress-toc-width
 
+@media (max-width $MQMobile)
+	.table-of-contents
+		margin-top $navbarHeight - 2rem !important
+
 {$contentClass}:not(.custom)
 	> *:first-child
 		margin-top 0
 
 		@media (max-width $MQMobile)
 			&
-				margin-top $navbarHeight
+				margin-top 2rem
 
 	img
 		max-width 100% !important
@@ -116,8 +125,8 @@ main.page
 
 h1, h2, h3, h4, h5, h6
 	{$contentClass}:not(.custom) > &
-		margin-top 5rem - $navbarHeight
-		padding-top: ($navbarHeight - 3rem)
+		margin-top 1rem - $navbarHeight
+		padding-top: $navbarHeight
 
 		&:first-child
 			margin-top 3rem - $navbarHeight

@@ -10,7 +10,7 @@
 			<a :href="`#${item.slug}`" :title="item.title">{{ item.title }}</a>
 		</div>
 		<span
-			v-if="$page.headers.length > expandHeaderLength"
+			v-if="$page.headers && $page.headers.length > expandHeaderLength"
 			class="expand-button"
 			:style="{ 'padding-left': `${hasH1 ? 1 : 2}rem` }"
 			@click="expandClick"
@@ -35,12 +35,12 @@
 		}),
 		computed: {
 			hasH1() {
-				return this.$page.headers.some(item => item.level === 1);
+				return (this.$page.headers || []).some(item => item.level === 1);
 			},
 			showHeaders() {
 				return this.expand
 					? this.$page.headers
-					: this.$page.headers.slice(0, this.expandHeaderLength);
+					: (this.$page.headers || []).slice(0, this.expandHeaderLength);
 			},
 		},
 		methods: {

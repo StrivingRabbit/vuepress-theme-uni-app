@@ -1,3 +1,5 @@
 export default {
-  onThisPage: '文档结构'
+  onThisPage: 'On This Page',
+  collapseText: 'Expand All',
+  expandText: 'Collapse Directory'
 }

@@ -13,22 +13,22 @@ export const navbar = [
     link: '/',
     items: [
       {
-        text: '介绍',
+        text: 'Introduction',
         type: 'link',
         link: '/'
       },
+	  {
+	    text: 'Tutorial',
+	    type: 'link',
+	    link: '/tutorial/'
+	  },
       {
-        text: '教程',
-        type: 'link',
-        link: '/tutorial/'
-      },
-      {
-        text: '全局文件',
+        text: 'Framework',
         type: 'link',
         link: '/collocation/pages'
       },
       {
-        text: '组件',
+        text: 'Component',
         type: 'link',
         link: '/component/'
       },
@@ -38,21 +38,11 @@ export const navbar = [
         link: '/api/'
       },
       {
-        text: '插件',
-        type: 'link',
-        link: '/plugin/'
-      },
-      {
-        text: '工程化',
-        type: 'link',
-        link: '/worktile/'
-      },
-      {
         text: 'Other specifications',
         type: 'links',
         link: 'http://www.html5plus.org/doc/h5p.html',
         items: [
-          {
+          /* {
             text: 'App扩展规范 HTML5 Plus',
             type: 'link',
             link: 'http://www.html5plus.org/doc/h5p.html'
@@ -111,7 +101,7 @@ export const navbar = [
             text: '360小程序',
             type: 'link',
             link: 'https://mp.360.cn/doc/miniprogram/dev/#/view'
-          },
+          }, */
           {
             text: 'Weex',
             type: 'link',
@@ -127,11 +117,11 @@ export const navbar = [
       }
     ]
   },
-  {
+  /* {
     text: 'uniCloud',
     type: 'link',
     link: '/uniCloud/'
-  },
+  }, */
   {
     text: 'HBuilder',
     link: 'https://hx.dcloud.net.cn/',
@@ -140,13 +130,13 @@ export const navbar = [
     needOutbound: false
   },
   {
-    text: 'uni 小程序 sdk',
-    link: 'https://nativesupport.dcloud.net.cn/UniMPDocs/SDKDownload/android',
+    text: 'uniMPSdk',
+    link: 'https://nativesupport.dcloud.net.cn/README',
     type: "link",
     target: '_blank',
     needOutbound: false
   },
-  {
+  /* {
     text: '问答社区',
     link: 'https://ask.dcloud.net.cn/explore/',
     type: "link",
@@ -159,5 +149,5 @@ export const navbar = [
     target: '_blank',
     link: 'https://ext.dcloud.net.cn/',
     needOutbound: false
-  }
+  } */
 ]

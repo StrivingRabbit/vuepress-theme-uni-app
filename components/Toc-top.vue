@@ -1,7 +1,7 @@
 <template>
 	<div class="table-of-contents">
 		<div
-			v-for="item in $page.headers"
+			v-for="item in showHeaders"
 			ref="chairTocItem"
 			:key="item.slug"
 			class="vuepress-toc-item-top"
@@ -9,20 +9,59 @@
 		>
 			<a :href="`#${item.slug}`" :title="item.title">{{ item.title }}</a>
 		</div>
+		<span
+			class="expand-button"
+			:style="{ 'padding-left': `${hasH1 ? 1 : 2}rem` }"
+			@click="expandClick"
+		>
+			{{ !expand ? collapseText : expandText }}
+			<uni-icon :type="!expand ? 'bottom' : 'top'"></uni-icon>
+		</span>
 	</div>
 </template>
 
-<script></script>
+<script>
+	import tocConfig from '@theme-config/toc';
+
+	const { expandText, collapseText } = tocConfig;
+
+	export default {
+		data: () => ({
+			expand: false,
+			expandText,
+			collapseText,
+		}),
+		computed: {
+			hasH1() {
+				return this.$page.headers.some(item => item.level === 1);
+			},
+			showHeaders() {
+				return this.expand ? this.$page.headers : this.$page.headers.slice(0, 10);
+			},
+		},
+		methods: {
+			expandClick() {
+				this.expand = !this.expand;
+			},
+		},
+	};
+</script>
 
 <style lang="stylus">
-  .table-of-contents
-    margin 0 auto
-    padding 2rem 2.5rem 0 2.5rem
-    @media (max-width: $MQNarrow)
-      padding 2rem 2rem 0 2rem
-    @media (max-width: $MQMobileNarrow)
-      padding 1.5rem 1.5rem 0 1.5rem
-    border-left: 2px solid #e6e6e6
+	 .table-of-contents
+	   margin 0 auto
+	   padding 2rem 2.5rem 0 2.5rem
+	   @media (max-width: $MQNarrow)
+	     padding 2rem 2rem 0 2rem
+	   @media (max-width: $MQMobileNarrow)
+	     padding 1.5rem 1.5rem 0 1.5rem
+	   // border-left: 2px solid #e6e6e6
+		 .expand-button
+			border-left 2px solid rgba(0, 0, 0, 0.08)
+			color #666
+			&:hover
+				cursor pointer
+				color $accentColor
 	.vuepress-toc-item-top
 	  position relative
 	  padding 0.1rem 0.6rem 0.1rem 1.5rem
@@ -30,11 +69,11 @@
 	  border-left 2px solid rgba(0, 0, 0, 0.08)
 	  overflow hidden
 	  a
-	    display block
+	    // display block
 	    // color $textColor
-	    width 100%
+	    // width 100%
 	    box-sizing border-box
-	    font-size 16px
+	    font-size 15px
 	    font-weight 400
 	    text-decoration none
 	    transition color 0.3s

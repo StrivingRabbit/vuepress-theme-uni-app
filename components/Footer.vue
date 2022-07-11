@@ -30,11 +30,11 @@
 			<div class="domainImgBox">
 				<img
 					class="domainImg"
-					src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-f184e7c3-1912-41b2-b81f-435d1b37c7b4/769929a3-65eb-4d11-815d-84f88197a152.png"
+					:src="domainImg"
 				/>
 				<a
 					class="beian"
-					href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010802035340"
+					:href="beian"
 					target="_blank"
 				>
 					京公网安备：11010802035340号
@@ -48,7 +48,7 @@
 
 <script>
 	import footerConfig from '@theme-config/footer';
-	const { footNavList, aboutusList } = footerConfig;
+	const { footNavList, aboutusList, domainImg, beian } = footerConfig;
 
 	export default {
 		components: {
@@ -92,6 +92,8 @@
 			footNavList: Object.freeze(footNavList),
 			aboutusList: Object.freeze(aboutusList),
 			domain: '',
+			domainImg,
+			beian
 		}),
 		mounted() {
 			if (document.domain === 'uniapp.dcloud.net.cn') {

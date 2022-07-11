@@ -37,18 +37,7 @@
 				<template v-for="item in currentQQGroup">
 					<div v-if="!item.state" :key="item.number">
 						{{ item.prefix }}：{{ item.number }} &nbsp;
-						<a v-if="QQOfUnicloud"
-							target="_blank"
-							style="text-decoration: underline"
-							href="https://qm.qq.com/cgi-bin/qm/qr?k=ez84UYIZgPKpTvrXD8GINUr62u8CF96x&jump_from=webapi"
-						>
-							点此加入
-						</a>
-						<a v-else
-							target="_blank"
-							style="text-decoration: underline"
-							href="https://qm.qq.com/cgi-bin/qm/qr?k=nsW1gqNT9LqZLfcyntjd1paIKUzWewHN&jump_from=webapi"
-						>
+						<a target="_blank" style="text-decoration: underline" :href="joinQQGroupHref">
 							点此加入
 						</a>
 					</div>
@@ -66,11 +55,7 @@
 			/>
 			<div class="contact-smg">
 				<div>关注微信公众号</div>
-				<img
-					src="https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-uni-app-doc/78a8e7b0-4f2d-11eb-8ff1-d5dcf8779628.jpg"
-					width="90"
-					height="90"
-				/>
+				<img :src="weChatOfficialAccountImg" width="90" height="90" />
 			</div>
 		</div>
 	</div>
@@ -79,23 +64,26 @@
 <script>
 	import navInject from '../mixin/navInject';
 	import siderbarConfig from '@theme-config/siderbar';
+
+	const { weChatOfficialAccountImg } = siderbarConfig;
+
 	export default {
 		mixins: [navInject],
 
 		data: () => ({
-			siderbarConfig,
+			weChatOfficialAccountImg,
 		}),
 
 		computed: {
 			currentConfig() {
-				return this.siderbarConfig[this.customNavBarKeys[this.navConfig.userNavIndex]] || {};
+				return siderbarConfig[this.customNavBarKeys[this.navConfig.userNavIndex]] || {};
 			},
 			currentQQGroup() {
 				return [...(this.currentConfig.qq_group || [])].reverse();
 			},
-			QQOfUnicloud(){
-				return this.mainNavBarText == 'uniCloud'? true : false
-			}
+			joinQQGroupHref() {
+				return this.currentConfig.joinQQGroupHref || '';
+			},
 		},
 	};
 </script>

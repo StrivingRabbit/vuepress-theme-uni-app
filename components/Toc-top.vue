@@ -7,12 +7,17 @@
 			class="vuepress-toc-item-top"
 			:class="[`vuepress-toc-h${item.level}`]"
 		>
-			<a :href="`#${item.slug}`" :title="item.title">{{ item.title }}</a>
+			<a
+				:style="{ paddingLeft: createPaddingLeft(item.level) }"
+				:href="`#${item.slug}`"
+				:title="item.title"
+			>
+				{{ item.title }}
+			</a>
 		</div>
 		<span
-			v-if="$page.headers && $page.headers.length > expandHeaderLength"
+			v-if="pageHeaders && pageHeaders.length > expandHeaderLength"
 			class="expand-button"
-			:style="{ 'padding-left': `${hasH1 ? 1 : 2}rem` }"
 			@click="expandClick"
 		>
 			{{ !expand ? collapseText : expandText }}
@@ -22,11 +27,13 @@
 </template>
 
 <script>
+	import toc from '../mixin/toc';
 	import tocConfig from '@theme-config/toc';
 
 	const { expandText, collapseText } = tocConfig;
 
 	export default {
+		mixins: [toc],
 		data: () => ({
 			expand: false,
 			expandText,
@@ -34,13 +41,10 @@
 			expandHeaderLength: 10,
 		}),
 		computed: {
-			hasH1() {
-				return (this.$page.headers || []).some(item => item.level === 1);
-			},
 			showHeaders() {
 				return this.expand
-					? this.$page.headers
-					: (this.$page.headers || []).slice(0, this.expandHeaderLength);
+					? this.pageHeaders
+					: this.pageHeaders.slice(0, this.expandHeaderLength);
 			},
 		},
 		methods: {
@@ -51,16 +55,18 @@
 	};
 </script>
 
-<style lang="stylus">
-	 .table-of-contents
-	   margin 0 auto
-	   padding 2rem 2.5rem 0 2.5rem
-	   @media (max-width: $MQNarrow)
-	     padding 2rem 2rem 0 2rem
-	   @media (max-width: $MQMobileNarrow)
-	     padding 1.5rem 1.5rem 0 1.5rem
+<style lang="stylus" scoped>
+	$paddingLeft = 1.5rem
+	.table-of-contents
+	  margin 0 auto
+	  padding 2rem 2.5rem 0 2.5rem
+	  @media (max-width: $MQNarrow)
+	    padding 2rem 2rem 0 2rem
+	  @media (max-width: $MQMobileNarrow)
+	    padding 1.5rem 1.5rem 0 1.5rem
 	   // border-left: 2px solid #e6e6e6
-		 .expand-button
+		.expand-button
+			padding-left $paddingLeft
 			border-left 2px solid rgba(0, 0, 0, 0.08)
 			color #666
 			&:hover
@@ -68,7 +74,7 @@
 				color $accentColor
 	.vuepress-toc-item-top
 	  position relative
-	  padding 0.1rem 0.6rem 0.1rem 1.5rem
+	  padding 0.1rem 0.6rem 0.1rem $paddingLeft
 	  line-height 1.5rem
 	  border-left 2px solid rgba(0, 0, 0, 0.08)
 	  overflow hidden
@@ -84,7 +90,7 @@
 	    overflow hidden
 	    text-overflow ellipsis
 	    white-space nowrap
-	for i in range(2, 6)
+	/* for i in range(2, 6)
 	  .vuepress-toc-h{i} a
-	    padding-left 1rem * (i - 1)
+	    padding-left 1rem * (i - 1) */
 </style>

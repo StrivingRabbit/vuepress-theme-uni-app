@@ -6,13 +6,19 @@
 	>
 		<h5>{{ onThisPage }}</h5>
 		<div
-			v-for="(item, index) in $page.headers"
+			v-for="(item, index) in pageHeaders"
 			ref="chairTocItem"
 			:key="item.slug"
 			class="vuepress-toc-item"
 			:class="[`vuepress-toc-h${item.level}`, { active: activeIndex === index }]"
 		>
-			<a :href="`#${item.slug}`" :title="item.title">{{ item.title }}</a>
+			<a
+				:style="{ paddingLeft: createPaddingLeft(item.level) }"
+				:href="`#${item.slug}`"
+				:title="item.title"
+			>
+				{{ item.title }}
+			</a>
 		</div>
 	</Sticker>
 </template>
@@ -73,7 +79,7 @@
 			this._onScroll = () => this.onScroll();
 			this._onHashChange = () => {
 				const hash = decodeURIComponent(location.hash.substring(1));
-				const index = (this.$page.headers || []).findIndex(h => h.slug === hash);
+				const index = (this.pageHeaders || []).findIndex(h => h.slug === hash);
 				if (index >= 0) this.activeIndex = index;
 				const dom = hash && document.getElementById(hash);
 				if (dom) window.scrollTo(0, getAbsoluteTop(dom) - 20);
@@ -94,7 +100,7 @@
 				}
 				// update position
 				const scrollTop = document.body.scrollTop + document.documentElement.scrollTop;
-				const headings = this.$page.headers || [];
+				const headings = this.pageHeaders || [];
 				// change active toc with scrolling
 				let i = 0;
 				const addLink = index => {
@@ -163,7 +169,7 @@
 			.vuepress-toc-h1 a
 			.vuepress-toc-h2 a
 				font-weight bold
-	  for i in range(2, 6)
+	  /* for i in range(2, 6)
 	    .vuepress-toc-h{i} a
-	      padding-left 1rem * (i - 1)
+	      padding-left 1rem * (i - 1) */
 </style>

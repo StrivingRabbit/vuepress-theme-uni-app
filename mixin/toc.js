@@ -2,19 +2,10 @@ export default {
   data() {
     return {
       paddingLeftOffset: 1,
-    }
-  },
-  created() {
-    if ((this.pageHeaders || []).length) {
-      this.paddingLeftOffset = this.pageHeaders
-        .map(item => item.level)
-        .sort((a, b) => a - b)[0];
+      pageHeaders: []
     }
   },
   computed: {
-    pageHeaders() {
-      return (this.$page.headers || []).filter(item => item.level > 1)
-    },
     visible() {
       return (
         this.$frontmatter &&
@@ -27,5 +18,19 @@ export default {
     createPaddingLeft(level) {
       return level - this.paddingLeftOffset + 'rem';
     },
+  },
+  watch: {
+    "$page.headers": {
+      immediate: true,
+      handler() {
+        if(this.$options.name === 'Layout') return
+        this.pageHeaders = (this.$page.headers || []).filter(item => item.level > 1)
+        if ((this.pageHeaders || []).length) {
+          this.paddingLeftOffset = this.pageHeaders
+            .map(item => item.level)
+            .sort((a, b) => a - b)[0];
+        }
+      }
+    }
   }
 }

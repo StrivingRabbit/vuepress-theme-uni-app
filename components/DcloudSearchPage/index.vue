@@ -227,6 +227,9 @@
 		mounted() {
 			window.addEventListener('keydown', this.onKeyDown);
 			window.addEventListener('resize', this.initSnippetLength);
+			if (this.$route.query.s) {
+				this.onSearchOpen() 
+			}
 		},
 
 		watch: {

@@ -117,11 +117,11 @@ export const navbar = [
       }
     ]
   },
-  /* {
+  {
     text: 'uniCloud',
     type: 'link',
     link: '/uniCloud/'
-  }, */
+  },
   {
     text: 'HBuilder',
     link: 'https://hx.dcloud.net.cn/',

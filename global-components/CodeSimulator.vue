@@ -15,6 +15,7 @@ export default {
 		}
 	},
 	mounted(){
+		this.$copyUpdates && this.$copyUpdates()
 		this.onWindowResize()
 		window.addEventListener('resize', this.onWindowResize)
 	},

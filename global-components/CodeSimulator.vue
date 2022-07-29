@@ -176,4 +176,8 @@ export default {
 	{$contentClass}
     div[class*="language-"]
 			margin 0 !important
+
+/* .page-runtime pre::-webkit-scrollbar {
+	display: none
+} */
 </style>

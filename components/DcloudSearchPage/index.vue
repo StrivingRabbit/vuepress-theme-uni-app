@@ -61,7 +61,7 @@
 													:key="item.text"
 													:item="{
 														...item,
-														link: item.link + searchValue,
+														link: createLink(item),
 													}"
 												/>
 												<a v-else href="javascript:;" @click="switchCategory(index)">
@@ -151,6 +151,7 @@
 	import { forbidScroll, debounce } from '../../util';
 	import { removeHighlightTags, isEditingContent } from './utils/searchUtils';
 	import searchPageConfig from '@theme-config/searchPage';
+	import './utils/Base64';
 
 	const {
 		category,
@@ -228,8 +229,8 @@
 			window.addEventListener('keydown', this.onKeyDown);
 			window.addEventListener('resize', this.initSnippetLength);
 			if (this.$route.query.s) {
-				this.searchValue = this.$route.query.s
-				this.onSearchOpen() 
+				this.searchValue = this.$route.query.s;
+				this.onSearchOpen();
 			}
 		},
 
@@ -259,6 +260,26 @@
 				this.resetSearchPage();
 				this.search();
 			}, 300),
+
+			$route: {
+				immediate: true,
+				handler(route) {
+					this.categoryIndex = -1;
+					console.log('this.categoryIndex :>> ', this.categoryIndex);
+					category
+						.map(item => {
+							return item.type === 'algolia' ? item.text : '';
+						})
+						.filter(Boolean)
+						.forEach((item, index) => {
+							if (route.path.indexOf(item) !== -1) {
+								this.categoryIndex = index;
+							}
+						});
+
+					if (this.categoryIndex === -1) this.categoryIndex = 0;
+				},
+			},
 		},
 
 		methods: {
@@ -458,6 +479,10 @@
 						this.onSearchOpen();
 					}
 				}
+			},
+
+			createLink({ link, tag }) {
+				return link + (tag === 'ask' ? window.Base64.encode(this.searchValue) : this.searchValue);
 			},
 		},
 	};

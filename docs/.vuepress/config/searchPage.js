@@ -5,14 +5,20 @@ export default {
       type: 'algolia',
     },
     {
+      text: 'uniCloud',
+      type: 'algolia',
+    },
+    {
       text: 'Q&A community',
       tag: 'ask',
-      type: 'server',
+      type: 'link',
+      link: 'https://ask.dcloud.net.cn/search/q-'
     },
     {
       text: 'Plugin Market',
       tag: 'ext',
-      type: 'server',
+      type: 'link',
+      link: 'https://ext.dcloud.net.cn/search?q='
     },
     {
       text: 'Native development documentation',

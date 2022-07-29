@@ -151,7 +151,7 @@
 	import { forbidScroll, debounce } from '../../util';
 	import { removeHighlightTags, isEditingContent } from './utils/searchUtils';
 	import searchPageConfig from '@theme-config/searchPage';
-	import './utils/Base64';
+	import Base64 from './utils/Base64';
 
 	const {
 		category,
@@ -265,7 +265,6 @@
 				immediate: true,
 				handler(route) {
 					this.categoryIndex = -1;
-					console.log('this.categoryIndex :>> ', this.categoryIndex);
 					category
 						.map(item => {
 							return item.type === 'algolia' ? item.text : '';
@@ -345,12 +344,13 @@
 
 			searchByAlgolia() {
 				const { searchParameters = {} } = this.options;
-				let categoryArr = [];
-				if (this.currentCategory.text === 'uni-app') {
+				let categoryArr = [`category:${this.currentCategory.text}`];
+				/*console.log('categoryArr :>> ', categoryArr);*/
+				/*if (this.currentCategory.text === 'uni-app') {
 					categoryArr = [[`category:uni-app`, `category:uniCloud`]];
 				} else {
 					categoryArr = [`category:${this.currentCategory.text}`];
-				}
+				}*/
 				return searchClient(
 					Object.assign({}, this.options, {
 						query: this.searchValue || '',
@@ -482,7 +482,7 @@
 			},
 
 			createLink({ link, tag }) {
-				return link + (tag === 'ask' ? window.Base64.encode(this.searchValue) : this.searchValue);
+				return link + (tag === 'ask' ? Base64.encode(this.searchValue) : this.searchValue);
 			},
 		},
 	};

@@ -1,4 +1,4 @@
-(function () {
+
   var validBitList = [
     [7],
     [5, 6],
@@ -117,7 +117,7 @@
     this.result += '='.repeat(eqLength)
   }
 
-  var Base64 = {
+  export default {
     encode: function (str) {
       // 一次循环计算出结果，减少内存占用
       var encoder = new Encoder()
@@ -132,5 +132,3 @@
       return encoder.result
     }
   }
-  window.Base64 = Base64
-})();

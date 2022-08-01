@@ -17,11 +17,11 @@ export const navbar = [
         type: 'link',
         link: '/'
       },
-	  {
-	    text: 'Tutorial',
-	    type: 'link',
-	    link: '/tutorial/'
-	  },
+      {
+        text: 'Tutorial',
+        type: 'link',
+        link: '/tutorial/'
+      },
       {
         text: 'Framework',
         type: 'link',
@@ -151,3 +151,17 @@ export const navbar = [
     needOutbound: false
   } */
 ]
+
+export const navbarLanguage = {
+  default: 0,
+  items: [
+    {
+      text: '简体中文',
+      link: 'https://uniapp.dcloud.net.cn/'
+    },
+    {
+      text: 'English',
+      link: 'https://en.uniapp.dcloud.io/'
+    }
+  ]
+}

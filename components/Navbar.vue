@@ -293,7 +293,7 @@ $navbar-horizontal-padding = 1.5rem
     position relative
   .links
     height 100%
-    padding-left 1.5rem
+    // padding-left 1.5rem
     box-sizing border-box
     // background-color white
     white-space nowrap

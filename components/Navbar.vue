@@ -40,7 +40,7 @@
         </div>
         <div v-if="showLanguage" class="dropdown-content">
           <template v-for="(item,index) in navbarLanguage">
-            <a :href="item.link" target="_self" :key="item.text"
+            <a :href="index === navConfig.languageIndex ? 'javascript:;' : item.link" target="_self" :key="item.text"
               :class="[index === navConfig.languageIndex ? 'clickDisabled' : '']">
               {{item.text}}
             </a>

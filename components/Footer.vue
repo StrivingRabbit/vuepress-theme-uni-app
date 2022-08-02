@@ -9,45 +9,39 @@
 			</div>
 		</div>
 		<div class="hbLogo"></div>
-		<div class="companyBox">
-			<span class="companyInfo">DCloud 即数字天堂（北京）网络技术有限公司是</span>
-			<div style="display: inline; margin-left: 5px" class="companyInfo">
-				<a href="//www.w3.org/" target="_blank" class="w3c">W3C</a>
-				成员及
-				<a href="//www.html5plus.org/" target="_blank" class="html5">HTML5中国产业联盟</a>
-				发起单位
+		<div v-if="$lang === LOCALE_ZH_HANS">
+			<div class="companyBox">
+				<span class="companyInfo">DCloud 即数字天堂（北京）网络技术有限公司是</span>
+				<div style="display: inline; margin-left: 5px" class="companyInfo">
+					<a href="//www.w3.org/" target="_blank" class="w3c">W3C</a>
+					成员及
+					<a href="//www.html5plus.org/" target="_blank" class="html5">HTML5中国产业联盟</a>
+					发起单位
+				</div>
 			</div>
-		</div>
-		<div class="beianBox">
-			<a
-				id="domain"
-				class="beian"
-				href="https://beian.miit.gov.cn/#/Integrated/index"
-				target="_blank"
-			>
-				{{ domain }}
-			</a>
-			<div class="domainImgBox">
-				<img
-					class="domainImg"
-					:src="domainImg"
-				/>
+			<div class="beianBox">
 				<a
+					id="domain"
 					class="beian"
-					:href="beian"
+					href="https://beian.miit.gov.cn/#/Integrated/index"
 					target="_blank"
 				>
-					京公网安备：11010802035340号
+					{{ domain }}
 				</a>
-			</div>
+				<div class="domainImgBox">
+					<img class="domainImg" :src="domainImg" />
+					<a class="beian" :href="beian" target="_blank">京公网安备：11010802035340号</a>
+				</div>
 
-			<span class="anbaoInfo">国家信息安全等级保护三级，证书编号：11010813802-20001</span>
+				<span class="anbaoInfo">国家信息安全等级保护三级，证书编号：11010813802-20001</span>
+			</div>
 		</div>
 	</div>
 </template>
 
 <script>
 	import footerConfig from '@theme-config/footer';
+	import { LOCALE_ZH_HANS } from '@theme-config/i18n';
 	const { footNavList, aboutusList, domainImg, beian } = footerConfig;
 
 	export default {
@@ -93,7 +87,8 @@
 			aboutusList: Object.freeze(aboutusList),
 			domain: '',
 			domainImg,
-			beian
+			beian,
+			LOCALE_ZH_HANS
 		}),
 		mounted() {
 			if (document.domain === 'uniapp.dcloud.net.cn') {

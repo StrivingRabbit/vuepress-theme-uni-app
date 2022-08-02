@@ -98,12 +98,13 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
 
   .dropdown-language
     user-select none
-    cursor pointer
     position absolute
     right 12.5rem
     @media (max-width: 1200px)
       &
         right 4.5rem
+    & div:nth-child(1)
+      cursor pointer
     svg
       margin-left 2px
     .dropdown-content
@@ -119,7 +120,15 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
       z-index 220
       line-height 40px
       a
+        display: inline-block;
+        width: 100%;
+        cursor pointer
         color inherit
+        font-weight inherit
+        &.clickDisabled
+          opacity .6
+          cursor default
+          pointer-events none
 
 @media (max-width: $MQMobile)
   $navbar-a-color = #222;

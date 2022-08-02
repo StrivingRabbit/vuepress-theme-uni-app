@@ -59,7 +59,7 @@ import Footer from '@theme/components/Footer.vue';
 import SiderBarBottom from '../components/SiderBarBottom.vue';
 import Toc from '../components/Toc';
 import TocTop from '../components/Toc-top';
-import { resolveSidebarItems, forbidScroll, BaiduStat } from '../util'
+import { resolveSidebarItems, forbidScroll } from '../util'
 import navProvider from '../mixin/navProvider';
 import toc from '../mixin/toc';
 import { LOCALE_ZH_HANS } from '@theme-config/i18n';
@@ -136,7 +136,6 @@ export default {
     }
   },
   mounted () {
-    BaiduStat()
     this.$router.afterEach(() => {
       this.isSidebarOpen = false
     })

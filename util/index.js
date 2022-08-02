@@ -282,13 +282,6 @@ export const os = {
   }
 };
 
-export const BaiduStat = () => {
-  const hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?fe3b7a223fc08c795f0f4b6350703e6f";
-  const s = document.getElementsByTagName("script")[0];
-  s.parentNode.insertBefore(hm, s);
-}
-
 export function debounce(fn, delay) {
   let timeout
   const newFn = function () {

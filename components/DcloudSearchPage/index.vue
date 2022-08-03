@@ -227,7 +227,10 @@
 
 		mounted() {
 			window.addEventListener('keydown', this.onKeyDown);
-			window.addEventListener('resize', this.initSnippetLength);
+			window.addEventListener('resize', () => {
+				this.initSnippetLength();
+				this.initResultWrapHeight();
+			});
 			if (this.$route.query.s) {
 				this.searchValue = this.$route.query.s;
 				this.onSearchOpen();
@@ -283,23 +286,28 @@
 
 		methods: {
 			initResultWrapHeight() {
+				if (!this.$el) return;
+
 				const pageHeight = this.$el.clientHeight;
-				const searchNavbarHeight = document.querySelector('.search-navbar').clientHeight;
-				const resultNumberHeight = (
-					document.querySelector('.result-number') || { clientHeight: 47 }
-				).clientHeight;
-				const algoliaLogoHeight = (document.querySelector('.algolia-logo') || { clientHeight: 49 })
-					.clientHeight;
+				const searchNavbar = document.querySelector('.search-navbar');
+				const resultNumber = document.querySelector('.result-number');
+				const alogliaLogo = document.querySelector('.algolia-logo');
+				const resultWrap = document.querySelector('.result-wrap');
+
+				const searchNavbarHeight = (searchNavbar || { clientHeight: 209 }).clientHeight;
+				const resultNumberHeight = (resultNumber || { clientHeight: 47 }).clientHeight;
+				const algoliaLogoHeight = (alogliaLogo || { clientHeight: 49 }).clientHeight;
 				const searchPagination = 36;
 
-				document.querySelector('.result-wrap').style.minHeight =
-					pageHeight -
-					searchNavbarHeight -
-					resultNumberHeight -
-					algoliaLogoHeight -
-					searchPagination -
-					20 +
-					'px';
+				if (resultWrap)
+					resultWrap.style.minHeight =
+						pageHeight -
+						searchNavbarHeight -
+						resultNumberHeight -
+						algoliaLogoHeight -
+						searchPagination -
+						20 +
+						'px';
 			},
 
 			resetSearchPage() {
@@ -488,6 +496,6 @@
 	};
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 	@import './index'
 </style>

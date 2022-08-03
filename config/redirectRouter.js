@@ -93,7 +93,7 @@ const routerMap = {
 
 export default ({ fullPath, path, hash }) => {
   fullPath = decodeURIComponent(fullPath)
-  const matchFullPath = routerMap[fullPath.replace('?id=', '#')];
+  const matchFullPath = routerMap[fullPath.replace('?id=', '#').replace('.html', '')];
   if (matchFullPath) {
     return {
       path: matchFullPath,

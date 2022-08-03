@@ -14,7 +14,7 @@ function simplifySlugText(text) {
   return text;
 }
 
-const tabs = ['/component/', '/api/', '/']
+const tabs = ['/component/', '/api/', '/tutorial/', '/']
 
 module.exports = {
   isExternal,

@@ -1,1 +1,3 @@
-* [国际化专题](/tutorial/i18n.md)
+- [国际化专题](/tutorial/i18n.md)
+- [Internationalization](/tutorial/i18n.md)
+- [nvue-css](/tutorial/nvue-css.md)

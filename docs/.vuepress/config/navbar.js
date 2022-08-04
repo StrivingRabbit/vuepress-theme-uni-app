@@ -157,11 +157,21 @@ export const navbarLanguage = {
   items: [
     {
       text: '简体中文',
-      link: 'https://uniapp.dcloud.net.cn/'
+      link: 'https://uniapp.dcloud.net.cn/',
+      click(disabled) {
+        if (!disabled && window.__UNI_DOCS_ZH_KEY__) {
+          localStorage.setItem(window.__UNI_DOCS_ZH_KEY__, 'zh')
+        }
+      }
     },
     {
       text: 'English',
-      link: 'https://en.uniapp.dcloud.io/'
+      link: 'https://en.uniapp.dcloud.io/',
+      click(disabled) {
+        if (!disabled && window.__UNI_DOCS_ZH_KEY__) {
+          localStorage.setItem(window.__UNI_DOCS_ZH_KEY__, 'en')
+        }
+      }
     }
   ]
 }

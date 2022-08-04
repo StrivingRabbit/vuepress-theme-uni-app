@@ -39,12 +39,16 @@
           </svg>
         </div>
         <div v-if="showLanguage" class="dropdown-content">
-          <template v-for="(item,index) in navbarLanguage">
+          <div
+            v-for="(item,index) in navbarLanguage" 
+            :key="item.link" 
+            @click="() => { typeof item.click === 'function' && item.click(index === navConfig.languageIndex) }"
+          >
             <a :href="index === navConfig.languageIndex ? 'javascript:;' : item.link" target="_self" :key="item.text"
               :class="[index === navConfig.languageIndex ? 'clickDisabled' : '']">
               {{item.text}}
             </a>
-          </template>
+          </div>
         </div>
       </div>
       

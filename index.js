@@ -1,13 +1,6 @@
-const path = require('path');
-
 module.exports = themeConfig => {
 	const config = {
 		extend: '@vuepress/theme-default',
-		alias() {
-			return {
-				'@theme-config': path.resolve(__dirname.split('node_modules')[0], 'docs/.vuepress/config')
-			}
-		},
 		plugins: [
 			['container', {
 				type: 'preview',

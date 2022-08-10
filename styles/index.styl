@@ -1,4 +1,4 @@
-@import "./custom-block"
+@import './custom-block'
 
 .custom-page-class
 	position relative
@@ -79,10 +79,10 @@ body.forbid_scroll
 main.page
 	padding-bottom 0px
 	padding-right 0px
+
 	@media (min-width $vuepress-display-min-width)
 		&
 			padding-right $vuepress-toc-width
-
 
 .vuepress-toc
 	@media (min-width $vuepress-display-min-width)
@@ -93,51 +93,52 @@ main.page
 	@media (min-width $vuepress-display-min-width)
 		&
 			display none !important
+
 	@media (max-width $vuepress-display-min-width)
 		&
 			display block !important
 
 @media (min-width 2000px)
 	$vuepress-toc-width = 20rem
+
 	.vuepress-toc
-		width: $vuepress-toc-width !important
+		width $vuepress-toc-width !important
+
 	main.page
 		padding-right $vuepress-toc-width
 
 @media (max-width $MQMobile)
 	.table-of-contents
-		margin-top $navbarHeight - 2rem !important
+		margin-top: $navbarHeight - 2rem !important
 
 {$contentClass}:not(.custom)
 	> *:first-child
 		margin-top 0
 
-/* 		@media (max-width $MQMobile)
-			&
-				margin-top 2rem */
+/* @media (max-width $MQMobile)
+&
+	margin-top 2rem */
+img
+	max-width 100% !important
 
-	img
-		max-width 100% !important
+table
+	position relative
 
-	table
-		position relative
-
-	ul > li, p > a
-		word-break break-all
+ul > li, p > a
+	word-break break-all
 
 h1, h2, h3, h4, h5, h6
 	{$contentClass}:not(.custom) > &
 		margin-top 1rem - $navbarHeight
-		padding-top: $navbarHeight
+		padding-top $navbarHeight
 
 		&:first-child
 			margin-top 3rem - $navbarHeight
 			padding-top: ($navbarHeight - 3rem)
 
-/* 			@media (max-width $MQMobile)
-				&
-					margin-top 3rem */
-
+/* @media (max-width $MQMobile)
+&
+	margin-top 3rem */
 @media (min-width $MQMobile)
 	.nav-dropdown
 		z-index 1
@@ -165,3 +166,6 @@ h1, h2, h3, h4, h5, h6
 
 .theme-default-content code
 	color #e96900
+
+div[class][class*='language-']::before
+	right 80px

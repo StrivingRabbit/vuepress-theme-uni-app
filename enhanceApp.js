@@ -1,5 +1,6 @@
 import getRedirectRouter from '@theme-config/redirectRouter';
 import VueRouter from 'vue-router'
+import { isServer } from './util';
 
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location, resolve, reject) {
@@ -42,7 +43,8 @@ function isRouteExists(router, path) {
 function handlePath(router, to) {
   // 重定向路由表
   const redirectRouter = getRedirectRouter(to)
-  if (redirectRouter) return redirectRouter
+  if (redirectRouter && !isServer)
+    return location.replace(redirectRouter.path + (redirectRouter.hash || ''))
 
   const id = to.query.id
   const hash = decodeURIComponent(id || to.hash).toLowerCase()

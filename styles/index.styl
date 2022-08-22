@@ -1,6 +1,7 @@
 @import './custom-block'
 
 .custom-page-class
+	word-break break-word
 	position relative
 
 	/* 首页几个logo的排版 */
@@ -143,8 +144,15 @@ h1, h2, h3, h4, h5, h6
 	.nav-dropdown
 		z-index 1
 
-.sidebar .sidebar-group.is-sub-group>.sidebar-heading:not(.clickable)
-	opacity 1
+.sidebar
+	.sidebar-group.is-sub-group>.sidebar-heading
+		word-break break-word
+
+		&:not(.clickable)
+			opacity 1
+
+	.sidebar-link
+		word-break break-word
 
 .uni-loading
 	width 20px

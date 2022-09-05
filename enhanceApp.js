@@ -47,27 +47,32 @@ function handlePath(router, to) {
     return location.replace(redirectRouter.path + (redirectRouter.hash || ''))
 
   const id = to.query.id
-  const hash = decodeURIComponent(id || to.hash).toLowerCase()
+  delete to.query.id
+  let hash = decodeURIComponent(id || to.hash).toLowerCase()
+  if (hash.indexOf('#') !== 0) hash = '#' + hash
   const redirectPath = handleRedirectForCleanUrls(router, to)
   if (id) {
     return {
       path: redirectPath,
       replace: true,
-      hash
+      hash,
+      query: to.query
     }
   }
   if (redirectPath !== to.path) {
     return {
       path: redirectPath,
       replace: true,
-      hash
+      hash,
+      query: to.query
     }
   }
   if (/\bREADME\b/.test(to.path)) {
     return {
       path: to.path.replace(/\bREADME\b/, ''),
       replace: true,
-      hash
+      hash,
+      query: to.query
     }
   }
 }

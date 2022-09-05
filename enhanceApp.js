@@ -83,7 +83,7 @@ export default ({
 
   router.beforeHooks.unshift((to, from, next) => {
     const _next = handlePath(router, to)
-    if (/\.html$/.test(_next.path) && !isServer)
+    if (_next && /\.html$/.test(_next.path) && !isServer)
       return location.replace(_next.path + (_next.hash || ''))
     else
       next(_next)

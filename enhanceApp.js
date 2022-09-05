@@ -82,7 +82,11 @@ export default ({
   const ScrollBehavior = 'instant'
 
   router.beforeHooks.unshift((to, from, next) => {
-    next(handlePath(router, to))
+    const _next = handlePath(router, to)
+    if (/\.html$/.test(_next.path) && !isServer)
+      return location.replace(_next.path + (_next.hash || ''))
+    else
+      next(_next)
   })
 
   router.options.scrollBehavior = function scrollBehavior(to, from, savedPosition) {

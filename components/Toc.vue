@@ -1,22 +1,9 @@
 <template>
-	<Sticker
-		ref="sticker"
-		:class="['vuepress-toc', visible ? '' : 'table-of-contents-sticker']"
-		v-bind="$attrs"
-	>
+	<Sticker ref="sticker" :class="['vuepress-toc', visible ? '' : 'table-of-contents-sticker']" v-bind="$attrs">
 		<h5>{{ onThisPage }}</h5>
-		<div
-			v-for="(item, index) in pageHeaders"
-			ref="chairTocItem"
-			:key="item.slug"
-			class="vuepress-toc-item"
-			:class="[`vuepress-toc-h${item.level}`, { active: activeIndex === index }]"
-		>
-			<a
-				:style="{ paddingLeft: createPaddingLeft(item.level) }"
-				:href="`#${item.slug}`"
-				:title="item.title"
-			>
+		<div v-for="(item, index) in pageHeaders" ref="chairTocItem" :key="item.slug" class="vuepress-toc-item"
+			:class="[`vuepress-toc-h${item.level}`, { active: activeIndex === index }]">
+			<a :style="{ paddingLeft: createPaddingLeft(item.level) }" :href="`#${item.slug}`" :title="item.title">
 				{{ item.title }}
 			</a>
 		</div>
@@ -24,105 +11,105 @@
 </template>
 
 <script>
-	import Sticker from './Sticker.vue';
-	import toc from '../mixin/toc';
-	import tocConfig from '@theme-config/toc';
+import Sticker from './Sticker.vue';
+import toc from '../mixin/toc';
+import tocConfig from '@theme-config/toc';
 
-	const { onThisPage } = tocConfig;
+const { onThisPage } = tocConfig;
 
-	let initTop;
-	// get offset top
-	function getAbsoluteTop(dom) {
-		return dom && dom.getBoundingClientRect
-			? dom.getBoundingClientRect().top +
-					document.body.scrollTop +
-					document.documentElement.scrollTop
-			: 0;
-	}
-	export default {
-		mixins: [toc],
-		components: {
-			Sticker,
+let initTop;
+// get offset top
+function getAbsoluteTop(dom) {
+	return dom && dom.getBoundingClientRect
+		? dom.getBoundingClientRect().top +
+		document.body.scrollTop +
+		document.documentElement.scrollTop
+		: 0;
+}
+export default {
+	mixins: [toc],
+	components: {
+		Sticker,
+	},
+	data() {
+		return {
+			activeIndex: 0,
+			tocConfig,
+			onThisPage,
+		};
+	},
+	watch: {
+		activeIndex() {
+			const items = this.$refs.chairTocItem || [];
+			const dom = items[this.activeIndex];
+			if (!dom) return;
+			const rect = dom.getBoundingClientRect();
+			const wrapperRect = this.$el.getBoundingClientRect();
+			const top = rect.top - wrapperRect.top;
+			if (top < 20) {
+				this.$el.scrollTop = this.$el.scrollTop + top - 20;
+			} else if (top + rect.height > wrapperRect.height) {
+				this.$el.scrollTop += rect.top - (wrapperRect.height - rect.height);
+			}
 		},
-		data() {
-			return {
-				activeIndex: 0,
-				tocConfig,
-				onThisPage,
+		$route() { },
+	},
+	mounted() {
+		// sync visible to parent component
+		const syncVisible = () => {
+			this.$emit('visible-change', this.visible);
+		};
+		syncVisible();
+		this.$watch('visible', syncVisible);
+		// binding event
+		setTimeout(() => this._onScroll(), 1000);
+		this._onScroll = () => this.onScroll();
+		this._onHashChange = () => {
+			const hash = decodeURIComponent(location.hash.substring(1));
+			const index = (this.pageHeaders || []).findIndex(h => h.slug === hash);
+			if (index >= 0) this.activeIndex = index;
+			const dom = hash && document.getElementById(hash);
+			if (dom) window.scrollTo(0, getAbsoluteTop(dom) - 20);
+		};
+		window.addEventListener('scroll', this._onScroll);
+		// window.addEventListener('hashchange', this._onHashChange);
+		const sideBar = document.querySelector('.sidebar');
+		this.$refs.sticker.$el.style.top = sideBar && sideBar.style && sideBar.style.top;
+	},
+	beforeDestroy() {
+		window.removeEventListener('scroll', this._onScroll);
+		window.removeEventListener('hashchange', this._onHashChange);
+	},
+	methods: {
+		onScroll() {
+			if (initTop === undefined) {
+				initTop = getAbsoluteTop(this.$el);
+			}
+			// update position
+			const scrollTop = document.body.scrollTop + document.documentElement.scrollTop;
+			const headings = this.pageHeaders || [];
+			// change active toc with scrolling
+			let i = 0;
+			const addLink = index => {
+				this.activeIndex = index;
 			};
-		},
-		watch: {
-			activeIndex() {
-				const items = this.$refs.chairTocItem || [];
-				const dom = items[this.activeIndex];
-				if (!dom) return;
-				const rect = dom.getBoundingClientRect();
-				const wrapperRect = this.$el.getBoundingClientRect();
-				const top = rect.top - wrapperRect.top;
-				if (top < 20) {
-					this.$el.scrollTop = this.$el.scrollTop + top - 20;
-				} else if (top + rect.height > wrapperRect.height) {
-					this.$el.scrollTop += rect.top - (wrapperRect.height - rect.height);
+			for (; i < headings.length; i++) {
+				const dom = document.getElementById(headings[i].slug);
+				const top = getAbsoluteTop(dom);
+				if (top - 50 < scrollTop) {
+					addLink(i);
+				} else {
+					if (!i) addLink(i);
+					break;
 				}
-			},
-			$route() {},
+			}
 		},
-		mounted() {
-			// sync visible to parent component
-			const syncVisible = () => {
-				this.$emit('visible-change', this.visible);
-			};
-			syncVisible();
-			this.$watch('visible', syncVisible);
-			// binding event
-			setTimeout(() => this._onScroll(), 1000);
-			this._onScroll = () => this.onScroll();
-			this._onHashChange = () => {
-				const hash = decodeURIComponent(location.hash.substring(1));
-				const index = (this.pageHeaders || []).findIndex(h => h.slug === hash);
-				if (index >= 0) this.activeIndex = index;
-				const dom = hash && document.getElementById(hash);
-				if (dom) window.scrollTo(0, getAbsoluteTop(dom) - 20);
-			};
-			window.addEventListener('scroll', this._onScroll);
-			// window.addEventListener('hashchange', this._onHashChange);
-			const sideBar = document.querySelector('.sidebar');
-			this.$refs.sticker.$el.style.top = sideBar && sideBar.style && sideBar.style.top;
+		triggerEvt() {
+			this._onScroll();
+			this._onHashChange();
 		},
-		beforeDestroy() {
-			window.removeEventListener('scroll', this._onScroll);
-			window.removeEventListener('hashchange', this._onHashChange);
-		},
-		methods: {
-			onScroll() {
-				if (initTop === undefined) {
-					initTop = getAbsoluteTop(this.$el);
-				}
-				// update position
-				const scrollTop = document.body.scrollTop + document.documentElement.scrollTop;
-				const headings = this.pageHeaders || [];
-				// change active toc with scrolling
-				let i = 0;
-				const addLink = index => {
-					this.activeIndex = index;
-				};
-				for (; i < headings.length; i++) {
-					const dom = document.getElementById(headings[i].slug);
-					const top = getAbsoluteTop(dom);
-					if (top - 50 < scrollTop) {
-						addLink(i);
-					} else {
-						if (!i) addLink(i);
-						break;
-					}
-				}
-			},
-			triggerEvt() {
-				this._onScroll();
-				this._onHashChange();
-			},
-		},
-	};
+	},
+};
 </script>
 
 <style lang="stylus">
@@ -133,7 +120,7 @@
 	  display none
 	  max-height 89vh
 	  width $vuepress-toc-width
-	  overflow-y auto
+	  overflow-y hidden
 	  // margin-top $navbarHeight
 	  top $navbarHeight
 	  right 0
@@ -172,4 +159,6 @@
 	  /* for i in range(2, 6)
 	    .vuepress-toc-h{i} a
 	      padding-left 1rem * (i - 1) */
+	.vuepress-toc:hover
+		overflow-y auto
 </style>

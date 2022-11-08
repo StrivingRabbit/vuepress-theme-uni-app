@@ -17,15 +17,18 @@
     @focusout="focusoutAction"
   >
     {{ item.text }}
-    <OutboundLink v-if="item.needOutbound !== false && isBlankTarget" />
+    <OutboundLink v-if="item.needOutbound !== false && isBlankTarget" :link="item.text === link ? '' : link" />
   </a>
 </template>
 
 <script>
 import { isExternal, isMailto, isTel, ensureExt } from '../util'
+import OutboundLink from '@theme/components/OutboundLink.vue';
 
 export default {
   name: 'NavLink',
+
+  components: { OutboundLink },
 
   inject: [ 'customNavBar' ],
 

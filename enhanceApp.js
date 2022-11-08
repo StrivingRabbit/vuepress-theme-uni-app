@@ -1,6 +1,7 @@
 import getRedirectRouter from '@theme-config/redirectRouter';
 import VueRouter from 'vue-router'
 import { isServer } from './util';
+import OutboundLink from '@theme/components/OutboundLink.vue';
 
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location, resolve, reject) {
@@ -127,6 +128,8 @@ export default ({
       });
     }
   }
+
+  Vue.component('OutboundLink', OutboundLink)
 }
 
 function getElementPosition(el) {

@@ -1,3 +1,4 @@
+const path = require('path')
 const { slugify } = require('@vuepress/shared-utils')
 const translatePlugin = require('./markdown/translate')
 const headerPlugin = require('./markdown/header')
@@ -43,7 +44,15 @@ const config = {
       indexName: 'zh-uniapp',
       appId: 'PQIR5NL8CZ',
       searchParameters: { hitsPerPage: 50 }
-    }
+    },
+    isDevelopment: process.env.NODE_ENV === 'development',
+    isEn: true
+  },
+  chainWebpack(config, isServer) {
+    config.resolve.alias.set(
+      '@theme-config',
+      path.resolve(process.cwd(), 'docs/.vuepress/config')
+    )
   },
   markdown: {
     slugify(str) {

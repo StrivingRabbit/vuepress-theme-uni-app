@@ -178,7 +178,8 @@ h1, h2, h3, h4, h5, h6
 div[class][class*='language-']::before
 	right 80px
 
-.sidebar
-	overflow hidden
-.sidebar:hover
-	overflow-y auto
+@media (min-width $MQMobile)
+	.sidebar
+		overflow hidden
+	.sidebar:hover
+		overflow-y auto

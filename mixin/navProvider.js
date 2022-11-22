@@ -17,7 +17,7 @@ export default {
 
   created() {
     this.customNavBar.forEach((item, index) => {
-      item.text === this.$page.path.split('/')[1] && (this.navConfig.userNavIndex = index)
+      if (this.$route.path.indexOf(item.link) !== -1 && item.link !== '/') this.navConfig.userNavIndex = index
     })
   },
 
@@ -35,6 +35,10 @@ export default {
 
     customNavBarKeys() {
       return this.customNavBar.map(item => item.text)
+    },
+
+    customNavBarLinks() {
+      return this.customNavBar.map(item => item.link)
     }
   },
 
@@ -49,7 +53,10 @@ export default {
 
   watch: {
     $route(after) {
-      let navbarIndex = this.customNavBarKeys.indexOf((after.fullPath.match(/\/(\w+)+\/*/) || [])[1])
+      let navbarIndex = -1
+      this.customNavBarLinks.forEach((link, index) => {
+        if (after.path.indexOf(link) !== -1) navbarIndex = index
+      })
       navbarIndex === -1 && (navbarIndex = 0)
       this.navConfig.userNavIndex !== navbarIndex && navbarIndex !== -1 && (this.navConfig.userNavIndex = navbarIndex)
     }

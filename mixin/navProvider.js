@@ -11,6 +11,7 @@ export default {
       customNavBar: this.customNavBar,
       changeUserNav: this.changeUserNav,
       customNavBarKeys: this.customNavBarKeys,
+      customNavBarLinks: this.customNavBarLinks,
       navbarLanguage: navbarLanguage.items
     }
   },

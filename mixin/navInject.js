@@ -1,5 +1,5 @@
 export default {
-  inject: ['navConfig', 'customNavBar', 'changeUserNav', 'customNavBarKeys', 'navbarLanguage'],
+  inject: ['navConfig', 'customNavBar', 'changeUserNav', 'customNavBarKeys', 'navbarLanguage', 'customNavBarLinks'],
 
   computed: {
     showSubNavBar() {

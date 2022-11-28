@@ -8,7 +8,7 @@ export function groupBy(values, predicate) {
 
     // We limit each section to show 5 hits maximum.
     // This acts as a frontend alternative to `distinct`.
-    if (acc[key].length < 5) {
+    if (acc[key].length < 20) {
       acc[key].push(item);
     }
 

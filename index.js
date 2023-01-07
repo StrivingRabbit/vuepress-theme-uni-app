@@ -20,7 +20,8 @@ module.exports = themeConfig => {
 					}
 				}
 			}],
-			'@vuepress/back-to-top'
+			'@vuepress/back-to-top',
+			'vuepress-plugin-mermaidjs'
 		]
 	}
 

@@ -12,7 +12,7 @@
 		</template>
 		<div class="contact-item" v-if="currentConfig.codeHosting && currentConfig.codeHosting.length">
 			<img
-				src="https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-uni-app-doc/74cda950-4f2d-11eb-a16f-5b3e54966275.png"
+				src="https://web-assets.dcloud.net.cn/unidoc/zh/git-1.png"
 				width="20"
 				height="20"
 			/>
@@ -28,7 +28,7 @@
 		</div>
 		<div class="contact-item" v-if="currentQQGroup.length">
 			<img
-				src="https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-uni-app-doc/759713d0-4f2d-11eb-a16f-5b3e54966275.png"
+				src="https://web-assets.dcloud.net.cn/unidoc/zh/qq_logo_blue.png"
 				width="20"
 				height="20"
 			/>
@@ -49,7 +49,7 @@
 		</div>
 		<div class="contact-item">
 			<img
-				src="https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-uni-app-doc/77df7d30-4f2d-11eb-bd01-97bc1429a9ff.png"
+				src="https://web-assets.dcloud.net.cn/unidoc/zh/weixin@2x.png"
 				width="20"
 				height="20"
 			/>

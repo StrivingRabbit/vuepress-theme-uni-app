@@ -361,7 +361,7 @@
 				}*/
 				return searchClient(
 					Object.assign({}, this.options, {
-						query: this.searchValue || '',
+						query: `'${this.searchValue}'`,
 						page: this.searchPage,
 						snippetLength: this.snippetLength,
 						searchParameters: {

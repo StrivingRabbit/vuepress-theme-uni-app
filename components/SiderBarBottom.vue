@@ -37,11 +37,11 @@
 				<template v-for="item in currentQQGroup">
 					<div v-if="!item.state" :key="item.number">
 						{{ item.prefix }}：{{ item.number }} &nbsp;
-						<a target="_blank" style="text-decoration: underline" :href="joinQQGroupHref">
+						<a target="_blank" style="text-decoration: underline" :href="item.joinQQGroupHref">
 							点此加入
 						</a>
 					</div>
-					<div v-else :key="item.number">
+					<div v-else :key="item.prefix">
 						{{ item.prefix }}：{{ item.number }}（{{ item.attendance || 2000 }}人已满）
 					</div>
 				</template>

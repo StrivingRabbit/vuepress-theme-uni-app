@@ -13,37 +13,9 @@
 <script>
 	import { isServer } from '../util';
 
-	const msgs = [
-		`There's nothing here.`,
-		`How did we get here?`,
-		`That's a Four-Oh-Four.`,
-		`Looks like we've got some broken links.`,
-	];
-
 	export default {
-		methods: {
-			getMsg() {
-				return msgs[Math.floor(Math.random() * msgs.length)];
-			},
-		},
 		created() {
 			if (isServer) return;
-			const xhr = new XMLHttpRequest();
-			xhr.open('post', 'https://b1ecec17-5c3f-4de9-8b5b-ab739a9a47d5.bspapp.com/unidocs-zh-stat');
-			xhr.setRequestHeader('content-type', 'application/json;charset=utf-8');
-			xhr.send(
-				JSON.stringify({
-					params: {
-						fullPath: this.$route.fullPath,
-						hash: this.$route.hash,
-						path: this.$route.path,
-						params: this.$route.params,
-						query: this.$route.query,
-						local: this.$lang,
-					},
-				})
-			);
-
 			this.$router.push('/');
 		},
 	};

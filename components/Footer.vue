@@ -9,6 +9,18 @@
 			</div>
 		</div>
 		<div class="hbLogo"></div>
+		<div class="introduce">
+			<template v-for="col in about">
+				<div class="introduce-item">
+					<span class="introduce-title">{{ col.title }}：</span>
+					<template v-for="(item, index) in col.content">
+						<a class="navItemDetail" :key="item.url" :href="item.url" target="_blank">
+							{{ item.subTitle }}
+						</a>
+					</template>
+				</div>
+			</template>
+		</div>
 		<div v-if="$lang === LOCALE_ZH_HANS">
 			<div class="companyBox">
 				<span class="companyInfo">DCloud 即数字天堂（北京）网络技术有限公司是</span>
@@ -42,7 +54,7 @@
 <script>
 	import footerConfig from '@theme-config/footer';
 	import { LOCALE_ZH_HANS } from '@theme-config/i18n';
-	const { footNavList, aboutusList, domainImg, beian } = footerConfig;
+	const { footNavList, aboutusList, aboutus, concatus, domainImg, beian } = footerConfig;
 
 	export default {
 		components: {
@@ -85,10 +97,11 @@
 		data: () => ({
 			footNavList: Object.freeze(footNavList),
 			aboutusList: Object.freeze(aboutusList),
+			about: Object.freeze([aboutus, concatus]),
 			domain: '',
 			domainImg,
 			beian,
-			LOCALE_ZH_HANS
+			LOCALE_ZH_HANS,
 		}),
 		mounted() {
 			if (document.domain === 'uniapp.dcloud.net.cn') {

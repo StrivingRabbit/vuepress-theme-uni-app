@@ -29,7 +29,8 @@
   ],
   "scripts": {
     "build": "vuepress build docs",
-    "dev": "vuepress dev docs"
+    "dev": "vuepress dev docs",
+    "postpublish": "node ./script/postpublish.js"
   },
   "dependencies": {
     "@vuepress/plugin-back-to-top": "^1.9.5",

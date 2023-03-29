@@ -21,7 +21,8 @@ module.exports = themeConfig => {
 				}
 			}],
 			'@vuepress/back-to-top',
-			'vuepress-plugin-mermaidjs'
+			'vuepress-plugin-mermaidjs',
+			'vuepress-plugin-zooming',
 		]
 	}
 

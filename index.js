@@ -22,7 +22,12 @@ module.exports = themeConfig => {
 			}],
 			'@vuepress/back-to-top',
 			'vuepress-plugin-mermaidjs',
-			'vuepress-plugin-zooming',
+			['vuepress-plugin-zooming', {
+				selector: '.theme-default-content img.zooming',
+				options: {
+					scaleBase: 0.8
+				}
+			}]
 		]
 	}
 

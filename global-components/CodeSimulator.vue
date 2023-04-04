@@ -102,7 +102,7 @@ export default {
 <style lang="stylus" scoped>
 .page-runtime {
 	display: flex;
-	height: 667px;
+	max-height: 667px;
 	border: 1px #eee solid;
 	margin-top: 16px;
 }
@@ -180,4 +180,30 @@ export default {
 /* .page-runtime pre::-webkit-scrollbar {
 	display: none
 } */
+::-webkit-scrollbar {
+	width: 8px !important;
+	height: 8px !important;
+	background: transparent;
+	filter: invert();
+}
+::-webkit-scrollbar:hover {
+	background: rgba(128, 128, 128, 0.2);
+}
+::-webkit-scrollbar-thumb {
+	border: 1px solid rgba(255, 255, 255, 0.4) !important;
+	background-color: rgba(0, 0, 0, 0.4) !important;
+	z-index: 2147483647;
+	-webkit-border-radius: 12px;
+	background-clip: content-box;
+}
+::-webkit-scrollbar-corner {
+	background: rgba(255, 255, 255, 0.3);
+	border: 1px solid transparent;
+}
+::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(0, 0, 0, 0.8) !important;
+}
+::-webkit-scrollbar-thumb:active {
+	background-color: rgba(0, 0, 0, 0.6) !important;
+}
 </style>

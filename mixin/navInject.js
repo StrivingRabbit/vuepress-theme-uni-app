@@ -10,7 +10,7 @@ export default {
     },
     subNavBarText() {
       const curNavBar = this.customNavBar[this.navConfig.userNavIndex]
-      const curLink = (this.$page.path.match(/\/(\w+)+\/*/) || [])[1]
+      const curLink = (this.$page.path.match(/\/([^\/]+)\/([^\/]+)/) || [])[1]
       const item = curNavBar.items ? curNavBar.items.filter(
         item => item.type === 'link' && item.link.indexOf(curLink) !== -1
       )[0] : curNavBar

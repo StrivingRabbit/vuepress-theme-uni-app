@@ -11,7 +11,7 @@
 		<div class="hbLogo"></div>
 		<div class="introduce">
 			<template v-for="col in about">
-				<div class="introduce-item">
+				<div class="introduce-item" :key="col.title">
 					<span class="introduce-title">{{ col.title }}：</span>
 					<template v-for="(item, index) in col.content">
 						<a class="navItemDetail" :key="item.url" :href="item.url" target="_blank">

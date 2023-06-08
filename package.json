@@ -30,6 +30,9 @@
   "scripts": {
     "build": "vuepress build docs",
     "dev": "vuepress dev docs",
+    "publish:patch": "npm version patch && npm publish",
+    "publish:minor": "npm version minor && npm publish",
+    "publish:major": "npm version major  && npm publish",
     "postpublish": "cnpm sync vuepress-theme-uni-app-test"
   },
   "dependencies": {

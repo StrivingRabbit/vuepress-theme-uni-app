@@ -29,9 +29,8 @@ export function removeHighlightTags(hit) {
 
   const { value } =
     (internalDocSearchHit.__docsearch_parent
-      ? internalDocSearchHit.__docsearch_parent?._highlightResult?.hierarchy
-        ?.lvl0
-      : hit._highlightResult?.hierarchy?.lvl0) || {};
+      ? ((internalDocSearchHit.__docsearch_parent._highlightResult || {}).hierarchy || {}).lvl0
+      : ((hit._highlightResult || {}).hierarchy || {}).lvl0) || {};
 
   return value && regexHasHighlightTags.test(value)
     ? value.replace(regexHighlightTags, '')

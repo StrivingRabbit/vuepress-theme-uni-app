@@ -31,7 +31,7 @@
 		const parts = path.split('.');
 
 		return parts.reduce((prev, current) => {
-			if (prev?.[current]) return prev[current];
+			if (prev && prev[current]) return prev[current];
 			return null;
 		}, object);
 	}

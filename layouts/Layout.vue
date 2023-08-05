@@ -181,7 +181,7 @@ export default {
           navLink.classList.remove('router-link-active')
           let href =  navLink.href.split('/')
           href = href[href.length - 2]
-          const path = (this.$route.fullPath.match(/\/(\w+)+\//) || [])[1]
+          const path = (this.$route.fullPath.match(/\/([\w-]+)+\//) || [])[1]
           if (path) {
             if (path === href) {
               navLink.classList.add('router-link-active')

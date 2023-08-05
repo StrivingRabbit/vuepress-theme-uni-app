@@ -155,7 +155,7 @@ export default {
     height 40px
     line-height 40px
     min-width 24px
-    padding 0 2vw
+    padding 0 1.6vw
     background-color #fff
     border-radius 4px
     transition background .3s

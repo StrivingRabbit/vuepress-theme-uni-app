@@ -77,6 +77,16 @@ export default {
     this.$options.components.SidebarLinks = require('@theme/components/SidebarLinks.vue').default
   },
 
+  mounted () {
+    // ensure active link is visible
+    this.$nextTick(() => {
+      const activeLink = this.$el.querySelector('.sidebar-heading.active')
+      if (activeLink) {
+        activeLink.scrollIntoView({ block: "center" })
+      }
+    })
+  },
+
   methods: { isActive }
 }
 </script>

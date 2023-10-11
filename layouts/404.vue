@@ -16,7 +16,7 @@
 	export default {
 		created() {
 			if (isServer) return;
-			this.$router.push('/');
+			this.$router.replace('/');
 		},
 	};
 </script>

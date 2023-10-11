@@ -40,8 +40,8 @@
         </div>
         <div v-if="showLanguage" class="dropdown-content">
           <div
-            v-for="(item,index) in navbarLanguage" 
-            :key="item.link" 
+            v-for="(item,index) in navbarLanguage"
+            :key="item.link"
             @click="() => { typeof item.click === 'function' && item.click(index === navConfig.languageIndex) }"
           >
             <a :href="index === navConfig.languageIndex ? 'javascript:;' : item.link" target="_self" :key="item.text"
@@ -51,7 +51,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="links" :style="SearchBoxStyle">
         <!-- <a class="switch-version" href="javascript:void(0)">回到旧版</a> -->
         <DcloudSearchPage v-if="isAlgoliaSearch" ref="dcloudSearchPage" :options="algolia" />
@@ -240,11 +240,6 @@ export default {
     toggleMobilePanel () {
       this.showMobilePanel = !this.showMobilePanel
       forbidScroll(this.showMobilePanel)
-    },
-    switchVersion () {
-      document.cookie = encodeURIComponent('__old_version') + "=__old_version; path=/"
-      // document.cookie = encodeURIComponent('__new_version') + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"
-      location.replace(location.origin + '?v=' + Date.now())
     },
     switchLanguage (e) {
       e.stopPropagation()

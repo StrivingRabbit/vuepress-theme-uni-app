@@ -42,14 +42,14 @@ export default {
     {
       "number": "641753405",
       "state": 1,
-		attendance: 1000,
+      attendance: 1000,
       "prefix": "群4"
     },
-	 {
-	   "number": "806429316",
-	   "state": 0,
-	   "prefix": "群5"
-	 }
+    {
+      "number": "806429316",
+      "state": 0,
+      "prefix": "群5"
+    }
   ],
 	joinQQGroupHref: 'https://qm.qq.com/cgi-bin/qm/qr?k=ez84UYIZgPKpTvrXD8GINUr62u8CF96x&jump_from=webapi'
 }

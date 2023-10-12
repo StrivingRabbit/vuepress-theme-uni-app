@@ -22,6 +22,10 @@
 					/>
 					<span class="DocSearch-Hit-path" v-html="hierarchyLvl1Html" />
 				</div>
+
+				<span v-if="item.tag && item.tag !== 'uniCloud'" class="DocSearch-Hit-source_tag">
+					{{ item.tag }}
+				</span>
 			</div>
 		</a>
 	</li>
@@ -81,6 +85,15 @@
 	};
 </script>
 <style lang="stylus">
+  .DocSearch-Hit-source_tag {
+    background-color: #f0f0f0;
+    font-size: 12px;
+    padding: 2px 4px;
+    color: #999;
+    border-radius: 3px;
+    margin-right: 5px;
+    font-weight: normal;
+  }
 	.DocSearch-Hit
 	  border-radius 0px
 	  display flex

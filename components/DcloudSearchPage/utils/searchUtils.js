@@ -11,7 +11,6 @@ export function groupBy(values, predicate) {
     if (acc[key].length < 5) {
       acc[key].push(item);
     }
-
     return acc;
   }, {});
 }
@@ -30,11 +29,14 @@ export function removeHighlightTags(hit) {
   const { value } =
     (internalDocSearchHit.__docsearch_parent
       ? ((internalDocSearchHit.__docsearch_parent._highlightResult || {}).hierarchy || {}).lvl0
-      : ((hit._highlightResult || {}).hierarchy || {}).lvl0) || {};
+        :((hit._highlightResult || {}).hierarchy || {}).lvl0) || {};
 
-  return value && regexHasHighlightTags.test(value)
+  let removeHighLightValue =  value && regexHasHighlightTags.test(value)
     ? value.replace(regexHighlightTags, '')
     : value;
+  // if (internalDocSearchHit.tag) removeHighLightValue = `${removeHighLightValue} ${internalDocSearchHit.tag}`
+  return removeHighLightValue
+  // return internalDocSearchHit.tag ? internalDocSearchHit.tag : removeHighLightValue
 }
 
 export function isEditingContent(event) {

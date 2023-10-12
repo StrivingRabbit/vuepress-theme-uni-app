@@ -1,9 +1,6 @@
 <template>
 	<section class="DocSearch-Hits">
 		<div class="DocSearch-Hit-source">
-			<span v-if="tag" class="DocSearch-Hit-source_tag">
-				{{ tag }}
-			</span>
 			{{ title }}
 		</div>
 
@@ -65,15 +62,5 @@
 	  color: $accentColor;
 		font-size 1em;
 		padding 15px 4px 15px
-	}
-
-	.DocSearch-Hit-source_tag {
-		background-color: #f0f0f0;
-		font-size: 12px;
-		padding: 2px 4px;
-		color: #999;
-		border-radius: 3px;
-		margin-right: 5px;
-		font-weight: normal;
 	}
 </style>

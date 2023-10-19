@@ -3,7 +3,6 @@
 		<div
 			v-for="item in showHeaders"
 			ref="chairTocItem"
-			:key="item.slug"
 			class="vuepress-toc-item-top"
 			:class="[`vuepress-toc-h${item.level}`]"
 		>

@@ -1,7 +1,8 @@
 <template>
 	<Sticker ref="sticker" :class="['vuepress-toc', visible ? '' : 'table-of-contents-sticker']" v-bind="$attrs">
 		<h5>{{ onThisPage }}</h5>
-		<div v-for="(item, index) in pageHeaders" ref="chairTocItem" :key="item.slug" class="vuepress-toc-item"
+		<!-- :key="item.slug" -->
+		<div v-for="(item, index) in pageHeaders" ref="chairTocItem" class="vuepress-toc-item"
 			:class="[`vuepress-toc-h${item.level}`, { active: activeIndex === index }]">
 			<a :style="{ paddingLeft: createPaddingLeft(item.level) }" :href="`#${item.slug}`" :title="item.title">
 				{{ item.title }}

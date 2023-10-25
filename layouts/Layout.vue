@@ -17,8 +17,10 @@
     />
 
     <Sidebar
+      ref="sidebar"
       :items="sidebarItems"
       @toggle-sidebar="toggleSidebar"
+      @hook:mounted="activeSidebarLinkVisible"
     >
       <template #top>
         <slot name="sidebar-top" />
@@ -176,7 +178,7 @@ export default {
             }
           })
         })
-        
+
         navLinks.forEach((navLink,index) => {
           navLink.classList.remove('router-link-active')
           let href =  navLink.href.split('/')
@@ -195,12 +197,27 @@ export default {
           }
         })
       })
+    },
+    activeSidebarLinkVisible() {
+      this.$nextTick(() => {
+        const sidebarEL = this.$refs.sidebar.$el
+        const activeLink = sidebarEL.querySelector('.sidebar-link.active')
+        if (activeLink) {
+          const sidebarScrollTop = sidebarEL.scrollTop
+          const windowInnerHeight = window.innerHeight
+          const { height, top, bottom } = activeLink.getBoundingClientRect()
+          if ((sidebarScrollTop + 50) > activeLink.offsetTop || (bottom + height) > windowInnerHeight) {
+            activeLink.scrollIntoView({ block: "center" })
+          }
+        }
+      })
     }
   },
   watch: {
     isSidebarOpen: forbidScroll,
     $route() {
       this.renderNavLinkState()
+      this.activeSidebarLinkVisible()
     }
   }
 }

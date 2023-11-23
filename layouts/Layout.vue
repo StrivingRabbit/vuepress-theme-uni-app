@@ -171,6 +171,8 @@ export default {
       this.$nextTick(() => {
         const navs = document.querySelectorAll('nav')
         const navLinks = []
+        const sidebarLinks = Object.keys(this.$themeConfig.sidebar)
+        const matchSidebar = sidebarLinks.filter(i => this.$page.path.includes(i)).sort((a,b) => b.length -a.length)[0]
         navs.forEach(nav => {
           nav.querySelectorAll('a').forEach(navLink => {
             if(navLink.className.indexOf('external') === -1) {
@@ -181,18 +183,30 @@ export default {
 
         navLinks.forEach((navLink,index) => {
           navLink.classList.remove('router-link-active')
-          let href =  navLink.href.split('/')
-          href = href[href.length - 2]
+          const matchWithoutMatchSidebar = sidebarLinks
+            .filter(i => i !== matchSidebar && i !== '/')
+            .find(i => navLink.href.match(i) !== null)
+          // debugger
           const path = (this.$route.fullPath.match(/\/([\w-]+)+\//) || [])[1]
           if (path) {
-            if (path === href) {
+            if (
+              navLink.href.match(matchSidebar) !== null &&
+              (
+                typeof matchWithoutMatchSidebar === 'undefined' ||
+                matchWithoutMatchSidebar.length < matchSidebar.length
+              )
+            ) {
               navLink.classList.add('router-link-active')
             }
+            // if (path === href) {
+            //   navLink.classList.add('router-link-active')
+            // }
           } else {
             // 0 => PC
             // navLinks.length / 2 => mobile
-            if( index === 0 || index === navLinks.length / 2) {
+            if(index === 0 || index === navLinks.length / 2) {
               navLink.classList.add('router-link-active')
+              return
             }
           }
         })

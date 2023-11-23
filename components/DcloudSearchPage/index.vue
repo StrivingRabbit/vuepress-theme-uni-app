@@ -274,7 +274,9 @@
 						})
 						.filter(Boolean)
 						.forEach((item, index) => {
-							if (route.path.indexOf(item) !== -1) {
+							if (route.path.indexOf('uni-app-x') !== -1 && item === 'uni-app x') {
+								this.categoryIndex = index;
+							} else if (route.path.indexOf(item) !== -1) {
 								this.categoryIndex = index;
 							}
 						});

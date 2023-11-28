@@ -354,10 +354,7 @@
 
 			searchByAlgolia() {
 				const { searchParameters = {} } = this.options;
-				const currentCategoryText = this.currentCategory.text
-				const isUniAppX = currentCategoryText === 'uni-app x'
-				let categoryArr = [`${isUniAppX ? 'tag' : 'category'}:${currentCategoryText}`];
-				if (!isUniAppX) categoryArr.push(`tag:-uni-app x`)
+				let categoryArr = [`category:${this.currentCategory.text}`];
 				/*if (this.currentCategory.text === 'uni-app') {
 					categoryArr = [[`category:uni-app`, `category:uniCloud`]];
 				} else {

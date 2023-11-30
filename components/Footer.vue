@@ -23,7 +23,8 @@
 		</div>
 		<div v-if="$lang === LOCALE_ZH_HANS">
 			<div class="companyBox">
-				<span class="companyInfo">DCloud 即数字天堂（北京）网络技术有限公司是</span>
+
+				<span class="companyInfo"><span class="companyInfo-dcloud">DCloud.io</span>&nbsp;数字天堂（北京）网络技术有限公司是</span>
 				<div style="display: inline; margin-left: 5px" class="companyInfo">
 					<a href="//www.w3.org/" target="_blank" class="w3c">W3C</a>
 					成员及

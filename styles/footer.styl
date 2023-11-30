@@ -112,6 +112,15 @@ $html5Color = #fb6f18
 		color #565656 !important
 		font-family SourceHanSansCN-Regular serif
 
+	.companyInfo-dcloud
+		padding-right 10px
+		position relative
+		&::after
+			content '®'
+			position absolute
+			top -2px
+			font-size 10px
+
 	.navItemDetailBox
 		width 100%
 		display flex
@@ -211,7 +220,7 @@ $html5Color = #fb6f18
 			margin-right 20px
 
 @media screen and (min-width $MQMobile)
-	#footNavBox 
+	#footNavBox
 		.navLine
 			// width 80%
 		.footNavItem

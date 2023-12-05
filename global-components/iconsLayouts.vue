@@ -22,8 +22,7 @@ export default {
 		};
 	},
 	created() {
-		let icons = uniicons.glyphs
-		icons.forEach(v=>{
+		uniicons.forEach(v=>{
 			this.iconsList.push({
 				icon: v.unicode,
 				text: v.font_class,
@@ -68,7 +67,7 @@ export default {
 	font-weight normal
 	font-style normal
 	src url('./uniicons.ttf') format('truetype')
-	
+
 .icons-box
 	display flex
 	flex-wrap wrap

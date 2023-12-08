@@ -164,9 +164,7 @@
 	const resolveRoutePathFromUrl = (url, base = '/') =>
 		url
 			// remove url origin
-			.replace(/^(https?:)?\/\/[^/]*/, '')
-			// remove site base
-			.replace(new RegExp(`^${base}`), '/');
+			.replace(/^(https?:)?\/\/[^/]*/, '');
 
 	export default {
 		name: 'DcloudSearchPage',

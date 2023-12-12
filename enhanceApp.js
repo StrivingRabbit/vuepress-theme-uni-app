@@ -41,6 +41,11 @@ function isRouteExists(router, path) {
   return router.options.routes.some(route => route.path.toLowerCase() === pathLower)
 }
 
+function resolveRouterBase(router, redirectPath) {
+  if (router.options.base !== '/') redirectPath = (router.options.base + redirectPath).replace(/\/\//g, '/')
+  return redirectPath
+}
+
 function handlePath(router, to) {
   // 重定向路由表
   const redirectRouter = getRedirectRouter(to)
@@ -50,11 +55,11 @@ function handlePath(router, to) {
   const id = to.query.id
   delete to.query.id
   let hash = decodeURIComponent(id || to.hash).toLowerCase()
-  if (hash.indexOf('#') !== 0) hash = '#' + hash
+  if (hash && hash.indexOf('#') !== 0) hash = '#' + hash
   const redirectPath = handleRedirectForCleanUrls(router, to)
   if (id) {
     return {
-      path: redirectPath,
+      path: resolveRouterBase(router, redirectPath),
       replace: true,
       hash,
       query: to.query
@@ -62,7 +67,7 @@ function handlePath(router, to) {
   }
   if (redirectPath !== to.path) {
     return {
-      path: redirectPath,
+      path: resolveRouterBase(router, redirectPath),
       replace: true,
       hash,
       query: to.query

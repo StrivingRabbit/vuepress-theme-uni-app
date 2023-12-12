@@ -28,8 +28,6 @@
     "index.js"
   ],
   "scripts": {
-    "build": "vuepress build docs",
-    "dev": "vuepress dev docs",
     "publish:patch": "npm version patch && npm publish",
     "publish:minor": "npm version minor && npm publish",
     "publish:major": "npm version major  && npm publish",
@@ -40,13 +38,9 @@
     "@vuepress/theme-default": "^1.8.2",
     "algoliasearch": "^4.13.1",
     "clipboard": "^2.0.11",
-    "vuepress": "^1.9.8",
     "vuepress-plugin-juejin-style-copy": "^1.0.4",
     "vuepress-plugin-mermaidjs": "1.9.1",
-    "vuepress-plugin-zooming": "^1.1.8"
-  },
-  "devDependencies": {
-    "@docsearch/js": "^3.1.0",
-    "@vuepress/types": "^1.9.8"
+    "vuepress-plugin-zooming": "^1.1.8",
+    "vuepress-plugin-named-chunks": "^1.1.4"
   }
 }

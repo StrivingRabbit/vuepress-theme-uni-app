@@ -83,7 +83,7 @@
 			},
 			handleUrl(url) {
 				const len = url.length
-				const lastIndex = len.lastIndexOf('/')
+				const lastIndex = url.lastIndexOf('/')
 				if (lastIndex === len - 1) {
 					return url
 				}

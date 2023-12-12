@@ -1,6 +1,6 @@
 <template>
 	<li :class="li_class">
-		<a :href="item.url">
+		<a :href="handleUrl(item.url)">
 			<div class="DocSearch-Hit-Container">
 				<div
 					class="DocSearch-Hit-content-wrapper"
@@ -81,6 +81,22 @@
 					getPropertyByPath(this.item, attribute)
 				);
 			},
+			handleUrl(url) {
+				const len = url.length
+				const lastIndex = len.lastIndexOf('/')
+				if (lastIndex === len - 1) {
+					return url
+				}
+				const front = url.substring(0, lastIndex + 1)
+				const end = url.substring(lastIndex + 1)
+				if (end.indexOf('.html') > -1) {
+					return url
+				}
+				if (end.indexOf('#') > -1) {
+					return front + end.replace(/([\s\S]+)#([\s\S]+)/, '$1.html#$2')
+				}
+				return `${url}.html`
+			}
 		},
 	};
 </script>

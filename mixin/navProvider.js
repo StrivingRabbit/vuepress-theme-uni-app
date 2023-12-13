@@ -1,8 +1,8 @@
-import { navbar, navbarLanguage } from '@theme-config/navbar';
+import { navbar, navbarLanguage, userNavIndex } from '@theme-config/navbar';
 
 export default {
   data() {
-    return { navConfig: { userNavIndex: 0, languageIndex: navbarLanguage.default } }
+    return { navConfig: { userNavIndex: userNavIndex || 0, languageIndex: navbarLanguage.default } }
   },
 
   provide() {

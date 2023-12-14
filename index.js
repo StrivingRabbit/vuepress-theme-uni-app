@@ -1,4 +1,5 @@
 module.exports = themeConfig => {
+	const klass = 'info'
 	const config = {
 		extend: '@vuepress/theme-default',
 		plugins: [
@@ -20,6 +21,19 @@ module.exports = themeConfig => {
 					}
 				}
 			}],
+			[
+				'container',
+				{
+					type: klass,
+					render(tokens, idx, _options, env) {
+						const token = tokens[idx]
+						const info = token.info.trim().slice(klass.length).trim()
+						if (token.nesting === 1) {
+							return `<div class="custom-block ${klass}"><p class="custom-block-title">${info || 'INFO'}</p>\n`
+						} else return `</div>\n`
+					}
+				}
+			],
 			'@vuepress/back-to-top',
 			'vuepress-plugin-mermaidjs',
 			['vuepress-plugin-zooming', {

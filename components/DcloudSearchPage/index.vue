@@ -352,7 +352,7 @@
 
 			searchByAlgolia() {
 				const { searchParameters = {} } = this.options;
-				let categoryArr = [`category:${this.currentCategory.text}`];
+				let categoryArr = [`category:${this.currentCategory.text}`, 'tag:UTS'];
 				/*if (this.currentCategory.text === 'uni-app') {
 					categoryArr = [[`category:uni-app`, `category:uniCloud`]];
 				} else {

@@ -1,6 +1,9 @@
 <template>
   <div class="theme-container">
     <Content class="theme-default-content" />
+    <PageEdit />
+
+    <slot name="bottom" />
   </div>
 </template>
 

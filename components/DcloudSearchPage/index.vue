@@ -352,12 +352,12 @@
 
 			searchByAlgolia() {
 				const { searchParameters = {} } = this.options;
-				let categoryArr = [`category:${this.currentCategory.text}`, 'tag:UTS'];
-				/*if (this.currentCategory.text === 'uni-app') {
-					categoryArr = [[`category:uni-app`, `category:uniCloud`]];
-				} else {
-					categoryArr = [`category:${this.currentCategory.text}`];
-				}*/
+				let categoryArr = [`category:${this.currentCategory.text}`];
+				if (this.currentCategory.text === 'uni-app') {
+					// category:uni-app OR tag:UTS OR tag:插件
+					categoryArr.push('tag:UTS', 'tag:插件')
+					categoryArr = [categoryArr];
+				}
 				return searchClient(
 					Object.assign({}, this.options, {
 						query: `'${this.searchValue}'`,

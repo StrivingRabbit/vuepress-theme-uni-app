@@ -13,13 +13,13 @@
 			</template>
 			<div class="contact-item" v-else-if="contact.type === 'links' && contact.items && contact.items.length">
 				<img
-					src="https://web-assets.dcloud.net.cn/unidoc/zh/git-1.png"
+					:src="contact.imageUrl"
 					width="20"
 					height="20"
 				/>
 				<div class="contact-smg">
 					<div>
-						代码仓库：
+						{{contact.name}}：
 						<template v-for="(item, index) in contact.items">
 							<a :key="item.url" :href="item.url" target="_blank">{{ item.name }}</a>
 							{{ contact.items.length - index > 1 ? '、' : '' }}

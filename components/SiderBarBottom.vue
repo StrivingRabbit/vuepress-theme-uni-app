@@ -1,31 +1,33 @@
 <template>
 	<div class="contact-box">
-		<template v-if="currentConfig.contactItems && currentConfig.contactItems.length">
-			<template v-for="item in currentConfig.contactItems">
-				<a :key="item.name" :href="item.url" target="_blank" class="contact-item">
-					<img :src="item.imageUrl" width="20" height="20" />
-					<div class="contact-smg">
-						<div>{{ item.name }}</div>
-					</div>
-				</a>
+		<template v-for="contact in currentConfig.contacts">
+			<template v-if="contact.type === 'link' && contact.items && contact.items.length">
+				<template v-for="item in contact.items">
+					<a :key="item.name" :href="item.url" target="_blank" class="contact-item">
+						<img :src="item.imageUrl" width="20" height="20" />
+						<div class="contact-smg">
+							<div>{{ item.name }}</div>
+						</div>
+					</a>
+				</template>
 			</template>
-		</template>
-		<div class="contact-item" v-if="currentConfig.codeHosting && currentConfig.codeHosting.length">
-			<img
-				src="https://web-assets.dcloud.net.cn/unidoc/zh/git-1.png"
-				width="20"
-				height="20"
-			/>
-			<div class="contact-smg">
-				<div>
-					代码仓库：
-					<template v-for="(item, index) in currentConfig.codeHosting">
-						<a :key="item.url" :href="item.url" target="_blank">{{ item.name }}</a>
-						{{ currentConfig.codeHosting.length - index > 1 ? '、' : '' }}
-					</template>
+			<div class="contact-item" v-else-if="contact.type === 'links' && contact.items && contact.items.length">
+				<img
+					src="https://web-assets.dcloud.net.cn/unidoc/zh/git-1.png"
+					width="20"
+					height="20"
+				/>
+				<div class="contact-smg">
+					<div>
+						代码仓库：
+						<template v-for="(item, index) in contact.items">
+							<a :key="item.url" :href="item.url" target="_blank">{{ item.name }}</a>
+							{{ contact.items.length - index > 1 ? '、' : '' }}
+						</template>
+					</div>
 				</div>
 			</div>
-		</div>
+		</template>
 		<div class="contact-item" v-if="currentQQGroup.length">
 			<img
 				src="https://web-assets.dcloud.net.cn/unidoc/zh/qq_logo_blue.png"

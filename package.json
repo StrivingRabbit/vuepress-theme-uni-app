@@ -41,6 +41,7 @@
     "vuepress-plugin-juejin-style-copy": "^1.0.4",
     "vuepress-plugin-mermaidjs": "1.9.1",
     "vuepress-plugin-zooming": "^1.1.8",
-    "vuepress-plugin-named-chunks": "^1.1.4"
+    "vuepress-plugin-named-chunks": "^1.1.4",
+    "vuepress-plugin-check-md2": "^1.0.3"
   }
 }

@@ -1,8 +1,51 @@
-module.exports = themeConfig => {
+function getFormattedDate() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const day = now.getDate().toString().padStart(2, '0');
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+
+  const formattedDate = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+
+  return formattedDate;
+}
+
+const nowString = getFormattedDate();
+const changeLoaderOptions = (options, key = 'name') => {
+	if (options && options[key]) options[key] = `${nowString}/${options[key]}`;
+	return options;
+};
+
+module.exports = (themeConfig, ctx, pluginAPI) => {
+	pluginAPI.options.chainWebpack.add('assets-chunk-timestamp', (config, isServer) => {
+		config.output.filename(`${nowString}/${config.output.get('filename')}`); //输出文件名
+		config.module.rule('images').use('url-loader').tap(changeLoaderOptions);
+		config.module.rule('fonts').use('url-loader').tap(changeLoaderOptions);
+		config.module.rule('media').use('url-loader').tap(changeLoaderOptions);
+		config.module.rule('svg').use('file-loader').tap(changeLoaderOptions);
+		if (!isServer && process.env.NODE_ENV !== 'development') {
+			const extract_css_plugin = config.plugin('extract-css');
+			const extract_css_plugin_args = extract_css_plugin.get('args');
+			if (extract_css_plugin_args) {
+				extract_css_plugin.set(
+					'args',
+					extract_css_plugin_args.map(item =>
+						changeLoaderOptions(item, 'filename')
+					)
+				);
+			}
+		}
+	})
+
 	const klass = 'info'
 	const config = {
 		extend: '@vuepress/theme-default',
 		plugins: [
+			'@vuepress/back-to-top',
+			'vuepress-plugin-mermaidjs',
 			['container', {
 				type: 'preview',
 				validate: (params) => {
@@ -21,25 +64,49 @@ module.exports = themeConfig => {
 					}
 				}
 			}],
-			[
-				'container',
-				{
-					type: klass,
-					render(tokens, idx, _options, env) {
-						const token = tokens[idx]
-						const info = token.info.trim().slice(klass.length).trim()
-						if (token.nesting === 1) {
-							return `<div class="custom-block ${klass}"><p class="custom-block-title">${info || 'INFO'}</p>\n`
-						} else return `</div>\n`
-					}
+			['container',{
+				type: klass,
+				render(tokens, idx, _options, env) {
+					const token = tokens[idx]
+					const info = token.info.trim().slice(klass.length).trim()
+					if (token.nesting === 1) {
+						return `<div class="custom-block ${klass}"><p class="custom-block-title">${info || 'INFO'}</p>\n`
+					} else return `</div>\n`
 				}
-			],
-			'@vuepress/back-to-top',
-			'vuepress-plugin-mermaidjs',
+			}],
 			['vuepress-plugin-zooming', {
 				selector: '.theme-default-content img.zooming',
 				options: {
 					scaleBase: 0.8
+				}
+			}],
+			['named-chunks',{
+				layoutChunkName: (layout) => 'layout-' + layout.componentName,
+				pageChunkName: page => {
+					const _context = page._context
+					const pageHeaders = (page.headers || []).map(item => item.title).join(',')
+					if (pageHeaders) {
+						const originDescription = page.frontmatter.description || ''
+						page.frontmatter = {
+							...page.frontmatter,
+							description: `${_context.siteConfig.description ? `${_context.siteConfig.description},` : ''}${pageHeaders}${originDescription ? `,${originDescription}` : ''}`.slice(0, 150),
+						}
+					}
+					const pagePath = page.path.indexOf('.html') === -1 ? page.path + 'index' : page.path
+					const curPath = 'docs/' + pagePath.replace('docs/', '').substring(1).replace(/\.html/g, "")
+					return curPath
+				}
+			}],
+			['check-md2',{
+				filter({errMsg, fileUrl, fullText, matchUrl, col, line}){
+					/**
+					 * errMsg："Should use .md instead of .html"、"File is not found"、"Hash should slugify"、"Hash is not found"
+					 */
+					const hashNotFound = errMsg === 'Hash is not found' && matchUrl.startsWith('#')
+					const replaceHtmlExtToMd = errMsg === "Should use .md instead of .html"
+					const fileNotFound = errMsg === "File is not found"
+					const hashShouldSlugify = errMsg === "Hash should slugify"
+					return hashNotFound || replaceHtmlExtToMd || fileNotFound || hashShouldSlugify
 				}
 			}]
 		]

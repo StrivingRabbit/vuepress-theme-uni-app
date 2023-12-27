@@ -112,5 +112,28 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 		]
 	}
 
+	if (Array.isArray(themeConfig.plugins) && themeConfig.plugins.length) {
+		const vuepressPluginPrefix = 'vuepress-plugin-'
+		const configPluginNames = config.plugins.map(item => typeof item === 'string' ? item : item[0])
+
+		themeConfig.plugins.forEach(item => {
+			const pluginName = typeof item === 'string' ? item : item[0]
+			let configPluginIndex = configPluginNames.indexOf(pluginName)
+			if (configPluginIndex === -1 && pluginName.indexOf(vuepressPluginPrefix) === 0) {
+				configPluginIndex = configPluginNames.indexOf(pluginName.replace(vuepressPluginPrefix, ''))
+			} else if (configPluginIndex === -1) {
+				configPluginIndex = configPluginNames.indexOf(vuepressPluginPrefix + pluginName)
+			}
+			if (configPluginIndex !== -1 && Array.isArray(item)) {
+				const configPlugin = config.plugins[configPluginIndex]
+				if (Array.isArray(configPlugin) && typeof item[1] !== 'undefined') {
+					configPlugin[1] = Object.assign(configPlugin[1], item[1])
+				} else {
+					config.plugins[configPluginIndex] = item
+				}
+			}
+		})
+	}
+
 	return config
 }

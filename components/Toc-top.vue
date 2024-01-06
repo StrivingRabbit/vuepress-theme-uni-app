@@ -1,24 +1,12 @@
 <template>
 	<div class="table-of-contents">
-		<div
-			v-for="item in showHeaders"
-			ref="chairTocItem"
-			class="vuepress-toc-item-top"
-			:class="[`vuepress-toc-h${item.level}`]"
-		>
-			<a
-				:style="{ paddingLeft: createPaddingLeft(item.level) }"
-				:href="`#${item.slug}`"
-				:title="item.title"
-			>
+		<div v-for="item in showHeaders" ref="chairTocItem" class="vuepress-toc-item-top"
+			:class="[`vuepress-toc-h${item.level}`]">
+			<a :style="{ paddingLeft: createPaddingLeft(item.level) }" :href="`#${item.slug}`" :title="item.title">
 				{{ item.title }}
 			</a>
 		</div>
-		<span
-			v-if="pageHeaders && pageHeaders.length > expandHeaderLength"
-			class="expand-button"
-			@click="expandClick"
-		>
+		<span v-if="pageHeaders && pageHeaders.length > expandHeaderLength" class="expand-button" @click="expandClick">
 			{{ !expand ? collapseText : expandText }}
 			<uni-icon :type="!expand ? 'bottom' : 'top'"></uni-icon>
 		</span>
@@ -26,38 +14,38 @@
 </template>
 
 <script>
-	import toc from '../mixin/toc';
-	import tocConfig from '@theme-config/toc';
+import toc from '../mixin/toc';
+import tocConfig from '@theme-config/toc';
 
-	const { expandText, collapseText } = tocConfig;
+const { expandText, collapseText } = tocConfig;
 
-	export default {
-		mixins: [toc],
-		data: () => ({
-			expand: false,
-			expandText,
-			collapseText,
-			expandHeaderLength: 10,
-		}),
-		computed: {
-			showHeaders() {
-				return this.expand
-					? this.pageHeaders
-					: this.pageHeaders.slice(0, this.expandHeaderLength);
-			},
+export default {
+	mixins: [toc],
+	data: () => ({
+		expand: false,
+		expandText,
+		collapseText,
+		expandHeaderLength: 10,
+	}),
+	computed: {
+		showHeaders() {
+			return this.expand
+				? this.pageHeaders
+				: this.pageHeaders.slice(0, this.expandHeaderLength);
 		},
-		methods: {
-			expandClick() {
-				this.expand = !this.expand;
-			},
+	},
+	methods: {
+		expandClick() {
+			this.expand = !this.expand;
 		},
-	};
+	},
+};
 </script>
 
 <style lang="stylus" scoped>
 	$paddingLeft = 1.5rem
 	.table-of-contents
-	  margin 0 auto
+	  margin 145px auto 0
 	  padding 2rem 2.5rem 0 2.5rem
 	  @media (max-width: $MQNarrow)
 	    padding 2rem 2rem 0 2rem

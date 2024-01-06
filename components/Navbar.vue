@@ -1,5 +1,5 @@
 <template>
-  <header class="navbar" :class="{ 'navbar-fixed': fixedNavbar }">
+  <header class="navbar">
     <div class="main-navbar">
       <!-- <SidebarButton @toggle-sidebar="$emit('toggle-sidebar')" /> -->
 

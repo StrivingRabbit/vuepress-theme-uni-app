@@ -1,5 +1,5 @@
 <template>
-  <header class="navbar" :class="{ 'navbar-fixed': fixedNavbar }">
+  <header class="navbar">
     <div class="main-navbar">
       <!-- <SidebarButton @toggle-sidebar="$emit('toggle-sidebar')" /> -->
 
@@ -9,20 +9,20 @@
         <template v-for="(item, index) in customNavBar">
           <div :class="mainNavLinkClass(index)" :key="item.text">
             <MainNavbarLink v-if="item.type" :item='item' />
-            <a v-else href="javascript:;" @click="changeUserNav(index)">{{item.text}}</a>
+            <a v-else href="javascript:;" @click="changeUserNav(index)">{{ item.text }}</a>
           </div>
         </template>
       </div>
 
       <div class="mobile-main-navbar">
         <div class="mobile-links_mobile">
-          <a href="javascript:;" class="mobile-links__btn" @click="toggleMobilePanel">{{mainNavBarText}}</a>
+          <a href="javascript:;" class="mobile-links__btn" @click="toggleMobilePanel">{{ mainNavBarText }}</a>
         </div>
-        <div class="mobile-links__panel" :class="{open: showMobilePanel}">
+        <div class="mobile-links__panel" :class="{ open: showMobilePanel }">
           <template v-for="(item, index) in customNavBar">
             <div :class="mainNavLinkClass(index)" :key="item.text">
               <MainNavbarLink v-if="item.type" :item='item' @click.native="toggleMobilePanel" />
-              <a v-else href="javascript:;" @click="changeUserNav(index),toggleMobilePanel()">{{item.text}}</a>
+              <a v-else href="javascript:;" @click="changeUserNav(index), toggleMobilePanel()">{{ item.text }}</a>
             </div>
           </template>
         </div>
@@ -30,7 +30,7 @@
 
       <div class="dropdown-language" @click="switchLanguage">
         <div style="display: flex;align-items: center;">
-          <span>{{navbarLanguage[navConfig.languageIndex].text}}</span>
+          <span>{{ navbarLanguage[navConfig.languageIndex].text }}</span>
           <svg t="1629441415944" viewBox="0 20 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3713"
             width="16" height="16" class="icon">
             <path
@@ -39,14 +39,11 @@
           </svg>
         </div>
         <div v-if="showLanguage" class="dropdown-content">
-          <div
-            v-for="(item,index) in navbarLanguage"
-            :key="item.link"
-            @click="() => { typeof item.click === 'function' && item.click(index === navConfig.languageIndex) }"
-          >
+          <div v-for="(item, index) in navbarLanguage" :key="item.link"
+            @click="() => { typeof item.click === 'function' && item.click(index === navConfig.languageIndex) }">
             <a :href="index === navConfig.languageIndex ? 'javascript:;' : item.link" target="_self" :key="item.text"
               :class="[index === navConfig.languageIndex ? 'clickDisabled' : '']">
-              {{item.text}}
+              {{ item.text }}
             </a>
           </div>
         </div>
@@ -62,13 +59,13 @@
 
     <div class="sub-navbar">
       <DropdownLink class="custom-main-navbar can-hide" v-if="showSubNavBar && fixedNavbar" :item="{
-          text: customNavBarKeys[navConfig.userNavIndex],
-          items: customNavBar
-        }" />
+        text: customNavBarKeys[navConfig.userNavIndex],
+        items: customNavBar
+      }" />
       <NavLinks class="can-hide" />
       <div class="mobile-sub-navbar">
         <div class="subnavbar__item" @click="$emit('toggle-sidebar')">
-          <a href="javascript:;">{{subNavBarText}}</a>
+          <a href="javascript:;">{{ subNavBarText }}</a>
         </div>
       </div>
     </div>
@@ -90,7 +87,7 @@ import { forbidScroll, os } from '../util';
 export default {
   name: 'Navbar',
 
-  mixins: [ navInject ],
+  mixins: [navInject],
 
   components: {
     SidebarButton,
@@ -103,7 +100,7 @@ export default {
     DropdownLink
   },
 
-  data () {
+  data() {
     return {
       linksWrapMaxWidth: null,
       showMobilePanel: false,
@@ -114,32 +111,32 @@ export default {
   },
 
   computed: {
-    algolia () {
+    algolia() {
       return this.$themeLocaleConfig.algolia || this.$site.themeConfig.algolia || {}
     },
 
-    isAlgoliaSearch () {
+    isAlgoliaSearch() {
       return this.algolia && this.algolia.apiKey && this.algolia.indexName
     },
 
-    SearchBoxStyle () {
+    SearchBoxStyle() {
       const initStyle = {
         top: `${this.SearchBoxTop}px`,
         zIndex: 100
       };
       return this.linksWrapMaxWidth
         ? Object.assign({}, initStyle, {
-            'max-width': this.linksWrapMaxWidth + 'px',
-          })
+          'max-width': this.linksWrapMaxWidth + 'px',
+        })
         : initStyle;
     },
 
-    languageBoxStyle () {
-      return {right:(this.linksWrapMaxWidth + 10) + 'px'}
+    languageBoxStyle() {
+      return { right: (this.linksWrapMaxWidth + 10) + 'px' }
     }
   },
 
-  mounted () {
+  mounted() {
     const MOBILE_DESKTOP_BREAKPOINT = 719 // refer to config.styl
     const NAVBAR_VERTICAL_PADDING = parseInt(css(this.$el, 'paddingLeft')) + parseInt(css(this.$el, 'paddingRight'))
     const handleLinksWrapWidth = () => {
@@ -153,14 +150,14 @@ export default {
     }
     handleLinksWrapWidth()
     window.addEventListener('resize', handleLinksWrapWidth, false)
-    window.addEventListener('click',(e)=> {
+    window.addEventListener('click', (e) => {
       this.showLanguage = false
     })
     this.initNavBar()
   },
 
   methods: {
-    initNavBar () {
+    initNavBar() {
       os.init()
       this.sideBar = document.querySelector('.sidebar')
       this.navbar = document.querySelector('.navbar')
@@ -173,22 +170,22 @@ export default {
       this.mainNavBarHeight = this.mainNavBar.clientHeight
       this.scrollBehavior()
     },
-    scrollBehavior () {
+    scrollBehavior() {
       this.removeWindowScroll()
       this.onWindowScroll()
-      if(this.showSubNavBar) {
+      if (this.showSubNavBar) {
         this.addWindowScroll()
       } else {
         this.fixedNavbar = true
         this.SearchBoxTop = 0
       }
     },
-    addWindowScroll () {
+    addWindowScroll() {
       if (os.pc) {
         window.addEventListener('scroll', this.onWindowScroll, false)
       }
     },
-    removeWindowScroll () {
+    removeWindowScroll() {
       window.removeEventListener('scroll', this.onWindowScroll)
       this.fixedNavbar = false
       this.sideBar && this.sideBar.removeAttribute('style')
@@ -198,7 +195,7 @@ export default {
         this.pageContainer.style.marginTop = this.showSubNavBar || !os.pc ? 'auto' : `${this.navbarHeight}px`
       }
     },
-    onWindowScroll () {
+    onWindowScroll() {
       const scrollTop = !this.showSubNavBar ? 0 : document.documentElement.scrollTop || document.body.scrollTop;
 
       if (!this.fixedNavbar) {
@@ -225,8 +222,8 @@ export default {
         }
       }
     },
-    fixedSideBarHeight () {
-      if(!os.pc) return
+    fixedSideBarHeight() {
+      if (!os.pc) return
       const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
       this.navbarHeight = this.navbar.clientHeight
       this.subNavBarHeight = this.subNavBar.clientHeight
@@ -234,26 +231,26 @@ export default {
       this.sideBar.style.top = `${setHeight + 1}px`
       this.vuepressToc.style.top = `${setHeight + 1}px`
     },
-    mainNavLinkClass (index) {
+    mainNavLinkClass(index) {
       return ['main-navbar-item', this.navConfig.userNavIndex === index ? 'active' : '']
     },
-    toggleMobilePanel () {
+    toggleMobilePanel() {
       this.showMobilePanel = !this.showMobilePanel
       forbidScroll(this.showMobilePanel)
     },
-    switchLanguage (e) {
+    switchLanguage(e) {
       e.stopPropagation()
       this.showLanguage = !this.showLanguage
     }
   },
 
   watch: {
-    fixedNavbar () {
+    fixedNavbar() {
       this.fixedSideBarHeight()
       this.scrollBehavior()
     },
-    'navConfig.userNavIndex' () {
-      this.$nextTick(()=>{
+    'navConfig.userNavIndex'() {
+      this.$nextTick(() => {
         this.fixedSideBarHeight()
         this.scrollBehavior()
       })
@@ -261,7 +258,7 @@ export default {
   }
 }
 
-function css (el, property) {
+function css(el, property) {
   // NOTE: Known bug, will return 'auto' if style value is 'auto'
   const win = el.ownerDocument.defaultView
   // null means not to return pseudo styles
@@ -275,6 +272,7 @@ $navbar-horizontal-padding = 1.5rem
 @import '../styles/navbar'
 
 .navbar
+  position fiexd !important
   // padding $navbar-vertical-padding $navbar-horizontal-padding
   line-height $navbar-main-navbar-height // $navbarHeight - 1.4rem
   a, span, img

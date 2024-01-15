@@ -282,7 +282,7 @@ $navbar-horizontal-padding = 1.5rem
   .title-logo
   .logo
     height $navbar-logo-height // $navbarHeight - 1.4rem
-    min-width $navbar-main-navbar-height // $navbarHeight - 1.4rem
+    // min-width $navbar-main-navbar-height // $navbarHeight - 1.4rem
     margin-right 0.8rem
     vertical-align top
   .site-name

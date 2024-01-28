@@ -51,10 +51,11 @@ export default {
 					h('div',{class:'code-content',style:{display:this.src?'block':'none'}},[
 						h('iframe',{class:'code-iframe',attrs:{
 							src:this.src,
-							frameborder:'0'
+							frameborder:'0',
+							allow:'geolocation https://hellouniappx.dcloud.net.cn'
 						},ref:'codeIframe'})
 					]),
-				
+
 				]
 			)
 		}
@@ -82,7 +83,7 @@ export default {
 							node:vnode
 						})
 					}
-					
+
 				}
 			}
 		})

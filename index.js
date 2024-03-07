@@ -45,7 +45,7 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 		extend: '@vuepress/theme-default',
 		plugins: [
 			'@vuepress/back-to-top',
-			'vuepress-plugin-mermaidjs',
+			'mermaidjs',
 			['container', {
 				type: 'preview',
 				validate: (params) => {
@@ -53,7 +53,7 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 					return params.trim().match(/^preview/);
 				},
 
-				render: (tokens, idx, otps, event) => {
+				render: (tokens, idx, opts, event) => {
 					var m = tokens[idx].info.trim().match(/^preview\s+(.*)$/);
 					if (tokens[idx].nesting === 1) {
 						// opening tag
@@ -66,7 +66,7 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 			}],
 			['container',{
 				type: klass,
-				render(tokens, idx, _options, env) {
+				render(tokens, idx, opts, env) {
 					const token = tokens[idx]
 					const info = token.info.trim().slice(klass.length).trim()
 					if (token.nesting === 1) {
@@ -74,7 +74,7 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 					} else return `</div>\n`
 				}
 			}],
-			['vuepress-plugin-zooming', {
+			['zooming', {
 				selector: '.theme-default-content img.zooming',
 				options: {
 					scaleBase: 0.8
@@ -108,7 +108,8 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 					const hashShouldSlugify = errMsg === "Hash should slugify"
 					return hashNotFound || replaceHtmlExtToMd || fileNotFound || hashShouldSlugify
 				}
-			}]
+			}],
+			'expandable-row'
 		]
 	}
 

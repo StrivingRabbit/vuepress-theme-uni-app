@@ -38,10 +38,11 @@
     "@vuepress/theme-default": "^1.8.2",
     "algoliasearch": "^4.13.1",
     "clipboard": "^2.0.11",
+    "vuepress-plugin-check-md2": "^1.0.4",
+    "vuepress-plugin-expandable-row": "^1.0.0",
     "vuepress-plugin-juejin-style-copy": "^1.0.4",
     "vuepress-plugin-mermaidjs": "1.9.1",
-    "vuepress-plugin-zooming": "^1.1.8",
     "vuepress-plugin-named-chunks": "^1.1.4",
-    "vuepress-plugin-check-md2": "^1.0.4"
+    "vuepress-plugin-zooming": "^1.1.8"
   }
 }

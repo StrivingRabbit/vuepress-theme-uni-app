@@ -2722,10 +2722,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vuepress-plugin-check-md2@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.npmmirror.com/vuepress-plugin-check-md2/-/vuepress-plugin-check-md2-1.0.3.tgz#ad03a77ad7b1d874cf05f29dd3c16e276b188678"
-  integrity sha512-1UdyPI9Jw8Qi3apRVCm9PqxCzJa9SlJNZDNCrgHO+/80VCOT077lq+ScUVshAGapkz5Z1/qRB60uRz2FseJRYQ==
+vuepress-plugin-check-md2@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.npmmirror.com/vuepress-plugin-check-md2/-/vuepress-plugin-check-md2-1.0.4.tgz#b263ceb8cf096771943a4104604ad61769e41401"
+  integrity sha512-Zvm56ylpfUvUMj15BaNF+uaM3NVR3+F/gRJs5gDcErH2yn4DjM7vbWajqeryxmKhBhRV83zBPO/PEzknZ+qaVA==
   dependencies:
     "@sindresorhus/slugify" "^0.8.0"
     chalk "^2.4.2"
@@ -2740,6 +2740,11 @@ vuepress-plugin-container@^2.0.2:
   dependencies:
     "@vuepress/shared-utils" "^1.2.0"
     markdown-it-container "^2.0.0"
+
+vuepress-plugin-expandable-row@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmmirror.com/vuepress-plugin-expandable-row/-/vuepress-plugin-expandable-row-1.0.0.tgz#9197ebb63c0277ae546c18d83dd7734de2438a7f"
+  integrity sha512-255rVtGGeRlTYXxjL4RLbsHfF9Q9fIZH5tIx4BPjYjk5AkULQKE16IekJ+A4mlsH7T944k/2jvxaE1zRy/w5SA==
 
 vuepress-plugin-juejin-style-copy@^1.0.4:
   version "1.0.4"

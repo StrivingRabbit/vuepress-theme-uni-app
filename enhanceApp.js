@@ -128,43 +128,6 @@ export default ({ Vue, options, router, siteData }) => {
 		}
 	};
 
-	if (!isServer) {
-		const toggleChildrenTableClassName = 'toggle-children-table';
-		router.afterEach((to, from) => {
-			setTimeout(
-				() => {
-					if (!mounted) mounted = true;
-					// 表格折叠打开
-					[...document.getElementsByClassName('have-children-tr')].forEach(tr => {
-						const firstTD = tr.firstChild;
-						const firstTDChild = firstTD.firstChild;
-						if (firstTDChild.className !== toggleChildrenTableClassName) {
-							const i = document.createElement('i');
-							i.setAttribute('class', toggleChildrenTableClassName);
-							firstTD.insertBefore(i, firstTDChild);
-						}
-					});
-					[...document.getElementsByClassName(toggleChildrenTableClassName)].forEach(toggleChildrenTable => {
-						if (toggleChildrenTable) {
-							toggleChildrenTable.onclick = function () {
-								const childrenTable = this.parentElement.parentElement.nextElementSibling;
-								const isHidden = childrenTable.getAttribute('hidden');
-								if (isHidden === null) {
-									this.classList.remove('opened')
-									childrenTable.setAttribute('hidden', '');
-								} else {
-									this.classList.add('opened')
-									childrenTable.removeAttribute('hidden');
-								}
-							};
-						}
-					});
-				},
-				mounted ? 0 : 700
-			);
-		});
-	}
-
 	Vue.component('OutboundLink', OutboundLink);
 };
 

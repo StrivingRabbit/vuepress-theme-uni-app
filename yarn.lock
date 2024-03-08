@@ -2741,10 +2741,10 @@ vuepress-plugin-container@^2.0.2:
     "@vuepress/shared-utils" "^1.2.0"
     markdown-it-container "^2.0.0"
 
-vuepress-plugin-expandable-row@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmmirror.com/vuepress-plugin-expandable-row/-/vuepress-plugin-expandable-row-1.0.1.tgz#3a067697dab9c0e8b23c6e3ee480b9a840623911"
-  integrity sha512-zy55fNGSB5YhFQg5gfV5EOP0nwz/ml5e8BykwdqiS889jOoi0zuBNvRrROLGv2Wor675Mv2BuZQCYDaLVMSz5Q==
+vuepress-plugin-expandable-row@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/vuepress-plugin-expandable-row/-/vuepress-plugin-expandable-row-1.0.2.tgz#9a7e3483a89c697eee0bb8e036632d464556c6ed"
+  integrity sha512-iJB+Ky+U/7ByNMAfTLMAVAwJxBW3HTnuhBtiOEWTbgzH9UxSjdVJdkDdYrqgBrOWlOSmfcTjgcaFwoSnwAzsaQ==
 
 vuepress-plugin-juejin-style-copy@^1.0.4:
   version "1.0.4"

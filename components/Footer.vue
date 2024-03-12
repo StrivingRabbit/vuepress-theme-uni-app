@@ -26,8 +26,8 @@
 
 				<span class="companyInfo"><span class="companyInfo-dcloud">DCloud.io</span>&nbsp;数字天堂（北京）网络技术有限公司是</span>
 				<div style="display: inline; margin-left: 5px" class="companyInfo">
-					<a href="//www.w3.org/" target="_blank" class="w3c">W3C</a>
-					成员及
+					<!-- <a href="//www.w3.org/" target="_blank" class="w3c">W3C</a>
+					成员及 -->
 					<a href="//www.html5plus.org/" target="_blank" class="html5">HTML5中国产业联盟</a>
 					发起单位
 				</div>
@@ -43,10 +43,10 @@
 				</a>
 				<div class="domainImgBox">
 					<img class="domainImg" :src="domainImg" />
-					<a class="beian" :href="beian" target="_blank">京公网安备：11010802035340号</a>
+					<a class="beian" :href="beian" target="_blank">京公网安备：11010802035340号&nbsp;</a>
 				</div>
 
-				<span class="anbaoInfo">国家信息安全等级保护三级，证书编号：11010813802-20001</span>
+				<span class="anbaoInfo">&nbsp;&nbsp;国家信息安全等级保护三级，证书编号：11010813802-20001</span>
 			</div>
 		</div>
 	</div>
@@ -105,10 +105,10 @@
 			LOCALE_ZH_HANS,
 		}),
 		mounted() {
-			if (document.domain === 'uniapp.dcloud.net.cn') {
-				this.domain = '京ICP备12046007号-4';
-			} else {
+			if (location.hostname === 'uniapp.dcloud.io') {
 				this.domain = '蒙ICP备14002744号-1';
+			} else {
+				this.domain = '京ICP备12046007号-4';
 			}
 			this.fixBottom();
 		},
@@ -120,7 +120,7 @@
 						document.documentElement.clientHeight -
 						this.$refs.container.getBoundingClientRect().bottom;
 					if (bottom > 0) {
-						const preBottom = parseFloat(this.$refs.container.style.bottom);
+						// const preBottom = parseFloat(this.$refs.container.style.bottom);
 						this.$refs.container.style.position = 'relative';
 						this.$refs.container.style.bottom = `-${bottom}px`;
 					} else {

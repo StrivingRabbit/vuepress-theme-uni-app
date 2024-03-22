@@ -1970,10 +1970,10 @@ use@^3.1.0:
   resolved "https://registry.npmmirror.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
-vuepress-plugin-check-md2@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.npmmirror.com/vuepress-plugin-check-md2/-/vuepress-plugin-check-md2-1.0.4.tgz#b263ceb8cf096771943a4104604ad61769e41401"
-  integrity sha512-Zvm56ylpfUvUMj15BaNF+uaM3NVR3+F/gRJs5gDcErH2yn4DjM7vbWajqeryxmKhBhRV83zBPO/PEzknZ+qaVA==
+vuepress-plugin-check-md2@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.npmmirror.com/vuepress-plugin-check-md2/-/vuepress-plugin-check-md2-1.0.5.tgz#7aa242274d5eaf9dc62b9afdb10bb3562cdced00"
+  integrity sha512-xHAWrNdnqCSkKzBDfClPqw6aYPrQMJP9b1mTJqmvlYX7mVE4x+W2up/qj4zDvgCMZAhtAFW+NpTpMVSThZ9S7g==
   dependencies:
     "@sindresorhus/slugify" "^0.8.0"
     chalk "^2.4.2"

@@ -37,7 +37,7 @@
     "@vuepress/plugin-back-to-top": "^1.9.5",
     "algoliasearch": "^4.13.1",
     "clipboard": "^2.0.11",
-    "vuepress-plugin-check-md2": "^1.0.4",
+    "vuepress-plugin-check-md2": "^1.0.5",
     "vuepress-plugin-expandable-row": "^1.0.4",
     "vuepress-plugin-juejin-style-copy": "^1.0.4",
     "vuepress-plugin-mermaidjs": "1.9.1",

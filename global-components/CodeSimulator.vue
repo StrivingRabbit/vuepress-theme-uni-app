@@ -101,6 +101,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+$pages-tabs-header-height = 44px
 .page-runtime {
 	display: flex;
 	max-height: 667px;
@@ -113,7 +114,7 @@ export default {
 
 }
 .page-snippet-code {
-	height: calc(100% - 50px);
+	height: calc(100% - $pages-tabs-header-height);
 }
 
 .page-tabs {
@@ -122,7 +123,7 @@ export default {
 }
 .pages-tabs-header {
 	display: flex;
-	height: 50px;
+	height: $pages-tabs-header-height;
 	background-color: #222;
 }
 .pages-tabs-header-text {
@@ -135,15 +136,15 @@ export default {
 	border-top-right-radius: 5px;
 	padding: 0 45px;
 	text-align: center;
-	font-size: 18px;
+	font-size: 16px;
 	color: #eee;
 	background:transparent;
 	cursor: pointer;
 	-moz-user-select:none; /*火狐*/
-    -webkit-user-select:none; /*webkit浏览器*/
-    -ms-user-select:none; /*IE10*/
-    -khtml-user-select:none; /*早期浏览器*/
-    user-select:none;
+	-webkit-user-select:none; /*webkit浏览器*/
+	-ms-user-select:none; /*IE10*/
+	-khtml-user-select:none; /*早期浏览器*/
+	user-select:none;
 }
 .pages-tabs--active {
 	// background:#282c34;

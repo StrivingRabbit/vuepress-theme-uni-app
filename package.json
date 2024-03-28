@@ -34,6 +34,7 @@
     "postpublish": "cnpm sync vuepress-theme-uni-app"
   },
   "dependencies": {
+    "@docsearch/css": "^3.6.0",
     "@vuepress/plugin-back-to-top": "^1.9.5",
     "algoliasearch": "^4.13.1",
     "clipboard": "^2.0.11",

@@ -1,5 +1,5 @@
 {
-  "name": "vuepress-theme-uni-app-test",
+  "name": "vuepress-theme-uni-app",
   "version": "1.4.10",
   "description": "uni-app official website theme for vuepress",
   "main": "index.js",
@@ -31,7 +31,7 @@
     "publish:patch": "npm version patch && npm publish",
     "publish:minor": "npm version minor && npm publish",
     "publish:major": "npm version major  && npm publish",
-    "postpublish": "cnpm sync vuepress-theme-uni-app-test"
+    "postpublish": "cnpm sync vuepress-theme-uni-app"
   },
   "dependencies": {
     "@vuepress/plugin-back-to-top": "^1.9.5",
@@ -42,6 +42,9 @@
     "vuepress-plugin-juejin-style-copy": "^1.0.4",
     "vuepress-plugin-mermaidjs": "1.9.1",
     "vuepress-plugin-named-chunks": "^1.1.4",
-    "vuepress-plugin-zooming": "^1.1.8"
+    "vuepress-plugin-zooming": "^1.1.8",
+    "markdown-it-attrs": "^4.1.6",
+    "markdown-it-raw-table": "^1.0.0",
+    "markdown-it-task-lists": "^2.1.1"
   }
 }

@@ -40,6 +40,15 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 		}
 	})
 
+	pluginAPI.options.extendMarkdown.add('vuepress-theme-uni-app-md-plugins', (md) =>{
+		md.use(require('markdown-it-attrs'), {
+			leftDelimiter: '#{',
+			rightDelimiter: '}',
+		});
+		md.use(require('markdown-it-task-lists'));
+		md.use(require('markdown-it-raw-table'));
+	})
+
 	const klass = 'info'
 	const config = {
 		extend: '@vuepress/theme-default',
@@ -77,7 +86,8 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 			['zooming', {
 				selector: '.theme-default-content img.zooming',
 				options: {
-					scaleBase: 0.8
+					scaleBase: 0.9,
+					bgColor: 'rgba(0,0,0,0.6)'
 				}
 			}],
 			['named-chunks',{
@@ -121,8 +131,10 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 			const pluginName = typeof item === 'string' ? item : item[0]
 			let configPluginIndex = configPluginNames.indexOf(pluginName)
 			if (configPluginIndex === -1 && pluginName.indexOf(vuepressPluginPrefix) === 0) {
+				// vuepress-plugin-${pluginName} -> ${pluginName}
 				configPluginIndex = configPluginNames.indexOf(pluginName.replace(vuepressPluginPrefix, ''))
 			} else if (configPluginIndex === -1) {
+				// ${pluginName} -> vuepress-plugin-${pluginName}
 				configPluginIndex = configPluginNames.indexOf(vuepressPluginPrefix + pluginName)
 			}
 			if (configPluginIndex !== -1 && Array.isArray(item)) {

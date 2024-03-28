@@ -101,7 +101,6 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-$pages-tabs-header-height = 44px
 .page-runtime {
 	display: flex;
 	max-height: 667px;
@@ -111,10 +110,9 @@ $pages-tabs-header-height = 44px
 .page-snippet {
 	width: 100%;
 	overflow: hidden;
-
 }
 .page-snippet-code {
-	height: calc(100% - $pages-tabs-header-height);
+	height: calc(100%  - 44px)
 }
 
 .page-tabs {
@@ -123,7 +121,7 @@ $pages-tabs-header-height = 44px
 }
 .pages-tabs-header {
 	display: flex;
-	height: $pages-tabs-header-height;
+	height: 44px;
 	background-color: #222;
 }
 .pages-tabs-header-text {

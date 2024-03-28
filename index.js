@@ -19,10 +19,6 @@ const changeLoaderOptions = (options, key = 'name') => {
 	return options;
 };
 
-const extensionMap = {
-	uts: 'ts'
-}
-
 module.exports = (themeConfig, ctx, pluginAPI) => {
 	pluginAPI.options.chainWebpack.add('assets-chunk-timestamp', (config, isServer) => {
 		config.output.filename(`${nowString}/${config.output.get('filename')}`); //输出文件名
@@ -45,11 +41,6 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 	})
 
 	pluginAPI.options.extendMarkdown.add('vuepress-theme-uni-app-md-plugins', (md) =>{
-		config.options.highlight((str, lang) => {
-			const extension = extensionMap[lang]
-			return highlight(str, extension || lang)
-		})
-
 		md.use(require('markdown-it-attrs'), {
 			leftDelimiter: '#{',
 			rightDelimiter: '}',

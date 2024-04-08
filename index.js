@@ -49,6 +49,21 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 		md.use(require('markdown-it-raw-table'));
 	})
 
+	const originalShouldPrefetch = ctx.siteConfig.shouldPrefetch || function () { return false }
+	/**
+	 *
+	 * @param {string} path path: js 资源文件路径
+	 * @param {string} type type: 资源文件类型，取值有 script 等
+	 * @returns {boolean}
+	 */
+	ctx.siteConfig.shouldPrefetch = function (path, type) {
+		let themeShouldPrefetch = true
+    if (type === 'script') themeShouldPrefetch = path.includes('vendors~') || path.includes('layout-') || path.includes('index.')
+		else { themeShouldPrefetch = false }
+    return originalShouldPrefetch.call(this, path, type) || themeShouldPrefetch
+	}
+	ctx.siteConfig.patterns = ctx.siteConfig.patterns || ['**/!(_sidebar).md', '**/*.vue']
+
 	const klass = 'info'
 	const config = {
 		extend: '@vuepress/theme-default',
@@ -140,7 +155,8 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 			if (configPluginIndex !== -1 && Array.isArray(item)) {
 				const configPlugin = config.plugins[configPluginIndex]
 				if (Array.isArray(configPlugin) && typeof item[1] !== 'undefined') {
-					configPlugin[1] = Object.assign(configPlugin[1], item[1])
+					if (item[1] === false) configPlugin[1] = false
+					else { configPlugin[1] = Object.assign({}, configPlugin[1], item[1]) }
 				} else {
 					config.plugins[configPluginIndex] = item
 				}

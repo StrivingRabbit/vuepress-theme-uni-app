@@ -41,6 +41,7 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 	})
 
 	pluginAPI.options.extendMarkdown.add('vuepress-theme-uni-app-md-plugins', (md) =>{
+		md.core.ruler.disable('emoji', true)
 		md.use(require('markdown-it-attrs'), {
 			leftDelimiter: '#{',
 			rightDelimiter: '}',

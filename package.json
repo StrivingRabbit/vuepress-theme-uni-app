@@ -31,7 +31,7 @@
     "publish:patch": "npm version patch && npm publish",
     "publish:minor": "npm version minor && npm publish",
     "publish:major": "npm version major  && npm publish",
-    "postpublish": "cnpm sync vuepress-theme-uni-app"
+    "postpublish": "cnpm sync vuepress-theme-uniapp-official"
   },
   "dependencies": {
     "@docsearch/css": "^3.6.0",

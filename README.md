@@ -1,8 +1,8 @@
 ### uni-app official website theme for vuepress
 
-# vuepress-theme-uni-app-test
+# vuepress-theme-uniapp-official
 
-[![NPM version](https://badgen.net/npm/v/vuepress-theme-uni-app-test)](https://www.npmjs.com/package/vuepress-theme-uni-app-test) [![NPM downloads](https://badgen.net/npm/dm/vuepress-theme-uni-app-test)](https://npmjs.com/package/vuepress-theme-uni-app-test)
+[![NPM version](https://badgen.net/npm/v/vuepress-theme-uniapp-official)](https://www.npmjs.com/package/vuepress-theme-uniapp-official) [![NPM downloads](https://badgen.net/npm/dm/vuepress-theme-uniapp-official)](https://npmjs.com/package/vuepress-theme-uniapp-official)
 
 ## Sites
 
@@ -12,8 +12,8 @@
 ## Install
 
 ```bash
-yarn add vuepress-theme-uni-app-test -D
-# OR npm install vuepress-theme-uni-app-test -D
+yarn add vuepress-theme-uniapp-official -D
+# OR npm install vuepress-theme-uniapp-official -D
 ```
 
 

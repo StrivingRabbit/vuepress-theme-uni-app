@@ -24,6 +24,7 @@
     "mixin",
     "styles",
     "util",
+    "helper",
     "enhanceApp.js",
     "index.js"
   ],

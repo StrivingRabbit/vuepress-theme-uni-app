@@ -130,7 +130,7 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 					 */
 					const hashNotFound = errMsg === 'Hash is not found' && matchUrl.startsWith('#')
 					const replaceHtmlExtToMd = errMsg === "Should use .md instead of .html"
-					const fileNotFound = errMsg === "File is not found"
+					const fileNotFound = errMsg === "File is not found" && !matchUrl.startsWith('<!--')
 					const hashShouldSlugify = errMsg === "Hash should slugify"
 					return hashNotFound || replaceHtmlExtToMd || fileNotFound || hashShouldSlugify
 				}

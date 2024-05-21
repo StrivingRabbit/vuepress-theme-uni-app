@@ -1,6 +1,6 @@
 <script setup>
 import { ref, useSlots } from 'vue'
-import { getNavbarHeight } from '../helper'
+import { getNavbarHeight } from '../util'
 
 const props = defineProps({
   table: String
@@ -8,11 +8,11 @@ const props = defineProps({
 
 const infoHover = ref(false)
 const slots = useSlots()
-let iconMouseOptions = {}
+let mouseOptions = {}
 
-const iconMouseEnter = (e) => {
+const mouseEnter = (e) => {
   const { top, left, bottom, right, height, width } = e.target.getBoundingClientRect()
-  iconMouseOptions = {
+  mouseOptions = {
     top,
     left,
     bottom,
@@ -23,7 +23,7 @@ const iconMouseEnter = (e) => {
   infoHover.value = true
 }
 
-const iconMouseLeave = (e) => {
+const mouseLeave = (e) => {
   infoHover.value = false
 }
 
@@ -40,7 +40,7 @@ const vPopover = {
     const screenWidth = document.documentElement.clientWidth
 
     const { width, height } = el.getBoundingClientRect()
-    const { left: targetLeft, top: targetTop, bottom: targetBottom, right: targetRight, height: targetHeight, width: targetWidth } = iconMouseOptions
+    const { left: targetLeft, top: targetTop, bottom: targetBottom, right: targetRight, height: targetHeight, width: targetWidth } = mouseOptions
     const OFFSET = 10
     const NAVBAR_HEIGHT = getNavbarHeight()
 
@@ -79,10 +79,10 @@ const vPopover = {
 
 <template>
   <div class="popover-container">
-    <span class="info" :class="{ 'info-hover': infoHover }" @mouseenter="iconMouseEnter" @mouseleave="iconMouseLeave">
-      <slot name="icon"></slot>
-      <svg v-if="!slots.icon" t="1715917545486" class="icon" viewBox="0 0 1024 1024" version="1.1"
-        xmlns="http://www.w3.org/2000/svg" p-id="10306" fill="#2c3e50">
+    <span class="info" :class="{ 'info-hover': infoHover }" @mouseenter="mouseEnter" @mouseleave="mouseLeave">
+      <slot name="reference"></slot>
+      <svg v-if="!slots.reference" width="20" height="20" t="1715917545486" class="icon" viewBox="0 0 1024 1024"
+        version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10306" fill="#2c3e50">
         <path
           d="M512 958.016C266.08 958.016 65.984 757.952 65.984 512 65.984 266.08 266.08 65.984 512 65.984c245.952 0 446.016 200.064 446.016 446.016 0 245.952-200.064 446.016-446.016 446.016z m0-828.032c-210.656 0-382.016 171.36-382.016 382.016 0 210.624 171.36 382.016 382.016 382.016 210.624 0 382.016-171.36 382.016-382.016S722.624 129.984 512 129.984z"
           p-id="10307"></path>
@@ -97,7 +97,6 @@ const vPopover = {
       </div>
     </transition>
   </div>
-
 </template>
 
 <style lang="stylus" scoped>
@@ -108,10 +107,11 @@ const vPopover = {
     user-select: none;
     display: inline-block;
     cursor: pointer;
-    width: 20px;
-    height: 20px;
     padding: 5px;
     border-radius: 5px;
+
+    width: 22px;
+    height: 22px;
   }
 
   .info-hover {

@@ -78,21 +78,23 @@ const vPopover = {
 </script>
 
 <template>
-  <div class="popover-container">
-    <span class="info" :class="{ 'info-hover': infoHover }" @mouseenter="mouseEnter" @mouseleave="mouseLeave">
-      <slot name="reference"></slot>
-      <svg v-if="!slots.reference" width="20" height="20" t="1715917545486" class="icon" viewBox="0 0 1024 1024"
-        version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10306" fill="#2c3e50">
-        <path
-          d="M512 958.016C266.08 958.016 65.984 757.952 65.984 512 65.984 266.08 266.08 65.984 512 65.984c245.952 0 446.016 200.064 446.016 446.016 0 245.952-200.064 446.016-446.016 446.016z m0-828.032c-210.656 0-382.016 171.36-382.016 382.016 0 210.624 171.36 382.016 382.016 382.016 210.624 0 382.016-171.36 382.016-382.016S722.624 129.984 512 129.984z"
-          p-id="10307"></path>
-        <path
-          d="M464 304a1.5 1.5 0 1 0 96 0 1.5 1.5 0 1 0-96 0zM512 768c-17.664 0-32-14.304-32-32V448c0-17.664 14.336-32 32-32s32 14.336 32 32v288c0 17.696-14.336 32-32 32z"
-          p-id="10308"></path>
-      </svg>
+  <div class="popover" @mouseleave="mouseLeave">
+    <span>
+      <div class="popover-reference-wrapper" @mouseenter="mouseEnter">
+        <slot name="reference"></slot>
+        <svg v-if="!slots.reference" width="20" height="20" t="1715917545486" class="icon" viewBox="0 0 1024 1024"
+          version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10306" fill="#2c3e50">
+          <path
+            d="M512 958.016C266.08 958.016 65.984 757.952 65.984 512 65.984 266.08 266.08 65.984 512 65.984c245.952 0 446.016 200.064 446.016 446.016 0 245.952-200.064 446.016-446.016 446.016z m0-828.032c-210.656 0-382.016 171.36-382.016 382.016 0 210.624 171.36 382.016 382.016 382.016 210.624 0 382.016-171.36 382.016-382.016S722.624 129.984 512 129.984z"
+            p-id="10307"></path>
+          <path
+            d="M464 304a1.5 1.5 0 1 0 96 0 1.5 1.5 0 1 0-96 0zM512 768c-17.664 0-32-14.304-32-32V448c0-17.664 14.336-32 32-32s32 14.336 32 32v288c0 17.696-14.336 32-32 32z"
+            p-id="10308"></path>
+        </svg>
+      </div>
     </span>
     <transition name="fade-in">
-      <div class="popover-content-container" v-show="infoHover" v-popover>
+      <div class="popover-content-wrapper" v-show="infoHover" v-popover>
         <slot></slot>
       </div>
     </transition>
@@ -100,26 +102,11 @@ const vPopover = {
 </template>
 
 <style lang="stylus" scoped>
-.popover-container {
+.popover {
   position: relative;
-
-  .info {
-    user-select: none;
-    display: inline-block;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 5px;
-
-    width: 22px;
-    height: 22px;
-  }
-
-  .info-hover {
-    background-color: #f0f0f0;
-  }
 }
 
-.popover-content-container {
+.popover-content-wrapper {
   position: absolute;
   background-color: #fff;
   z-index: 1;
@@ -128,14 +115,10 @@ const vPopover = {
   transition: opacity .1s cubic-bezier(0.57, 0.85, 0.85, 0.57);
   box-sizing: border-box;
   padding: 10px;
-
-  &.show {
-    opacity: 1;
-  }
 }
 
 .fade-in-enter-active,.fade-in-leave-active {
-    transition: all .1s cubic-bezier(.55,0,.1,1)
+    transition: all .15s cubic-bezier(.55,0,.1,1)
 }
 
 .fade-in-enter,.fade-in-leave-active {

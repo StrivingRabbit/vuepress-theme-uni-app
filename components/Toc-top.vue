@@ -9,9 +9,9 @@
 			<a
 				:style="{ paddingLeft: createPaddingLeft(item.level) }"
 				:href="`#${item.slug}`"
-				:title="item.title"
+				:title="item.title.replace(/\\/g, '')"
 			>
-				{{ item.title }}
+				{{ item.title.replace(/\\/g, '') }}
 			</a>
 		</div>
 		<span

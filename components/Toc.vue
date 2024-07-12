@@ -4,8 +4,8 @@
 		<!-- :key="item.slug" -->
 		<div v-for="(item, index) in pageHeaders" ref="chairTocItem" class="vuepress-toc-item"
 			:class="[`vuepress-toc-h${item.level}`, { active: activeIndex === index }]">
-			<a :style="{ paddingLeft: createPaddingLeft(item.level) }" :href="`#${item.slug}`" :title="item.title">
-				{{ item.title }}
+			<a :style="{ paddingLeft: createPaddingLeft(item.level) }" :href="`#${item.slug}`" :title="item.title.replace(/\\/g, '')">
+				{{ item.title.replace(/\\/g, '') }}
 			</a>
 		</div>
 	</Sticker>

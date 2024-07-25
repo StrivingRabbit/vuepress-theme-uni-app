@@ -2001,10 +2001,10 @@ vuepress-plugin-check-md2@^1.0.5:
     diacritics "^1.3.0"
     globby "^9.1.0"
 
-vuepress-plugin-expandable-row@^1.0.8:
-  version "1.0.8"
-  resolved "https://registry.npmmirror.com/vuepress-plugin-expandable-row/-/vuepress-plugin-expandable-row-1.0.8.tgz#f27e3d5ef7f09c5361aa218f3852639a845e3ffd"
-  integrity sha512-nB21i/EaTVDq0/3EXM+2xTRemtjw+E0TJdWeK4kJoENxX7jiXs7J5FrpOEMTrfxLpnvRslD4gBlCeFPv2V+PvA==
+vuepress-plugin-expandable-row@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.npmmirror.com/vuepress-plugin-expandable-row/-/vuepress-plugin-expandable-row-1.0.9.tgz#97a74741c13df062af090208fd09544444e25d13"
+  integrity sha512-CSLv5eRLRARuHUec6y3uzf4HnFRmiGls7O1WAery8pBGmK4DXnrBcHENNtBtsIWAuSOtE8vSNtjTJTJtBXOXmw==
 
 vuepress-plugin-juejin-style-copy@^1.0.4:
   version "1.0.4"

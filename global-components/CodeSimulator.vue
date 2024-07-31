@@ -34,66 +34,71 @@ export default {
 		},
 		createdDom(h,node){
 			let headerDom = []
-			node.forEach((v,index)=>{
-				headerDom.push(h('p',{class:`pages-tabs-header-text ${this.activeIndex === index?'pages-tabs--active':''}`,on:{click:(e)=>{
-						this.onClick(index)
-				}}},v.title),)
+			node.forEach((v, index) => {
+				headerDom.push(h('p', {
+					class: `pages-tabs-header-text ${this.activeIndex === index ? 'pages-tabs--active' : ''}`, on: {
+						click: (e) => {
+							this.onClick(index)
+						}
+					}
+				}, v.title),)
 			})
-			return this.renderDom(h,h('div',{class:'page-tabs'},[
-				h('div',{class:'pages-tabs-header'},headerDom),
-				h('div',{class:'page-snippet-code',key:this.activeIndex},[node[this.activeIndex].node]),
+			return this.renderDom(h, h('div', { class: 'page-tabs' }, [
+				h('div', { class: 'pages-tabs-header' }, headerDom),
+				h('div', { class: 'page-snippet-code', key: this.activeIndex }, [node[this.activeIndex].node]),
 			]))
 		},
 		renderDom(h,node){
-			return h('div',{class:'page-runtime'},
-				[
-					h('div',{class:'page-snippet'},[node]),
-					h('div',{class:'code-content',style:{display:this.src?'block':'none'}},[
-						h('iframe',{class:'code-iframe',attrs:{
-							src:this.src,
-							frameborder:'0',
-							allow:'geolocation https://hellouniappx.dcloud.net.cn'
-						},ref:'codeIframe'})
-					]),
-
-				]
-			)
+      return h('div', { class: 'page-runtime' }, [
+        h('div', { class: 'page-snippet' , style: { height: this.src ? '667px' : 'auto' }}, [node]),
+        h('div', { class: 'code-content', style: { display: this.src ? 'block' : 'none' } }, [
+          h('iframe', {
+            class: 'code-iframe',
+            attrs: {
+              src: this.src,
+              frameborder: '0',
+              allow: 'geolocation https://hellouniappx.dcloud.net.cn',
+            },
+            ref: 'codeIframe',
+          }),
+        ]),
+      ])
 		}
 	},
 	render(h){
 		const columns = this.$slots.default || []
 		let boxObj = []
 		let realDom = []
-		columns.forEach((v,i)=>{
-			if(v.tag && v.children){
+		columns.forEach((v, i) => {
+			if (v.tag && v.children) {
 				realDom.push(v)
 			}
 		})
-		realDom.forEach((vnode,index)=>{
+		realDom.forEach((vnode, index) => {
 			let code = vnode.children[0]
-			if(vnode.tag === 'div' && code.tag === 'pre'){
+			if (vnode.tag === 'div' && code.tag === 'pre') {
 				let i = index - 1
-				if(i >= 0){
+				if (i >= 0) {
 					let textDom = realDom[i]
-					if(textDom.tag === 'blockquote'){
+					if (textDom.tag === 'blockquote') {
 						let text = textDom.children[0]
 						let p = text.children[0]
 						boxObj.push({
-							title:p.text,
-							node:vnode
+							title: p.text ? p.text : 'title',
+							node: vnode
 						})
 					}
 
 				}
 			}
 		})
-		if(boxObj.length > 0){
-			return h('div',null,[this.createdDom(h,boxObj)])
-		}else{
-			if(this.src){
-				return this.renderDom(h,this.$slots.default)
-			}else{
-				return h('div',null,this.$slots.default)
+		if (boxObj.length > 0) {
+			return h('div', null, [this.createdDom(h, boxObj)])
+		} else {
+			if (this.src) {
+				return this.renderDom(h, this.$slots.default)
+			} else {
+				return h('div', null, this.$slots.default)
 			}
 		}
 	}
@@ -123,17 +128,12 @@ export default {
 	display: flex;
 	height: 44px;
 	background-color: #222;
+	align-items: center;
 }
 .pages-tabs-header-text {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	margin: 5px;
-	margin-bottom: 0px;
-	border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
-	padding: 0 45px;
-	text-align: center;
+	margin: 0 0 0 8px;
+	padding: 4px 8px;
+	border-radius: 5px;
 	font-size: 16px;
 	color: #eee;
 	background:transparent;
@@ -144,11 +144,14 @@ export default {
 	-khtml-user-select:none; /*早期浏览器*/
 	user-select:none;
 }
+.pages-tabs-header-text:hover {
+	background: #454545;
+}
 .pages-tabs--active {
 	// background:#282c34;
-	background-color: #292d3e;
+	background-color: #3b3b3b;
 	color: #fff;
-	font-weight: bold;
+	// font-weight: bold;
 }
 
 .page-snippet div[class*="language-"]{

@@ -13,8 +13,24 @@ export default {
         !!(this.$page && this.$page.headers && this.$page.headers.length)
       );
     },
+    formatTitlePageHeaders() {
+      return (this.pageHeaders || []).map(item => {
+        return {
+          ...item,
+          title: this.simpleMd2html(item.title)
+        }
+      })
+    }
   },
   methods: {
+    simpleMd2html(md) {
+      md = md
+        .replace(/\\/g, '')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/([\s\S]*)~~([\S\s]+)~~([\s\S]*)/g, '$1<del>$2</del>$3')
+      return md
+    },
     createPaddingLeft(level) {
       return level - this.paddingLeftOffset + 'rem';
     },

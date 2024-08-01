@@ -1,19 +1,11 @@
 <template>
   <Sticker ref="sticker" :class="['vuepress-toc', visible ? '' : 'table-of-contents-sticker']" v-bind="$attrs">
     <h5>{{ onThisPage }}</h5>
-    <!-- :key="item.slug" -->
-    <div
-      v-for="(item, index) in pageHeaders"
-      ref="chairTocItem"
-      class="vuepress-toc-item"
-      :class="[`vuepress-toc-h${item.level}`, { active: activeIndex === index }]"
-    >
-      <RouterLink
-        :style="{ paddingLeft: createPaddingLeft(item.level) }"
-        :to="`#${item.slug}`"
-        :title="item.title.replace(/\\/g, '')"
-      >
-        {{ item.title.replace(/\\/g, '') }}
+    <div v-for="(item, index) in formatTitlePageHeaders" ref="chairTocItem" class="vuepress-toc-item"
+      :class="[`vuepress-toc-h${item.level}`, { active: activeIndex === index }]">
+      <RouterLink :style="{ paddingLeft: createPaddingLeft(item.level) }" :to="`#${item.slug}`"
+        :title="item.title">
+        <span v-html="item.title"></span>
       </RouterLink>
     </div>
   </Sticker>
@@ -58,8 +50,7 @@ export default {
       } else if (top + rect.height > wrapperRect.height) {
         this.$el.scrollTop += rect.top - (wrapperRect.height - rect.height)
       }
-    },
-    $route() {},
+    }
   },
   mounted() {
     // sync visible to parent component

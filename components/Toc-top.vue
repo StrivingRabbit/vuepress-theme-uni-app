@@ -1,20 +1,13 @@
 <template>
   <div class="table-of-contents">
-    <div
-      v-for="item in showHeaders"
-      ref="chairTocItem"
-      class="vuepress-toc-item-top"
-      :class="[`vuepress-toc-h${item.level}`]"
-    >
-      <RouterLink
-        :style="{ paddingLeft: createPaddingLeft(item.level) }"
-        :to="`#${item.slug}`"
-        :title="item.title.replace(/\\/g, '')"
-      >
-        {{ item.title.replace(/\\/g, '') }}
+    <div v-for="item in showHeaders" ref="chairTocItem" class="vuepress-toc-item-top"
+      :class="[`vuepress-toc-h${item.level}`]">
+      <RouterLink :style="{ paddingLeft: createPaddingLeft(item.level) }" :to="`#${item.slug}`"
+        :title="item.title">
+        <span v-html="item.title"></span>
       </RouterLink>
     </div>
-    <span v-if="pageHeaders && pageHeaders.length > expandHeaderLength" class="expand-button" @click="expandClick">
+    <span v-if="formatTitlePageHeaders && formatTitlePageHeaders.length > expandHeaderLength" class="expand-button" @click="expandClick">
       {{ !expand ? collapseText : expandText }}
       <uni-icon :type="!expand ? 'bottom' : 'top'"></uni-icon>
     </span>
@@ -37,7 +30,7 @@ export default {
   }),
   computed: {
     showHeaders() {
-      return this.expand ? this.pageHeaders : this.pageHeaders.slice(0, this.expandHeaderLength)
+      return this.expand ? this.formatTitlePageHeaders : this.formatTitlePageHeaders.slice(0, this.expandHeaderLength)
     },
   },
   methods: {

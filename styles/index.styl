@@ -130,8 +130,10 @@ ul > li, p > a
 
 h1, h2, h3, h4, h5, h6
 	{$contentClass}:not(.custom) > &
-		margin-top 1rem - $navbarHeight
-		padding-top $navbarHeight
+		$pd = 5.5rem
+		$mt = $pd - 1 - $navbarHeight
+		margin-top $mt
+		padding-top $pd
 
 		&:first-child
 			margin-top 3rem - $navbarHeight

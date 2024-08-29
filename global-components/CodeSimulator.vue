@@ -1,56 +1,178 @@
 <script>
-import clientRootMixin from 'vuepress-plugin-juejin-style-copy/clientRootMixin';
+import clientRootMixin from 'vuepress-plugin-juejin-style-copy/clientRootMixin'
+import Popover from './Popover.vue'
+
+const qrCodeLogoD =
+  'M597.333333 597.333333h85.333334v-85.333333h85.333333v128h-85.333333v42.666667h-85.333334v-42.666667h-85.333333v-128h85.333333v85.333333z m-384-85.333333h256v256H213.333333v-256z m85.333334 85.333333v85.333334h85.333333v-85.333334H298.666667zM213.333333 213.333333h256v256H213.333333V213.333333z m85.333334 85.333334v85.333333h85.333333V298.666667H298.666667z m213.333333-85.333334h256v256h-256V213.333333z m85.333333 85.333334v85.333333h85.333334V298.666667h-85.333334z m85.333334 384h85.333333v85.333333h-85.333333v-85.333333z m-170.666667 0h85.333333v85.333333h-85.333333v-85.333333z'
+const appRedirectKeyword = 'appRedirect'
+let imageIndex = 0
 
 export default {
-	mixins:[clientRootMixin],
-	props:{
-		src:{
-			type:String,
-			default:''
-		}
-	},
-	data(){
-		return {
-			activeIndex: 0
-		}
-	},
-	mounted(){
-		this.$copyUpdates && this.$copyUpdates()
-		this.onWindowResize()
-		window.addEventListener('resize', this.onWindowResize)
-	},
-	beforeDestroy(){
-		window.removeEventListener('resize', this.onWindowResize)
-	},
-	methods:{
-		onWindowResize(){
-			const contentWidth = getComputedStyle(document.querySelector('.theme-default-content')).width
-			if (window.matchMedia('(max-width: 410px)').matches) {
-				this.$refs.codeIframe.style.maxWidth = contentWidth
-			}
-		},
-		onClick(index){
-			this.activeIndex = index
-		},
-		createdDom(h,node){
-			let headerDom = []
-			node.forEach((v, index) => {
-				headerDom.push(h('p', {
-					class: `pages-tabs-header-text ${this.activeIndex === index ? 'pages-tabs--active' : ''}`, on: {
-						click: (e) => {
-							this.onClick(index)
-						}
-					}
-				}, v.title),)
-			})
-			return this.renderDom(h, h('div', { class: 'page-tabs' }, [
-				h('div', { class: 'pages-tabs-header' }, headerDom),
-				h('div', { class: 'page-snippet-code', key: this.activeIndex }, [node[this.activeIndex].node]),
-			]))
-		},
-		renderDom(h,node){
-      return h('div', { class: 'page-runtime' }, [
-        h('div', { class: 'page-snippet' , style: { height: this.src ? '667px' : 'auto' }}, [node]),
+  mixins: [clientRootMixin],
+  components: { Popover },
+  props: {
+    src: {
+      type: String,
+      default: '',
+    },
+  },
+  data() {
+    return {
+      activeIndex: 0,
+      appRedirectSrc: '',
+      qrCodeImageClass: `qrcode-img_${++imageIndex}`,
+      qrCodeImageParentDisplay: 'none',
+      firstRender: true,
+    }
+  },
+  mounted() {
+    this.$copyUpdates && this.$copyUpdates()
+    this.onWindowResize()
+    this.qrCodeImage = document.querySelector(`img.${this.qrCodeImageClass}`)
+    if (this.qrCodeImage) {
+      this.qrCodeImageContainer = this.qrCodeImage.parentElement
+    }
+    window.addEventListener('resize', this.onWindowResize)
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onWindowResize)
+  },
+  methods: {
+    onWindowResize() {
+      const contentWidth = getComputedStyle(document.querySelector('.theme-default-content')).width
+      if (window.matchMedia('(max-width: 410px)').matches) {
+        this.$refs.codeIframe.style.maxWidth = contentWidth
+      }
+    },
+    onClick(index) {
+      this.activeIndex = index
+    },
+    createQRCodeSVG(h, style) {
+      if (this.appRedirectSrc) {
+        return h(
+          'a',
+          {
+            style: Object.assign(
+              {
+                position: 'absolute',
+                top: '5px',
+                right: '12px',
+                cursor: 'pointer',
+                'z-index': 5,
+              },
+              style
+            ),
+            attrs: {
+              href: this.appRedirectSrc,
+              target: '_blank',
+            },
+          },
+          [
+            h('Popover', {
+              on: {
+                show: () => {
+                  if (this.appRedirectSrc) {
+                    if (!this.qrCodeImage.src) {
+                      import('qr-code-with-logo').then(({ default: QrCodeWithLogo }) => {
+                        QrCodeWithLogo.toImage({
+                          image: this.qrCodeImage,
+                          content: this.appRedirectSrc,
+                          width: 256,
+                          nodeQrCodeOptions: {
+                            margin: 2,
+                          },
+                        })
+                      })
+                    }
+                  }
+                },
+              },
+              scopedSlots: {
+                reference: props =>
+                  h(
+                    'svg',
+                    {
+                      class: 'app-redirect-icon',
+                      style: {
+                        width: '32px',
+                        height: '32px',
+                      },
+                      attrs: {
+                        t: Date.now(),
+                        viewBox: '0 0 1024 1024',
+                        version: '1.1',
+                        xmlns: 'http://www.w3.org/2000/svg',
+                      },
+                    },
+                    [
+                      h('path', {
+                        attrs: {
+                          d: qrCodeLogoD,
+                          fill: this.src ? '#fff' : '#aaa',
+                        },
+                      }),
+                    ]
+                  ),
+                default: props =>
+                  h(
+                    'div',
+                    {
+                      style: {
+                        display: 'flex',
+                        width: '150px',
+                        height: '170px',
+                        'flex-direction': 'column',
+                        'justify-content': 'center',
+                        'align-items': 'center',
+                      },
+                    },
+                    [
+                      h('img', {
+                        class: this.qrCodeImageClass,
+                        style: {
+                          width: '150px',
+                          height: '150px',
+                          'max-width': 'unset !important',
+                        },
+                      }),
+                      h('span', { style: { 'font-weight': 'bold' } }, '手机扫码体验'),
+                    ]
+                  ),
+              },
+            }),
+          ]
+        )
+      }
+    },
+    wrapHeader(h, node) {
+      let headerDom = []
+      node.forEach((v, index) => {
+        headerDom.push(
+          h(
+            'p',
+            {
+              class: `pages-tabs-header-text ${this.activeIndex === index ? 'pages-tabs--active' : ''}`,
+              on: {
+                click: e => {
+                  this.onClick(index)
+                },
+              },
+            },
+            v.title
+          )
+        )
+      })
+      return this.renderDom(
+        h,
+        h('div', { class: 'page-tabs' }, [
+          h('div', { class: 'pages-tabs-header' }, headerDom),
+          h('div', { class: 'page-snippet-code', key: this.activeIndex }, [node[this.activeIndex].node]),
+        ])
+      )
+    },
+    renderDom(h, node) {
+      return h('div', { class: 'page-runtime', style: { position: 'relative' } }, [
+        h('div', { class: 'page-snippet', style: { height: this.src ? '667px' : 'auto' } }, [node]),
         h('div', { class: 'code-content', style: { display: this.src ? 'block' : 'none' } }, [
           h('iframe', {
             class: 'code-iframe',
@@ -62,46 +184,67 @@ export default {
             ref: 'codeIframe',
           }),
         ]),
+        this.createQRCodeSVG(h),
       ])
-		}
-	},
-	render(h){
-		const columns = this.$slots.default || []
-		let boxObj = []
-		let realDom = []
-		columns.forEach((v, i) => {
-			if (v.tag && v.children) {
-				realDom.push(v)
-			}
-		})
-		realDom.forEach((vnode, index) => {
-			let code = vnode.children[0]
-			if (vnode.tag === 'div' && code.tag === 'pre') {
-				let i = index - 1
-				if (i >= 0) {
-					let textDom = realDom[i]
-					if (textDom.tag === 'blockquote') {
-						let text = textDom.children[0]
-						let p = text.children[0]
-						boxObj.push({
-							title: p.text ? p.text : 'title',
-							node: vnode
-						})
-					}
+    },
+  },
+  render(h) {
+    const columns = this.$slots.default || []
+    let boxObj = []
+    let realDom = []
+    columns.forEach((v, i) => {
+      if (v.tag && v.children) {
+        realDom.push(v)
+      }
+    })
+    for (let index = 0; index < realDom.length; index++) {
+      const vnode = realDom[index]
+      let code = vnode.children[0]
 
-				}
-			}
-		})
-		if (boxObj.length > 0) {
-			return h('div', null, [this.createdDom(h, boxObj)])
-		} else {
-			if (this.src) {
-				return this.renderDom(h, this.$slots.default)
-			} else {
-				return h('div', null, this.$slots.default)
-			}
-		}
-	}
+      if (vnode.tag === 'blockquote' && code.tag === 'p' && this.firstRender) {
+        const pFirstChild = code.children[0]
+        if (pFirstChild) {
+          const text = pFirstChild.text
+          if (text && text.trim().indexOf(appRedirectKeyword) === 0) {
+            this.appRedirectSrc = text.trim().split(' ')[1] || ''
+            realDom.splice(index, 1)
+            this.$slots.default.splice(index, 1)
+            index--
+            continue
+          }
+        }
+      }
+
+      if (vnode.tag === 'div' && code.tag === 'pre') {
+        let i = index - 1
+        if (i >= 0) {
+          let textDom = realDom[i]
+          if (textDom.tag === 'blockquote') {
+            let text = textDom.children[0]
+            let p = text.children[0]
+            boxObj.push({
+              title: p.text ? p.text : 'title',
+              node: vnode,
+            })
+          }
+        }
+      }
+    }
+    this.firstRender = false
+    if (boxObj.length > 0) {
+      return h('div', null, [this.wrapHeader(h, boxObj)])
+    } else {
+      if (this.src) {
+        return this.renderDom(h, this.$slots.default)
+      } else {
+        const appRedirectQrCode = this.createQRCodeSVG(h, { right: '100px', top: '0' })
+        return h('div', appRedirectQrCode ? { style: { position: 'relative' } } : null, [
+          appRedirectQrCode,
+          this.$slots.default,
+        ])
+      }
+    }
+  },
 }
 </script>
 

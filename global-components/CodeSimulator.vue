@@ -41,7 +41,7 @@ export default {
     onWindowResize() {
       const contentWidth = getComputedStyle(document.querySelector('.theme-default-content')).width
       if (window.matchMedia('(max-width: 410px)').matches) {
-        this.$refs.codeIframe.style.maxWidth = contentWidth
+        this.$refs.codeIframe && (this.$refs.codeIframe.style.maxWidth = contentWidth)
       }
     },
     onClick(index) {
@@ -52,20 +52,8 @@ export default {
         return h(
           'a',
           {
-            style: Object.assign(
-              {
-                position: 'absolute',
-                top: '5px',
-                right: '12px',
-                cursor: 'pointer',
-                'z-index': 5,
-              },
-              style
-            ),
-            attrs: {
-              href: this.appRedirectSrc,
-              target: '_blank',
-            },
+            style: { 'margin-top': '16px', display: 'inline-block', 'text-decoration': 'none' },
+            attrs: { href: this.appRedirectSrc, target: '_blank' },
           },
           [
             h('Popover', {
@@ -90,27 +78,46 @@ export default {
               scopedSlots: {
                 reference: props =>
                   h(
-                    'svg',
+                    'div',
                     {
-                      class: 'app-redirect-icon',
+                      class: 'qr-code-button',
                       style: {
-                        width: '32px',
-                        height: '32px',
-                      },
-                      attrs: {
-                        t: Date.now(),
-                        viewBox: '0 0 1024 1024',
-                        version: '1.1',
-                        xmlns: 'http://www.w3.org/2000/svg',
+                        display: 'flex',
+                        'justify-content': 'center',
+                        'align-items': 'center',
+                        background: '#f7f8f9',
+                        color: '#666',
+                        padding: '0 6px',
+                        'border-radius': '16px',
+                        'font-size': '14px',
                       },
                     },
                     [
-                      h('path', {
-                        attrs: {
-                          d: qrCodeLogoD,
-                          fill: this.src ? '#fff' : '#aaa',
+                      h(
+                        'svg',
+                        {
+                          class: 'app-redirect-icon',
+                          style: {
+                            width: '26px',
+                            height: '26px',
+                          },
+                          attrs: {
+                            t: Date.now(),
+                            viewBox: '0 0 1024 1024',
+                            version: '1.1',
+                            xmlns: 'http://www.w3.org/2000/svg',
+                          },
                         },
-                      }),
+                        [
+                          h('path', {
+                            attrs: {
+                              d: qrCodeLogoD,
+                              fill: '#aaa',
+                            },
+                          }),
+                        ]
+                      ),
+                      h('span', null, ' 扫码体验（手机浏览器跳转到App直达页）'),
                     ]
                   ),
                 default: props =>
@@ -135,7 +142,7 @@ export default {
                           'max-width': 'unset !important',
                         },
                       }),
-                      h('span', { style: { 'font-weight': 'bold' } }, '手机扫码体验'),
+                      h('span', { style: { 'font-weight': 'bold' } }, '扫码体验'),
                     ]
                   ),
               },
@@ -184,7 +191,6 @@ export default {
             ref: 'codeIframe',
           }),
         ]),
-        this.createQRCodeSVG(h),
       ])
     },
   },
@@ -231,17 +237,15 @@ export default {
       }
     }
     this.firstRender = false
+    const appRedirectQrCode = this.createQRCodeSVG(h)
     if (boxObj.length > 0) {
-      return h('div', null, [this.wrapHeader(h, boxObj)])
+      return h('div', null, [appRedirectQrCode, this.wrapHeader(h, boxObj)])
     } else {
+      console.log('this.src :>> ', this.src)
       if (this.src) {
-        return this.renderDom(h, this.$slots.default)
+        return h('div', null, [appRedirectQrCode, this.renderDom(h, this.$slots.default)])
       } else {
-        const appRedirectQrCode = this.createQRCodeSVG(h, { right: '100px', top: '0' })
-        return h('div', appRedirectQrCode ? { style: { position: 'relative' } } : null, [
-          appRedirectQrCode,
-          this.$slots.default,
-        ])
+        return h('div', null, [appRedirectQrCode, this.$slots.default])
       }
     }
   },

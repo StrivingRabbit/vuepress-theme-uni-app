@@ -241,7 +241,6 @@ export default {
     if (boxObj.length > 0) {
       return h('div', null, [appRedirectQrCode, this.wrapHeader(h, boxObj)])
     } else {
-      console.log('this.src :>> ', this.src)
       if (this.src) {
         return h('div', null, [appRedirectQrCode, this.renderDom(h, this.$slots.default)])
       } else {

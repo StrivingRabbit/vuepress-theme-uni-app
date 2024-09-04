@@ -355,12 +355,12 @@
 				let categoryArr = [`category:${this.currentCategory.text}`];
 				if (this.currentCategory.text === 'uni-app') {
 					// category:uni-app OR tag:UTS OR tag:插件
-					categoryArr.push('tag:UTS', 'tag:插件', 'tag:全局文件')
+					categoryArr.push('tag:UTS', 'tag:插件')
 					categoryArr = [categoryArr];
 				}
 				if (this.currentCategory.text === 'uni-app x') {
 					// category:uni-app OR tag:UTS OR tag:插件
-					categoryArr.push('tag:插件', 'tag:教程', 'tag:工程化', 'tag:全局文件')
+					categoryArr.push('tag:插件', 'tag:工程化')
 					categoryArr = [categoryArr];
 				}
 				return searchClient(

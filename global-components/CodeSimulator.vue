@@ -2,10 +2,35 @@
 import clientRootMixin from 'vuepress-plugin-juejin-style-copy/clientRootMixin'
 import Popover from './Popover.vue'
 
-const qrCodeLogoD =
-  'M597.333333 597.333333h85.333334v-85.333333h85.333333v128h-85.333333v42.666667h-85.333334v-42.666667h-85.333333v-128h85.333333v85.333333z m-384-85.333333h256v256H213.333333v-256z m85.333334 85.333333v85.333334h85.333333v-85.333334H298.666667zM213.333333 213.333333h256v256H213.333333V213.333333z m85.333334 85.333334v85.333333h85.333333V298.666667H298.666667z m213.333333-85.333334h256v256h-256V213.333333z m85.333333 85.333334v85.333333h85.333334V298.666667h-85.333334z m85.333334 384h85.333333v85.333333h-85.333333v-85.333333z m-170.666667 0h85.333333v85.333333h-85.333333v-85.333333z'
 const appRedirectKeyword = 'appRedirect'
 let imageIndex = 0
+
+function createSVG(h) {
+  return h(
+    'svg',
+    {
+      class: 'app-redirect-icon',
+      style: {
+        width: '26px',
+        height: '26px',
+      },
+      attrs: {
+        t: Date.now(),
+        viewBox: '0 0 1024 1024',
+        version: '1.1',
+        xmlns: 'http://www.w3.org/2000/svg',
+      },
+    },
+    [
+      h('path', {
+        attrs: {
+          d: 'M597.333333 597.333333h85.333334v-85.333333h85.333333v128h-85.333333v42.666667h-85.333334v-42.666667h-85.333333v-128h85.333333v85.333333z m-384-85.333333h256v256H213.333333v-256z m85.333334 85.333333v85.333334h85.333333v-85.333334H298.666667zM213.333333 213.333333h256v256H213.333333V213.333333z m85.333334 85.333334v85.333333h85.333333V298.666667H298.666667z m213.333333-85.333334h256v256h-256V213.333333z m85.333333 85.333334v85.333333h85.333334V298.666667h-85.333334z m85.333334 384h85.333333v85.333333h-85.333333v-85.333333z m-170.666667 0h85.333333v85.333333h-85.333333v-85.333333z',
+          fill: '#aaa',
+        },
+      }),
+    ]
+  )
+}
 
 export default {
   mixins: [clientRootMixin],
@@ -47,7 +72,7 @@ export default {
     onClick(index) {
       this.activeIndex = index
     },
-    createQRCodeSVG(h, style) {
+    createQRCodeSVG(h) {
       if (this.appRedirectSrc) {
         return h(
           'a',
@@ -92,33 +117,7 @@ export default {
                         'font-size': '14px',
                       },
                     },
-                    [
-                      h(
-                        'svg',
-                        {
-                          class: 'app-redirect-icon',
-                          style: {
-                            width: '26px',
-                            height: '26px',
-                          },
-                          attrs: {
-                            t: Date.now(),
-                            viewBox: '0 0 1024 1024',
-                            version: '1.1',
-                            xmlns: 'http://www.w3.org/2000/svg',
-                          },
-                        },
-                        [
-                          h('path', {
-                            attrs: {
-                              d: qrCodeLogoD,
-                              fill: '#aaa',
-                            },
-                          }),
-                        ]
-                      ),
-                      h('span', null, ' 扫码体验（手机浏览器跳转到App直达页）'),
-                    ]
+                    [createSVG(h), h('span', null, ' 扫码体验（手机浏览器跳转到App直达页）')]
                   ),
                 default: props =>
                   h(
@@ -326,9 +325,7 @@ export default {
     div[class*="language-"]
 			margin 0 !important
 
-/* .page-runtime pre::-webkit-scrollbar {
-	display: none
-} */
+
 ::-webkit-scrollbar {
 	width: 8px !important;
 	height: 8px !important;

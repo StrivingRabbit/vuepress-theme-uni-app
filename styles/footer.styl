@@ -111,6 +111,7 @@ $html5Color = #fb6f18
 		font-size 14px
 		color #565656 !important
 		font-family SourceHanSansCN-Regular serif
+		margin 0 9px
 
 	.companyInfo-dcloud
 		padding-right 10px
@@ -154,6 +155,8 @@ $html5Color = #fb6f18
 
 @media screen and (max-width $MQMobile)
 	#footNavBox
+		.introduce
+			max-width: 80% !important
 		#footNavClassify
 			width 60%
 
@@ -162,9 +165,13 @@ $html5Color = #fb6f18
 
 			.footNavItem
 				margin-right 20px
+				max-width 80px !important
+
 
 @media screen and (max-width 880px)
 	#footNavBox
+		.introduce
+			max-width: 80% !important
 		.companyBox
 			height 50px
 			flex-direction column
@@ -224,7 +231,7 @@ $html5Color = #fb6f18
 		.navLine
 			// width 80%
 		.footNavItem
-			margin 20px 18px 0 0
+			margin 20px 18px 0 24px
 	#footNavClassify
 		width 70%
 

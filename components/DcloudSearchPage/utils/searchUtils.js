@@ -25,11 +25,18 @@ export function removeHighlightTags(hit) {
   if (!internalDocSearchHit.__docsearch_parent && !hit._highlightResult) {
     return hit.hierarchy.lvl0;
   }
+  const highlightResult = hit._highlightResult || {}
 
   const { value } =
-    (internalDocSearchHit.__docsearch_parent
-      ? ((internalDocSearchHit.__docsearch_parent._highlightResult || {}).hierarchy || {}).lvl0
-        :((hit._highlightResult || {}).hierarchy || {}).lvl0) || {};
+    (
+      internalDocSearchHit.__docsearch_parent
+        ? ((internalDocSearchHit.__docsearch_parent._highlightResult || {}).hierarchy || {}).lvl0
+        :(
+            highlightResult.hierarchy
+              || (highlightResult.hierarchy_camel || [])[0]
+              || {}
+          ).lvl0
+    ) || {};
 
   let removeHighLightValue =  value && regexHasHighlightTags.test(value)
     ? value.replace(regexHighlightTags, '')

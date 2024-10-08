@@ -160,11 +160,16 @@
 			resultsScreen: { resultsText, noResultsText, askNoResultsText },
 		},
 	} = searchPageConfig;
+	const crawlerUrl = 'https://zh.uniapp.dcloud.io/'
 
-	const resolveRoutePathFromUrl = (url, base = '/') =>
-		url
+	const resolveRoutePathFromUrl = (url, base = '/') => {
+		if (url.indexOf(crawlerUrl) === 0) {
+			return url.replace(crawlerUrl, 'https://uniapp.dcloud.io/')
+		}
+		return url
 			// remove url origin
-			.replace(/^(https?:)?\/\/[^/]*/, '');
+			// .replace(/^(https?:)?\/\/[^/]*/, '');
+	}
 
 	export default {
 		name: 'DcloudSearchPage',

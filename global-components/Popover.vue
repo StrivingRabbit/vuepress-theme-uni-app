@@ -1,5 +1,5 @@
 <script setup>
-import { ref, useSlots, defineEmits } from 'vue'
+import { ref, useSlots } from 'vue'
 import { getNavbarHeight } from '../util'
 
 const emit = defineEmits(['show', 'hide'])

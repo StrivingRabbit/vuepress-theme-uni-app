@@ -121,6 +121,10 @@ const vPopover = {
   padding: 10px;
 }
 
+.popover-reference-wrapper {
+  display: inline-block;
+}
+
 .fade-in-enter-active,.fade-in-leave-active {
     transition: all .15s cubic-bezier(.55,0,.1,1)
 }

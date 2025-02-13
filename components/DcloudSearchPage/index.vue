@@ -361,11 +361,6 @@
 				let categoryArr = [`category:${this.currentCategory.text}`];
 				categoryArr.push(...extraFacetFilters)
 				categoryArr = [categoryArr];
-				if (this.currentCategory.text === 'uni-app x') {
-					// category:uni-app OR tag:UTS OR tag:插件
-					categoryArr.push('tag:插件', 'tag:工程化')
-					categoryArr = [categoryArr];
-				}
 				return searchClient(
 					Object.assign({}, this.options, {
 						query: `'${this.searchValue}'`,

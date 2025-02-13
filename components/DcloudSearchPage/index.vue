@@ -159,6 +159,7 @@
 			searchBox: { placeholder, buttonText, searchBy },
 			resultsScreen: { resultsText, noResultsText, askNoResultsText },
 		},
+		extraFacetFilters = []
 	} = searchPageConfig;
 	const crawlerUrl = 'https://zh.uniapp.dcloud.io/'
 
@@ -358,11 +359,8 @@
 			searchByAlgolia() {
 				const { searchParameters = {} } = this.options;
 				let categoryArr = [`category:${this.currentCategory.text}`];
-				if (this.currentCategory.text === 'uni-app') {
-					// category:uni-app OR tag:UTS OR tag:插件
-					categoryArr.push('tag:UTS', 'tag:插件')
-					categoryArr = [categoryArr];
-				}
+				categoryArr.push(...extraFacetFilters)
+				categoryArr = [categoryArr];
 				if (this.currentCategory.text === 'uni-app x') {
 					// category:uni-app OR tag:UTS OR tag:插件
 					categoryArr.push('tag:插件', 'tag:工程化')

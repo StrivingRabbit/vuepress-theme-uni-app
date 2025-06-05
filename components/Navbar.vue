@@ -52,7 +52,7 @@
         </div>
       </div>
 
-      <div class="links" :style="SearchBoxStyle">
+      <div class="links" :style="{ top: `${this.SearchBoxTop}px` }">
         <!-- <a class="switch-version" href="javascript:void(0)">回到旧版</a> -->
         <DcloudSearchPage v-if="isAlgoliaSearch" ref="dcloudSearchPage" :options="algolia" />
         <AlgoliaSearchBox v-if="isAlgoliaSearch" />
@@ -105,7 +105,6 @@ export default {
 
   data () {
     return {
-      linksWrapMaxWidth: null,
       showMobilePanel: false,
       fixedNavbar: false,
       SearchBoxTop: 0,
@@ -120,35 +119,11 @@ export default {
 
     isAlgoliaSearch () {
       return this.algolia && this.algolia.apiKey && this.algolia.indexName
-    },
-
-    SearchBoxStyle () {
-      const initStyle = {
-        top: `${this.SearchBoxTop}px`,
-        zIndex: 100
-      };
-      return this.linksWrapMaxWidth
-        ? Object.assign({}, initStyle, {
-            'max-width': this.linksWrapMaxWidth + 'px',
-          })
-        : initStyle;
-    },
-
-    languageBoxStyle () {
-      return {right:(this.linksWrapMaxWidth + 10) + 'px'}
     }
   },
 
   mounted () {
-    const MOBILE_DESKTOP_BREAKPOINT = 719 // refer to config.styl
-    const NAVBAR_VERTICAL_PADDING = parseInt(css(this.$el, 'paddingLeft')) + parseInt(css(this.$el, 'paddingRight'))
     const handleLinksWrapWidth = () => {
-      if (document.documentElement.clientWidth < MOBILE_DESKTOP_BREAKPOINT) {
-        this.linksWrapMaxWidth = null
-      } else {
-        this.linksWrapMaxWidth = this.$el.offsetWidth - NAVBAR_VERTICAL_PADDING
-          - (this.$refs.siteName && this.$refs.siteName.offsetWidth || 0)
-      }
       this.$nextTick(this.initNavBar)
     }
     handleLinksWrapWidth()
@@ -184,9 +159,7 @@ export default {
       }
     },
     addWindowScroll () {
-      if (os.pc) {
-        window.addEventListener('scroll', this.onWindowScroll, false)
-      }
+      window.addEventListener('scroll', this.onWindowScroll, false)
     },
     removeWindowScroll () {
       window.removeEventListener('scroll', this.onWindowScroll)
@@ -291,6 +264,7 @@ $navbar-horizontal-padding = 1.5rem
     color $textColor
     position relative
   .links
+    z-index 100
     height 100%
     // padding-left 1.5rem
     box-sizing border-box

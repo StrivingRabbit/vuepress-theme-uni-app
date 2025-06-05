@@ -33,6 +33,9 @@
     "publish:major": "npm version major  && npm publish",
     "postpublish": "cnpm sync vuepress-theme-uniapp-official"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@docsearch/css": "^3.6.0",
     "@vuepress/plugin-back-to-top": "^1.9.5",

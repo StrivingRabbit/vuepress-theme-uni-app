@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.4.36
+
+### Patch Changes
+
+- fix: 优化在移动设备上侧边栏的显示效果
+
 ## 1.4.35
 
 ### Patch Changes

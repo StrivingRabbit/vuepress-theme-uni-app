@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.4.38
+
+### Patch Changes
+
+- feat: 代码预览 web 示例 iframe 使用 lazy 加载
+
 ## 1.4.36
 
 ### Patch Changes

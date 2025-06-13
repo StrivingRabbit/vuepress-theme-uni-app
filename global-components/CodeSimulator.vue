@@ -186,6 +186,7 @@ export default {
               src: this.src,
               frameborder: '0',
               allow: 'geolocation https://hellouniappx.dcloud.net.cn',
+              loading: 'lazy'
             },
             ref: 'codeIframe',
           }),

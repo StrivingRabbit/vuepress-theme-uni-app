@@ -6,49 +6,41 @@
     @touchend="onTouchEnd"
     @keydown.ctrl="openSearch = true"
   >
-    <Navbar
-      v-if="shouldShowNavbar"
-      @toggle-sidebar="toggleSidebar"
-    />
+    <Navbar v-if="shouldShowNavbar" @toggle-sidebar="toggleSidebar" />
 
-    <div
-      class="sidebar-mask"
-      @click="toggleSidebar(false)"
-    />
+    <div class="sidebar-mask" @click="toggleSidebar(false)" />
 
-    <Sidebar
-      ref="sidebar"
-      :items="sidebarItems"
-      @toggle-sidebar="toggleSidebar"
-      @hook:mounted="activeSidebarLinkVisible"
-    >
-      <template #top>
-        <slot name="sidebar-top" />
-      </template>
-      <template #bottom>
-        <slot name="sidebar-bottom" />
-        <SiderBarBottom v-if="$lang === LOCALE_ZH_HANS" />
-      </template>
-    </Sidebar>
+    <div class="content-container">
+      <Sidebar
+        ref="sidebar"
+        :items="sidebarItems"
+        @toggle-sidebar="toggleSidebar"
+        @hook:mounted="activeSidebarLinkVisible"
+      >
+        <template #top>
+          <slot name="sidebar-top" />
+        </template>
+        <template #bottom>
+          <slot name="sidebar-bottom" />
+          <SiderBarBottom v-if="$lang === LOCALE_ZH_HANS" />
+        </template>
+      </Sidebar>
 
-    <Home v-if="$page.frontmatter.home" />
+      <Home v-if="$page.frontmatter.home" />
 
-    <Page
-      v-else
-      :sidebar-items="sidebarItems"
-      :style="pageStyle"
-    >
-      <template #top>
-        <slot name="page-top" />
-        <TocTop/>
-      </template>
-      <template #bottom>
-        <slot name="page-bottom" />
-        <Footer />
-      </template>
-    </Page>
+      <Page v-else :sidebar-items="sidebarItems" :style="pageStyle">
+        <template #top>
+          <slot name="page-top" />
+          <TocTop />
+        </template>
+        <template #bottom>
+          <slot name="page-bottom" />
+          <Footer />
+        </template>
+      </Page>
 
-    <Toc />
+      <Toc />
+    </div>
   </div>
 </template>
 
@@ -57,18 +49,18 @@ import Home from '@theme/components/Home.vue'
 import Navbar from '@theme/components/Navbar.vue'
 import Page from '@theme/components/Page.vue'
 import Sidebar from '@theme/components/Sidebar.vue'
-import Footer from '@theme/components/Footer.vue';
-import SiderBarBottom from '../components/SiderBarBottom.vue';
-import Toc from '../components/Toc';
-import TocTop from '../components/Toc-top';
+import Footer from '@theme/components/Footer.vue'
+import SiderBarBottom from '../components/SiderBarBottom.vue'
+import Toc from '../components/Toc'
+import TocTop from '../components/Toc-top'
 import { resolveSidebarItems, forbidScroll } from '../util'
-import navProvider from '../mixin/navProvider';
-import toc from '../mixin/toc';
-import { LOCALE_ZH_HANS } from '@theme-config/i18n';
+import navProvider from '../mixin/navProvider'
+import toc from '../mixin/toc'
+import { LOCALE_ZH_HANS } from '@theme-config/i18n'
 
 export default {
   name: 'Layout',
-  mixins: [ navProvider, toc ],
+  mixins: [navProvider, toc],
   components: {
     Home,
     Page,
@@ -77,67 +69,50 @@ export default {
     Footer,
     SiderBarBottom,
     Toc,
-    TocTop
+    TocTop,
   },
-  data () {
+  data() {
     return {
       isSidebarOpen: false,
-      LOCALE_ZH_HANS
+      LOCALE_ZH_HANS,
     }
   },
   computed: {
-    shouldShowNavbar () {
+    shouldShowNavbar() {
       const { themeConfig } = this.$site
       const { frontmatter } = this.$page
-      if (
-        frontmatter.navbar === false
-        || themeConfig.navbar === false) {
+      if (frontmatter.navbar === false || themeConfig.navbar === false) {
         return false
       }
-      return (
-        this.$title
-        || themeConfig.logo
-        || themeConfig.repo
-        || themeConfig.nav
-        || this.$themeLocaleConfig.nav
-      )
+      return this.$title || themeConfig.logo || themeConfig.repo || themeConfig.nav || this.$themeLocaleConfig.nav
     },
-    shouldShowSidebar () {
+    shouldShowSidebar() {
       const { frontmatter } = this.$page
-      return (
-        !frontmatter.home
-        && frontmatter.sidebar !== false
-        && this.sidebarItems.length
-      )
+      return !frontmatter.home && frontmatter.sidebar !== false && this.sidebarItems.length
     },
-    sidebarItems () {
-      return resolveSidebarItems(
-        this.$page,
-        this.$page.regularPath,
-        this.$site,
-        this.$localePath
-      )
+    sidebarItems() {
+      return resolveSidebarItems(this.$page, this.$page.regularPath, this.$site, this.$localePath)
     },
-    pageClasses () {
+    pageClasses() {
       const userPageClass = this.$page.frontmatter.pageClass
       return [
         {
           'no-navbar': !this.shouldShowNavbar,
           'sidebar-open': this.isSidebarOpen,
-          'no-sidebar': !this.shouldShowSidebar
+          'no-sidebar': !this.shouldShowSidebar,
         },
-        userPageClass
+        userPageClass,
       ]
     },
-    pageStyle () {
-      const style = {};
+    pageStyle() {
+      const style = {}
 
-      !this.visible && (style.paddingRight = '0px');
+      !this.visible && (style.paddingRight = '0px')
 
-      return style;
-    }
+      return style
+    },
   },
-  mounted () {
+  mounted() {
     this.$router.afterEach(() => {
       this.isSidebarOpen = false
     })
@@ -145,18 +120,18 @@ export default {
     this.renderNavLinkState()
   },
   methods: {
-    toggleSidebar (to) {
+    toggleSidebar(to) {
       this.isSidebarOpen = typeof to === 'boolean' ? to : !this.isSidebarOpen
       this.$emit('toggle-sidebar', this.isSidebarOpen)
     },
     // side swipe
-    onTouchStart (e) {
+    onTouchStart(e) {
       this.touchStart = {
         x: e.changedTouches[0].clientX,
-        y: e.changedTouches[0].clientY
+        y: e.changedTouches[0].clientY,
       }
     },
-    onTouchEnd (e) {
+    onTouchEnd(e) {
       const dx = e.changedTouches[0].clientX - this.touchStart.x
       const dy = e.changedTouches[0].clientY - this.touchStart.y
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
@@ -172,16 +147,18 @@ export default {
         const navs = document.querySelectorAll('nav')
         const navLinks = []
         const sidebarLinks = Object.keys(this.$themeConfig.sidebar)
-        const matchSidebar = sidebarLinks.filter(i => this.$page.path.includes(i)).sort((a,b) => b.length -a.length)[0]
+        const matchSidebar = sidebarLinks
+          .filter(i => this.$page.path.includes(i))
+          .sort((a, b) => b.length - a.length)[0]
         navs.forEach(nav => {
           nav.querySelectorAll('a').forEach(navLink => {
-            if(navLink.className.indexOf('external') === -1) {
+            if (navLink.className.indexOf('external') === -1) {
               navLinks.push(navLink)
             }
           })
         })
 
-        navLinks.forEach((navLink,index) => {
+        navLinks.forEach((navLink, index) => {
           navLink.classList.remove('router-link-active')
           const matchWithoutMatchSidebar = sidebarLinks
             .filter(i => i !== matchSidebar && i !== '/')
@@ -191,10 +168,7 @@ export default {
           if (path) {
             if (
               navLink.href.match(matchSidebar) !== null &&
-              (
-                typeof matchWithoutMatchSidebar === 'undefined' ||
-                matchWithoutMatchSidebar.length < matchSidebar.length
-              )
+              (typeof matchWithoutMatchSidebar === 'undefined' || matchWithoutMatchSidebar.length < matchSidebar.length)
             ) {
               navLink.classList.add('router-link-active')
             }
@@ -204,7 +178,7 @@ export default {
           } else {
             // 0 => PC
             // navLinks.length / 2 => mobile
-            if(index === 0 || index === navLinks.length / 2) {
+            if (index === 0 || index === navLinks.length / 2) {
               navLink.classList.add('router-link-active')
               return
             }
@@ -220,19 +194,19 @@ export default {
           const sidebarScrollTop = sidebarEL.scrollTop
           const windowInnerHeight = window.innerHeight
           const { height, top, bottom } = activeLink.getBoundingClientRect()
-          if ((sidebarScrollTop + 50) > activeLink.offsetTop || (bottom + height) > windowInnerHeight) {
-            activeLink.scrollIntoView({ block: "center" })
+          if (sidebarScrollTop + 50 > activeLink.offsetTop || bottom + height > windowInnerHeight) {
+            activeLink.scrollIntoView({ block: 'center' })
           }
         }
       })
-    }
+    },
   },
   watch: {
     isSidebarOpen: forbidScroll,
     $route() {
       this.renderNavLinkState()
       this.activeSidebarLinkVisible()
-    }
-  }
+    },
+  },
 }
 </script>

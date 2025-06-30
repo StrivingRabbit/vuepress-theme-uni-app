@@ -128,6 +128,7 @@ export default {
 
 <style lang="stylus">
 .nav-links
+  max-width 90%
   display inline-block
   a
     line-height 1.4rem

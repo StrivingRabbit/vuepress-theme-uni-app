@@ -16,7 +16,7 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
   .title-logo
     padding-left 20px
     border-left 1px solid #ccc
-    @media (max-width: 1080px)
+    @media (max-width: $DocSearch_MQMobile)
       &
         display none
   .sub-navbar
@@ -35,8 +35,7 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
     justify-content center
     align-items center
     .main-navbar-links
-      width 50%
-      white-space: nowrap;
+      width 55%
       display inline-block
       @media (min-width: 1080px) and (max-width: 1680px)
         &
@@ -77,7 +76,7 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
     color inherit
     &:hover
       color $accentColor
-  
+
   .custom-main-navbar
     position absolute
     height 30px
@@ -87,7 +86,7 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
       display none
     a
       color inherit
-    .nav-dropdown 
+    .nav-dropdown
       right auto
       left 0
       z-index 12
@@ -100,7 +99,7 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
     user-select none
     position absolute
     right 12.5rem
-    @media (max-width: 1200px)
+    @media (max-width: $DocSearch_MQMobile)
       &
         right 4.5rem
     &>div:nth-child(1)
@@ -237,7 +236,7 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
           height 1px
           background-color #e4e8eb
           transform scaleY(.5)
-        .subnavbar__item 
+        .subnavbar__item
           a
             display block
             padding 0 16px

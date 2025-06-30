@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.4.39
+
+### Patch Changes
+
+- feat: 调整导航栏样式
+
 ## 1.4.38
 
 ### Patch Changes

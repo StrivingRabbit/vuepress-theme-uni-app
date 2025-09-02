@@ -51,5 +51,10 @@
     "vuepress-plugin-mermaidjs": "1.9.1",
     "vuepress-plugin-named-chunks": "^1.1.4",
     "vuepress-plugin-zooming": "^1.1.8"
+  },
+  "resolutions": {
+    "terser-webpack-plugin": "1.4.6",
+    "markdown-it": "< 14",
+    "vue": "2.7.16"
   }
 }

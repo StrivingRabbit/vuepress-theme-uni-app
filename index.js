@@ -1,16 +1,16 @@
 function getFormattedDate() {
-  const now = new Date();
+	const now = new Date();
 
-  const year = now.getFullYear();
-  const month = (now.getMonth() + 1).toString().padStart(2, '0');
-  const day = now.getDate().toString().padStart(2, '0');
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const seconds = now.getSeconds().toString().padStart(2, '0');
+	const year = now.getFullYear();
+	const month = (now.getMonth() + 1).toString().padStart(2, '0');
+	const day = now.getDate().toString().padStart(2, '0');
+	const hours = now.getHours().toString().padStart(2, '0');
+	const minutes = now.getMinutes().toString().padStart(2, '0');
+	const seconds = now.getSeconds().toString().padStart(2, '0');
 
-  const formattedDate = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+	const formattedDate = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
 
-  return formattedDate;
+	return formattedDate;
 }
 
 const nowString = getFormattedDate();
@@ -40,7 +40,7 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 		}
 	})
 
-	pluginAPI.options.extendMarkdown.add('vuepress-theme-uni-app-md-plugins', (md) =>{
+	pluginAPI.options.extendMarkdown.add('vuepress-theme-uni-app-md-plugins', (md) => {
 		md.core.ruler.disable('emoji', true)
 		md.use(require('markdown-it-attrs'), {
 			leftDelimiter: '#{',
@@ -59,9 +59,9 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 	 */
 	ctx.siteConfig.shouldPrefetch = function (path, type) {
 		let themeShouldPrefetch = true
-    if (type === 'script') themeShouldPrefetch = path.includes('vendors~') || path.includes('layout-') || path.includes('index.')
+		if (type === 'script') themeShouldPrefetch = path.includes('vendors~') || path.includes('layout-') || path.includes('index.')
 		else { themeShouldPrefetch = false }
-    return originalShouldPrefetch.call(this, path, type) || themeShouldPrefetch
+		return originalShouldPrefetch.call(this, path, type) || themeShouldPrefetch
 	}
 	ctx.siteConfig.patterns = ctx.siteConfig.patterns || ['**/!(_sidebar).md', '**/*.vue']
 
@@ -89,7 +89,24 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 					}
 				}
 			}],
-			['container',{
+			['container', {
+				type: 'sourceCode',
+				validate: (params) => {
+					return params.trim().match(/^sourceCode/);
+				},
+
+				render: (tokens, idx, opts, event) => {
+					var m = tokens[idx].info.trim().match(/^sourceCode\s+(.*)$/);
+					if (tokens[idx].nesting === 1) {
+						// opening tag
+						return `<SourceCode>`;
+					} else {
+						// closing tag
+						return `</SourceCode>`;
+					}
+				}
+			}],
+			['container', {
 				type: klass,
 				render(tokens, idx, opts, env) {
 					const token = tokens[idx]
@@ -106,7 +123,7 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 					bgColor: 'rgba(0,0,0,0.6)'
 				}
 			}],
-			['named-chunks',{
+			['named-chunks', {
 				layoutChunkName: (layout) => 'layout-' + layout.componentName,
 				pageChunkName: page => {
 					const _context = page._context
@@ -123,8 +140,8 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 					return curPath
 				}
 			}],
-			['check-md2',{
-				filter({errMsg, fileUrl, fullText, matchUrl, col, line}){
+			['check-md2', {
+				filter({ errMsg, fileUrl, fullText, matchUrl, col, line }) {
 					/**
 					 * errMsg："Should use .md instead of .html"、"File is not found"、"Hash should slugify"、"Hash is not found"
 					 */

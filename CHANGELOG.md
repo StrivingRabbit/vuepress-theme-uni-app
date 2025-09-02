@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.4.40
+
+### Patch Changes
+
+- feat: 新增 container sourceCode
+
 ## 1.4.39
 
 ### Patch Changes

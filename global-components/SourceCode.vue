@@ -1,5 +1,5 @@
 <script>
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, onMounted, getCurrentInstance } from 'vue';
 
 function vnode2h(vnode) {
   if (typeof vnode.tag === 'undefined') {
@@ -10,6 +10,7 @@ function vnode2h(vnode) {
 
 export default defineComponent({
   setup(props, { slots }) {
+    const { proxy } = getCurrentInstance()
     const sources = {}
     const renderVNodes = []
     slots.default()
@@ -33,6 +34,13 @@ export default defineComponent({
     const H = renderVNodes[0]
     if (!H.data.style) H.data.style = {}
     Object.assign(H.data.style, { display: 'flex', justifyContent: 'space-between' })
+    onMounted(() => {
+      try {
+        if (!(proxy.$title && proxy.$page.title)) {
+          document.title = proxy.$page.title = `${H.children[1].text} | ${proxy.$siteTitle || ''}`.trim()
+        }
+      } catch (error) { }
+    })
     return () => h(
       H.tag,
       H.data,

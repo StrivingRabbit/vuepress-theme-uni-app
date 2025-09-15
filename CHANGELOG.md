@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.4.41
+
+### Patch Changes
+
+- feat: 使用 SourceCode container 如果页面上没有 title 则改写 document.title
+
 ## 1.4.40
 
 ### Patch Changes

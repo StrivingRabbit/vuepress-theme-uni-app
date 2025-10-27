@@ -56,5 +56,8 @@
     "terser-webpack-plugin": "1.4.6",
     "markdown-it": "< 14",
     "vue": "2.7.16"
+  },
+  "devDependencies": {
+    "vue": "2.7.16"
   }
 }

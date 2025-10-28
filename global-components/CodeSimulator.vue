@@ -237,7 +237,7 @@ export default {
         }
       }
 
-      if (vnode.tag === 'noscript') {
+      if (vnode.tag === 'div' && vnode.data.staticClass.indexOf('noscript') > -1) {
         noscriptDom.push(vnode)
       }
     }

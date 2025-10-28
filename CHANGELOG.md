@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.4.43
+
+### Patch Changes
+
+- Updated dependencies
+  - vuepress-plugin-noscript-code@1.0.1
+
 ## 1.4.42
 
 ### Patch Changes

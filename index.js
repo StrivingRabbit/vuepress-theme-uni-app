@@ -152,7 +152,10 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 					return hashNotFound || replaceHtmlExtToMd || fileNotFound || hashShouldSlugify
 				}
 			}],
-			'expandable-row'
+			'expandable-row',
+			['noscript-code', {
+				AIPrompt: 'AI Prompt：示例源码如下（仅在无脚本环境下可见）'
+			}]
 		]
 	}
 

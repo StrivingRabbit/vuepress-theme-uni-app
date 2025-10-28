@@ -198,6 +198,7 @@ export default {
     const columns = this.$slots.default || []
     let boxObj = []
     let realDom = []
+    let noscriptDom = []
     columns.forEach((v, i) => {
       if (v.tag && v.children) {
         realDom.push(v)
@@ -235,11 +236,15 @@ export default {
           }
         }
       }
+
+      if (vnode.tag === 'noscript') {
+        noscriptDom.push(vnode)
+      }
     }
     this.firstRender = false
     const appRedirectQrCode = this.createQRCodeSVG(h)
     if (boxObj.length > 0) {
-      return h('div', null, [appRedirectQrCode, this.wrapHeader(h, boxObj)])
+      return h('div', null, [appRedirectQrCode, this.wrapHeader(h, boxObj), noscriptDom])
     } else {
       if (this.src) {
         return h('div', null, [appRedirectQrCode, this.renderDom(h, this.$slots.default)])

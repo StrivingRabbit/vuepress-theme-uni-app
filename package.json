@@ -47,6 +47,7 @@
     "qr-code-with-logo": "^1.1.0",
     "vuepress-plugin-check-md2": "workspace:^",
     "vuepress-plugin-expandable-row": "workspace:^",
+    "vuepress-plugin-noscript-code": "workspace:^",
     "vuepress-plugin-juejin-style-copy": "^1.0.4",
     "vuepress-plugin-mermaidjs": "1.9.1",
     "vuepress-plugin-named-chunks": "^1.1.4",

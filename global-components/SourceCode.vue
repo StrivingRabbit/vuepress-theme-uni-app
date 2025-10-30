@@ -8,6 +8,14 @@ function vnode2h(vnode) {
   return h(vnode.tag, vnode.data, vnode.children ? vnode.children.map(vnode2h) : [])
 }
 
+function renderClass(url) {
+  if (url.indexOf('github.com') !== -1) {
+    return 'github-url icon-github'
+  } else if (url.indexOf('gitcode.com') !== -1) {
+    return 'gitcode-url icon-gitcode'
+  }
+}
+
 export default defineComponent({
   setup(props, { slots }) {
     const { proxy } = getCurrentInstance()
@@ -46,18 +54,29 @@ export default defineComponent({
       H.data,
       [
         h('span', null, H.children.map(vnode2h)),
-        h('span', { style: { marginLeft: '10px', alignSelf: 'center', fontSize: 'initial' } },
+        h('span', { style: { alignSelf: 'center', fontSize: 'initial' } },
           Object.keys(sources).map(git => h('a', {
             attrs: {
               href: sources[git],
               target: '_blank',
               rel: 'noopener noreferrer',
             },
+            class: renderClass(sources[git]),
             style: { marginLeft: '5px' }
-          }, git))
+          }))
         )
       ]
     )
   }
 });
 </script>
+
+<style scoped>
+a.github-url::after {
+  content: "GitHub";
+}
+
+a.gitcode-url::after {
+  content: "GitCode";
+}
+</style>

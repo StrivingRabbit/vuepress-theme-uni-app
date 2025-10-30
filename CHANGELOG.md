@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.5.0
+
+### Minor Changes
+
+- fix: 优化爬虫获取 H 标签
+
 ## 1.4.44
 
 ### Patch Changes

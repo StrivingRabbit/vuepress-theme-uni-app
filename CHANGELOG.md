@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.5.2
+
+### Patch Changes
+
+- feat: 调整 search footer
+
 ## 1.5.1
 
 ### Patch Changes

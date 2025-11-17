@@ -107,12 +107,15 @@
 	.page-bar
 	  display flex
 	  justify-content center
-	  margin 10px
 
-	ul, li
-	  margin 0px
-	  padding 0px
-	  user-select none
+	ul
+		margin 0px
+		line-height normal
+		padding 0px
+		li
+			margin 0px
+			padding 0px
+			user-select none
 
 	li
 	  display inline-block
@@ -128,11 +131,10 @@
 	  position relative
 	  float left
 	  padding 2px 10px
-	  margin-left -1px
-	  line-height 1.42857143
+	  line-height 1.5
 	  color #5d6062
 	  cursor pointer
-	  margin-right 20px
+	  margin-right 15px
 	  background-color #fff
 
 	.page-bar a:hover

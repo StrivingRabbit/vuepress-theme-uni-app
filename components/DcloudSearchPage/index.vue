@@ -78,7 +78,17 @@
 						<div class="markdown-section search-result-list" v-if="serverHtml" v-html="serverHtml"></div>
 					</template>
 				</div>
+			</div>
 
+			<div class="search-footer">
+				<div class="search-pagination">
+					<pagination v-show="showPagination" @research="research" :totalPage="totalPage" :curPage="curPage"
+						:pageSize="pageSize" />
+					<a v-if="showMoreAsk" class="search-more" @click="moreAskResult">
+						<span v-if="showServerLoading" class="uni-loading"></span>
+						<span v-else>{{ hasNoMoreServerResult ? '没有更多了' : '更多...' }}</span>
+					</a>
+				</div>
 				<div v-if="isAlgolia" class="algolia-logo">
 					<div class="DocSearch-Logo">
 						<a href="https://www.algolia.com/ref/docsearch/?utm_source=uniapp.dcloud.io&amp;utm_medium=referral&amp;utm_content=powered_by&amp;utm_campaign=docsearch"
@@ -92,15 +102,6 @@
 						</a>
 					</div>
 				</div>
-			</div>
-
-			<div class="search-pagination">
-				<pagination v-show="showPagination" @research="research" :totalPage="totalPage" :curPage="curPage"
-					:pageSize="pageSize" />
-				<a v-if="showMoreAsk" class="search-more" @click="moreAskResult">
-					<span v-if="showServerLoading" class="uni-loading"></span>
-					<span v-else>{{ hasNoMoreServerResult ? '没有更多了' : '更多...' }}</span>
-				</a>
 			</div>
 		</div>
 	</div>
@@ -257,16 +258,18 @@ export default {
 
 	methods: {
 		initResultWrapHeight() {
-			if (!this.$el) return;
+			if (!this.$el || !this.$refs.pageContainer) return;
 
 			const pageHeight = this.$el.clientHeight;
 			const container = this.$refs.pageContainer.querySelector('.search-page-content');
 			const subNavbar = container.querySelector('.sub-navbar');
 			const resultNumber = container.querySelector('.result-number');
 			const searchResult = container.querySelector('.search-result');
+			const alogliaLogo = document.querySelector('.algolia-logo');
 
 			const searchNavbarHeight = subNavbar ? subNavbar.clientHeight : 83;
 			const resultNumberHeight = (resultNumber || { clientHeight: 47 }).clientHeight;
+			const algoliaLogoHeight = (alogliaLogo || { clientHeight: 49 }).clientHeight;
 			const searchPagination = 36 + 20; // pagination height + margin
 
 			if (searchResult) {
@@ -275,6 +278,7 @@ export default {
 					searchNavbarHeight -
 					resultNumberHeight -
 					searchPagination -
+					algoliaLogoHeight -
 					// 多余空间 mobile
 					20 -
 					60 + 'px';

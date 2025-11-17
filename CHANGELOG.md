@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.5.1
+
+### Patch Changes
+
+- feat: 调整搜索页样式
+
 ## 1.5.0
 
 ### Minor Changes

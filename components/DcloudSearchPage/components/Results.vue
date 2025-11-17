@@ -63,4 +63,8 @@
 		font-size 1em;
 		padding 15px 4px 15px
 	}
+
+	@media (max-width $MQMobile)
+		.DocSearch-Hit-source
+			padding 8px 4px 8px
 </style>

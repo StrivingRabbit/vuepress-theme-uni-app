@@ -54,7 +54,7 @@ export default defineComponent({
       H.data,
       [
         h('span', null, H.children.map(vnode2h)),
-        h('span', { style: { alignSelf: 'center', fontSize: 'initial' } },
+        h('span', { style: { alignSelf: 'center', fontSize: 'initial', display: 'flex', flexWrap: 'wrap' } },
           Object.keys(sources).map(git => h('a', {
             attrs: {
               href: sources[git],

@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.5.3
+
+### Patch Changes
+
+- feat: 弹出时添加动画
+  feat: 搜索时重置搜索结果滚动条
+
 ## 1.5.2
 
 ### Patch Changes

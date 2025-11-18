@@ -4,6 +4,12 @@ $svg-hover-color = #9b9b9b
 @import './styles/ext.styl'
 @import './styles/ask.styl'
 
+.fade-enter-active, .fade-leave-active
+  transition: opacity 0.3s ease;
+
+.fade-enter, .fade-leave-to
+  opacity: 0;
+
 #search-container
   font-size: 16px
   position relative
@@ -65,6 +71,7 @@ $svg-hover-color = #9b9b9b
 
 .search-page-content
   width: 90%;
+  max-width 1000px;
   margin: 20px auto 20px;
   background-color: #fff;
   border-radius: 6px;

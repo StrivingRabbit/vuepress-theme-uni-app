@@ -66,7 +66,7 @@
 				<span v-else>{{ resultText }}</span>
 			</div>
 
-			<div class="search-result">
+			<div class="search-result" ref="searchResult">
 				<div class="result-wrap">
 					<template v-if="isAlgolia">
 						<template v-for="item in resultList">
@@ -316,7 +316,12 @@ export default {
 							this.totalPage = nbPages;
 							this.curPage = page + 1;
 						})
-						.finally(() => (this.showLoading = false));
+						.finally(() => {
+							this.showLoading = false
+							this.$nextTick(() => {
+								this.$refs.searchResult.scrollTo({ top: 0, behavior: 'auto' })
+							})
+						});
 					break;
 				case 'server':
 					this.showLoading = true;
@@ -467,6 +472,6 @@ export default {
 };
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 	@import './index'
 </style>

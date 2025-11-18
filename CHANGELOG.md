@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.5.4
+
+### Patch Changes
+
+- fix: 问答社区、插件市场搜索结果样式失效
+  chore: 分离 animation 样式
+
 ## 1.5.3
 
 ### Patch Changes

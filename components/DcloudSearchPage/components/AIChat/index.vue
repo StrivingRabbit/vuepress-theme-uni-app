@@ -251,6 +251,8 @@ window.addEventListener('resize', scrollToBottom)
     box-sizing border-box
 
   .msg
+    display flex
+    flex-direction column
     margin-bottom 14px
 
   .msg.user
@@ -270,12 +272,14 @@ window.addEventListener('resize', scrollToBottom)
       max-width 80%
       background white
       border 1px solid #eee
+      margin-right auto
       pre
         background #f6f8fa
     .time
       margin-left 10px
 
   .bubble
+    display inline-block
     max-width 50%
     padding 10px 14px
     border-radius 14px

@@ -15,26 +15,18 @@ function transfromLang(lang) {
 
 export async function renderMarkdown(md) {
 	if (!markedInstance) {
-		const [{ Marked }, { markedHighlight }, hljs] = await Promise.all([
-			import('marked'),
-			import('marked-highlight'),
-			import('highlight.js'),
-		]);
-
-		const marked = new Marked(
-			markedHighlight({
-				emptyLangClass: 'hljs',
-				langPrefix: 'hljs language-',
-				highlight(code, lang, info) {
-					const language = transfromLang(lang);
-					return hljs.highlight(code, { language }).value;
-				},
-			})
-		);
+		const [marked, hljs] = await Promise.all([import('marked'), import('highlight.js')]);
 
 		marked.setOptions({
 			headerIds: false,
 			mangle: false,
+			highlight(code, lang) {
+				lang = transfromLang(lang);
+				if (lang && hljs.getLanguage(lang)) {
+					return hljs.highlight(code, { language: lang }).value;
+				}
+				return hljs.highlightAuto(code).value;
+			},
 		});
 
 		markedInstance = marked;

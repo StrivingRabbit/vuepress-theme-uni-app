@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.2
+
+### Patch Changes
+
+- fix: marked 版本过高导致 build error
+
 ## 1.6.1
 
 ### Patch Changes

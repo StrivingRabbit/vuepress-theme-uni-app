@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.1
+
+### Patch Changes
+
+- feat: 调整 AI 信息样式，容器宽度跟随文字
+  feat：调整搜索结果样式
+
 ## 1.6.0
 
 ### Minor Changes

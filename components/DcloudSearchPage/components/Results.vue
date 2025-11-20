@@ -61,10 +61,6 @@
 	  background-color $search-container-color;
 	  color: $accentColor;
 		font-size 1em;
-		padding 15px 4px 15px
+		padding 8px 4px
 	}
-
-	@media (max-width $MQMobile)
-		.DocSearch-Hit-source
-			padding 8px 4px 8px
 </style>

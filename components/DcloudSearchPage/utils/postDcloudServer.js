@@ -2,17 +2,26 @@ const isProduction = process.env.NODE_ENV === "production"
 const isMock = false
 import mock from './mock'
 
-function ajax(url = '', method = 'get',) {
+export function ajax(url = '', method = 'get', data = {}) {
   return new Promise((resolve, reject) => {
     if (!url) reject('url 不可为空')
     const xhr = new XMLHttpRequest();
     xhr.open(method, url);
     xhr.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
-        resolve(this.response)
+        try {
+          resolve(JSON.parse(this.response))
+        } catch (error) {
+          resolve(this.response)
+        }
       }
     }
-    xhr.send()
+    if (method.toLowerCase() === 'post') {
+      xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+      xhr.send(JSON.stringify(data));
+    } else {
+      xhr.send();
+    }
   })
 }
 

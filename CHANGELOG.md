@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.0
+
+### Minor Changes
+
+- feat: 支持 AI
+
 ## 1.5.4
 
 ### Patch Changes

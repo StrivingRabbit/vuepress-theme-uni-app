@@ -2,15 +2,24 @@
 let markedInstance = null;
 let hljsInstance = null;
 
-function transfromLang(lang) {
-	switch (lang) {
-		case 'uts':
-			return 'typescript';
-		case 'json5':
-			return 'json';
-	}
-	if (!hljsInstance) return 'plaintext';
-	return hljsInstance.getLanguage(lang) ? lang : 'plaintext';
+function getLangCodeFromExtension (extension) {
+  const extensionMap = {
+    vue: 'markup',
+    html: 'markup',
+    md: 'markdown',
+    rb: 'ruby',
+    ts: 'typescript',
+    py: 'python',
+    sh: 'bash',
+    yml: 'yaml',
+    styl: 'stylus',
+    kt: 'kotlin',
+    rs: 'rust',
+		uts: 'typescript',
+		json5: 'json',
+  }
+
+  return extensionMap[extension] || extension
 }
 
 export async function renderMarkdown(md) {
@@ -21,7 +30,7 @@ export async function renderMarkdown(md) {
 			headerIds: false,
 			mangle: false,
 			highlight(code, lang) {
-				lang = transfromLang(lang);
+				lang = getLangCodeFromExtension(lang);
 				if (lang && hljs.getLanguage(lang)) {
 					return hljs.highlight(code, { language: lang }).value;
 				}

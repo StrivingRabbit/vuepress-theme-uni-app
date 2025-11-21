@@ -164,9 +164,9 @@ function platformChange(newPlatform) {
   sendPlatform.value = newPlatform
 }
 
-// 限制只取最近 5 条消息
+// 限制只取最近 6 条消息
 function getChatHistory() {
-  return messages.value.slice(-5).map(m => ({
+  return messages.value.slice(-6).map(m => ({
     role: m.role,
     contentType: 'text',
     content: m.raw

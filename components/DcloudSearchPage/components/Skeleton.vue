@@ -1,3 +1,14 @@
+<template>
+  <div class="chat-skeleton chat-skeleton-left">
+    <div class="content">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line short"></div>
+    </div>
+  </div>
+</template>
+
+<style lang="stylus" scope>
 /* Skeleton base style */
 .skeleton
   background: #eee
@@ -20,7 +31,6 @@
 
 .chat-skeleton .line
   height: 14px
-  width: 60%
   border-radius: 6px
   @extend .skeleton
 
@@ -37,3 +47,5 @@
     display: flex
     flex-direction: column
     gap: 10px
+
+</style>

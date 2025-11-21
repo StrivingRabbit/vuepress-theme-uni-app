@@ -28,14 +28,7 @@
         </div>
       </transition-group>
 
-      <div v-if="sending" class="chat-skeleton chat-skeleton-left">
-        <div class="content">
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line short"></div>
-        </div>
-      </div>
-
+      <Skeleton style="width: 60%" v-if="sending" />
     </main>
 
     <footer class="chat-input-bar">
@@ -52,12 +45,12 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watchEffect, onMounted, onActivated, watch } from 'vue'
+import { ref, nextTick, watchEffect, onMounted } from 'vue'
 import { renderMarkdown } from "./markdown-loader";
-import 'highlight.js/styles/github.min.css'
 import SelectPlatform from './SelectPlatform.vue';
 import { ajax } from '../../utils/postDcloudServer';
 import searchPageConfig from '@theme-config/searchPage';
+import Skeleton from '../Skeleton';
 
 const { aiPlatforms = [], aiChatForDocSearch = 'https://ai-assist-api.dcloud.net.cn/tbox/chatForDocSearch' } = searchPageConfig;
 
@@ -98,7 +91,8 @@ watchEffect(() => {
   if (props.visible) {
     nextTick(() => {
       scrollToBottom()
-      autoGrow(true)
+      autoGrow()
+      input.value.focus()
     })
   }
 })
@@ -111,11 +105,11 @@ function formatTime() {
     .padStart(2, '0')}`
 }
 
-function autoGrow(clear) {
+function autoGrow() {
   const el = input.value
   el.style.height = 'auto'
   scrollToBottom()
-  if (clear === true) {
+  if (inputText.value.length === 0) {
     return
   }
   el.style.height = el.scrollHeight + 'px'
@@ -178,7 +172,7 @@ async function send() {
 
   const userText = inputText.value.trim()
   inputText.value = ''
-  autoGrow(true)
+  autoGrow()
 
   // 用户消息
   messages.value.push({
@@ -233,8 +227,6 @@ window.addEventListener('resize', scrollToBottom)
 </script>
 
 <style lang="stylus">
-@import './skeleton.styl'
-
 .chat-wrapper
   display flex
   flex-direction column

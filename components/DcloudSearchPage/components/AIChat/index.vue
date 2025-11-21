@@ -1,11 +1,13 @@
 <template>
   <div class="chat-wrapper">
-    <header class="chat-header">
-      <div class="title">DCloud 文档 AI 助手</div>
+    <!-- <header class="chat-header">
       <SelectPlatform :currentCategory="currentCategory" :platforms="aiPlatforms" @change="platformChange" />
-    </header>
+    </header> -->
 
     <main ref="msgList" class="chat-messages">
+      <div class="title">
+        <span>DCloud 文档 AI 助手</span>
+      </div>
       <transition-group name="fade-up" tag="div">
 
         <div v-for="m in messages" :key="m.id" :class="['msg', m.role]">
@@ -15,14 +17,10 @@
           <div class="meta">
             <span class="time">{{ m.time }}</span>
 
-            <!-- <div class="actions" v-if="m.role === 'assistant'">
-              <span class="icon" :class="{ active: m.like === 1 }" @click="setLike(m, 1)">
-                👍
-              </span>
-              <span class="icon" :class="{ active: m.like === -1 }" @click="setLike(m, -1)">
-                👎
-              </span>
-            </div> -->
+            <div class="actions" v-if="m.role === 'assistant'">
+              <LikeButton :active="status.like" type="like" @click.stop="like" />
+              <LikeButton :active="status.dislike" type="dislike" @click.stop="dislike" />
+            </div>
           </div>
 
         </div>
@@ -30,24 +28,28 @@
 
       <Skeleton style="width: 60%" v-if="sending" />
     </main>
-
     <footer class="chat-input-bar">
       <div class="input-container">
-        <textarea ref="input" v-model="inputText" class="chat-input" rows="1" placeholder="请输入内容…" @input="autoGrow"
+        <!--  导致多行时修改位于上面的行时会滚动 -->
+        <textarea ref="input" v-model="inputText" class="chat-input" rows="1" placeholder="请输入内容…"@input="autoGrow"
           @keydown.enter.exact.prevent="send" inputmode="text" enterkeyhint="newline"></textarea>
 
-        <button class="send-btn" :disabled="sending" @click="send">
-          发送
-        </button>
+        <div style="display: flex;justify-content: space-between;align-items: center;" @click.self="inputBottomClick">
+          <SelectPlatform :currentCategory="currentCategory" :platforms="aiPlatforms" @change="platformChange" />
+          <button class="send-btn" :disabled="sending" @click="send">
+            发送
+          </button>
+        </div>
       </div>
     </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick, watchEffect, onMounted } from 'vue'
+import { ref, nextTick, watchEffect, onMounted, reactive } from 'vue'
 import { renderMarkdown } from "./markdown-loader";
 import SelectPlatform from './SelectPlatform.vue';
+import LikeButton from '../LikeButton.vue';
 import { ajax } from '../../utils/postDcloudServer';
 import searchPageConfig from '@theme-config/searchPage';
 import Skeleton from '../Skeleton';
@@ -112,8 +114,15 @@ function autoGrow() {
   if (inputText.value.length === 0) {
     return
   }
-  el.style.height = el.scrollHeight + 'px'
-  el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+  // TODO +2 是解决在输入第一行时有滚动条的问题，需进一步优化
+  el.style.height = el.scrollHeight + 2 + 'px'
+}
+
+function inputBottomClick() {
+  nextTick(() => {
+    input.value.focus()
+    input.value.scrollTo({ top: input.value.scrollHeight, behavior: 'smooth' })
+  })
 }
 
 function scrollToBottom() {
@@ -224,6 +233,27 @@ async function send() {
   scrollToBottom()
 }
 
+const status = reactive({
+  like: false,
+  dislike: false
+})
+
+function like() {
+  console.log('like');
+  status.like = !status.like;
+  if (status.like) {
+    status.dislike = false;
+  }
+}
+
+function dislike() {
+  console.log('dislike');
+  status.dislike = !status.dislike;
+  if (status.dislike) {
+    status.like = false;
+  }
+}
+
 window.addEventListener('resize', scrollToBottom)
 </script>
 
@@ -235,17 +265,20 @@ window.addEventListener('resize', scrollToBottom)
   background #f9fafb
   overflow hidden
 
-  .chat-header
+  /* .chat-header
     height 56px
     display flex
     align-items center
     padding 0 16px
     background white
-    border-bottom 1px solid #eee
+    border-bottom 1px solid #eee */
 
   .title
-    font-size 18px
+    margin-top 30px
+    text-align center
+    font-size 30px
     font-weight 600
+    color #cecece
 
   .chat-messages
     flex 1
@@ -314,28 +347,18 @@ window.addEventListener('resize', scrollToBottom)
     align-items center
 
   .actions
+    margin-left 20px
     display flex
-    gap 10px
-
-  .icon
-    cursor pointer
-    opacity .5
-    transition .2s
-    &.active
-      opacity 1
-      color $accentColor
 
   .chat-input-bar
     padding 10px
-    background white
-    border-top 1px solid #eee
+    background transparent
+    // border-top 1px solid #eee
     display flex
     align-items flex-end
     justify-content center
 
   .input-container
-    display flex
-    align-items flex-end
     width 100%
     background #fff
     border 1px solid rgba(0,0,0,.1)
@@ -348,7 +371,9 @@ window.addEventListener('resize', scrollToBottom)
       box-shadow 0 0 0 2px rgba($accentColor, .2)
 
   .chat-input
-    flex 1
+    width 100%
+    padding 10px
+    box-sizing border-box
     resize none
     outline none
     border none

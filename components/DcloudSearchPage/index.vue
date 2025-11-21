@@ -16,7 +16,7 @@
 					<div class="tab" :class="{ active: !isAI }" @click="isAI = false">
 						搜索文档
 					</div>
-					<div class="divider" style="width: 1px;height: 80%; background-color: #ccc; margin: 0 10px;"></div>
+					<div class="divider" style="width: 1px;height: 80%; background-color: #eee; margin: 0 10px;"></div>
 					<div class="tab" :class="{ active: isAI }" @click="isAI = true">
 						问 AI
 					</div>
@@ -87,15 +87,7 @@
 										<Results v-if="!item.isAI" :key="item.sourceId" :title="item.title" :results="item.items"
 											:onSelect="item.onSelect" />
 										<template v-else>
-											<div class="ai-answer-card">
-												<div class="ai-answer-header">
-													<span class="ai-answer-icon">🤖</span>
-													<span class="ai-answer-title">{{ item.title }}</span>
-												</div>
-
-												<div v-if="item.msg.length" class="ai-answer-msg" v-html="item.msg" />
-												<Skeleton v-else />
-											</div>
+											<AIAnswer :item="item" />
 										</template>
 									</template>
 								</template>
@@ -147,8 +139,8 @@ import NavbarLogo from '../NavbarLogo.vue';
 import Results from './components/Results.vue';
 import pagination from './components/pagination.vue';
 import AIChat from './components/AIChat/index.vue';
+import AIAnswer from './components/AIAnswer.vue';
 import MainNavbarLink from '../MainNavbarLink.vue';
-import Skeleton from './components/Skeleton.vue';
 import { search as searchClient } from './utils/searchClient';
 import { postExt, postAsk } from './utils/postDcloudServer';
 import { forbidScroll, debounce } from '../../util';
@@ -185,7 +177,7 @@ export default {
 
 	props: ['options'],
 
-	components: { NavbarLogo, Results, pagination, MainNavbarLink, AIChat, Skeleton },
+	components: { NavbarLogo, Results, pagination, MainNavbarLink, AIChat, AIAnswer },
 
 	data() {
 		return {
@@ -580,5 +572,4 @@ export default {
 
 <style lang="stylus">
 	@import './index'
-	@import './ai-result.styl'
 </style>

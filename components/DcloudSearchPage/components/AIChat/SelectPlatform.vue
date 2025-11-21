@@ -37,7 +37,6 @@ watch(platform, (v) => emit('change', v))
 
 <style lang="stylus" scoped>
 .select-platform
-  margin-left auto
 
   select
     color black

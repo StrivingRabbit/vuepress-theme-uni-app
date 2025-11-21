@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.4
+
+### Patch Changes
+
+- style: 调整 AI 回答样式
+  fix: `1.` 等序号 marked 解析失败
+
 ## 1.6.3
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.3
+
+### Patch Changes
+
+- fix: vue 显示不高亮
+- feat: 问 AI 添加上下文
+- feat: 搜索结果添加 AI 回答
+
 ## 1.6.2
 
 ### Patch Changes

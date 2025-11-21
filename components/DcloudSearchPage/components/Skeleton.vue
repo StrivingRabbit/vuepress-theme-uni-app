@@ -1,9 +1,9 @@
 <template>
   <div class="chat-skeleton chat-skeleton-left">
-    <div class="content">
-      <div class="line"></div>
-      <div class="line"></div>
-      <div class="line short"></div>
+    <div class="chat-skeleton_content">
+      <div class="chat-skeleton_content_line"></div>
+      <div class="chat-skeleton_content_line"></div>
+      <div class="chat-skeleton_content_line short"></div>
     </div>
   </div>
 </template>
@@ -29,12 +29,12 @@
   gap: 12px
   padding: 12px 0
 
-.chat-skeleton .line
+.chat-skeleton .chat-skeleton_content_line
   height: 14px
   border-radius: 6px
   @extend .skeleton
 
-.chat-skeleton .line.short
+.chat-skeleton .chat-skeleton_content_line.short
   width: 40%
 
 /* 左侧消息骨架（AI） */
@@ -42,7 +42,7 @@
   display: flex
   flex-direction: row
   gap: 10px
-  .content
+  .chat-skeleton_content
     flex: 1
     display: flex
     flex-direction: column

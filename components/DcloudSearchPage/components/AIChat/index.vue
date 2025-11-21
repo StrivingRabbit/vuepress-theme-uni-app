@@ -197,7 +197,7 @@ async function send() {
     if (res.errorCode === 0) {
       fakeReply = res.chunk
     } else {
-      fakeReply = `抱歉，AI 助手出错了：${res.errorMessage || '未知错误'}`
+      fakeReply = `抱歉，AI 助手出错了：${res.errorMsg || '未知错误'}`
     }
   } catch (error) {
     fakeReply = `抱歉，AI 助手出错了：${error.message || '未知错误'}`
@@ -214,6 +214,7 @@ async function send() {
     isTyping: false,
     like: 0
   }
+
   messages.value.push(aiMsg)
 
   // 动态打字
@@ -290,6 +291,8 @@ window.addEventListener('resize', scrollToBottom)
     word-break break-word
     box-shadow 0 1px 3px rgba(0,0,0,0.08)
     pre
+      margin: 0
+      padding: 5px
       border-radius 10px
       & + pre
         margin-top 8px
@@ -297,7 +300,7 @@ window.addEventListener('resize', scrollToBottom)
       white-space: pre-wrap;    /* 允许换行 */
       word-wrap: break-word;    /* 允许长行断开 */
       word-break: break-word;
-    h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote, pre
+    h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote
       margin: 0
       padding: 0
     ul, ol

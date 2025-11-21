@@ -12,11 +12,18 @@
     box-shadow 0 4px 14px rgba(0,0,0,0.08)
     transform translateY(-1px)
   /* 重置部分元素样式，防止样式冲突 */
+  pre
+    margin: 0
+    padding: 5px
+    border-radius 10px
+    background #f6f8fa
+    & + pre
+      margin-top 8px
   pre, code
     white-space: pre-wrap;    /* 允许换行 */
     word-wrap: break-word;    /* 允许长行断开 */
     word-break: break-word;
-  h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote, pre
+  h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote
     line-height: normal
     margin: 0
     padding: 0

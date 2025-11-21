@@ -29,14 +29,14 @@
 							<div class="input-wrap">
 								<input ref="searchInput" class="search-input" :placeholder="placeholder" type="text" @keydown.enter="
 									() => {
-										resetSearchPage();
+										resetSearch();
 										search();
 									}
 								" v-model="searchValue" />
 								<span class="search-input-btn">
 									<button @click="
 										() => {
-											resetSearchPage();
+											resetSearch();
 											search();
 										}
 									">
@@ -83,7 +83,21 @@
 						<div class="result-wrap">
 							<template v-if="isAlgolia">
 								<template v-for="item in resultList">
-									<Results :key="item.sourceId" :title="item.title" :results="item.items" :onSelect="item.onSelect" />
+									<template v-if="item">
+										<Results v-if="!item.isAI" :key="item.sourceId" :title="item.title" :results="item.items"
+											:onSelect="item.onSelect" />
+										<template v-else>
+											<div class="ai-answer-card">
+												<div class="ai-answer-header">
+													<span class="ai-answer-icon">🤖</span>
+													<span class="ai-answer-title">{{ item.title }}</span>
+												</div>
+
+												<div v-if="item.msg.length" class="ai-answer-msg" v-html="item.msg" />
+												<Skeleton v-else />
+											</div>
+										</template>
+									</template>
 								</template>
 							</template>
 
@@ -128,17 +142,21 @@
 </template>
 
 <script>
+import searchPageConfig from '@theme-config/searchPage';
 import NavbarLogo from '../NavbarLogo.vue';
 import Results from './components/Results.vue';
 import pagination from './components/pagination.vue';
 import AIChat from './components/AIChat/index.vue';
 import MainNavbarLink from '../MainNavbarLink.vue';
+import Skeleton from './components/Skeleton.vue';
 import { search as searchClient } from './utils/searchClient';
 import { postExt, postAsk } from './utils/postDcloudServer';
 import { forbidScroll, debounce } from '../../util';
 import { removeHighlightTags, isEditingContent } from './utils/searchUtils';
-import searchPageConfig from '@theme-config/searchPage';
 import Base64 from './utils/Base64';
+import { ajax } from './utils/postDcloudServer';
+import { renderMarkdown } from "./components/AIChat/markdown-loader";
+import 'highlight.js/styles/github.min.css'
 
 const {
 	enableAI = true,
@@ -147,9 +165,11 @@ const {
 		searchBox: { placeholder, buttonText, searchBy },
 		resultsScreen: { resultsText, noResultsText, askNoResultsText },
 	},
-	extraFacetFilters = []
+	extraFacetFilters = [],
+	aiChatForDocSearch = 'https://ai-assist-api.dcloud.net.cn/tbox/chatForDocSearch'
 } = searchPageConfig;
 const crawlerUrl = 'https://zh.uniapp.dcloud.io/'
+const AIErrorMsg = '很抱歉，AI 助手未能找到相关答案。请尝试更换关键词进行搜索。'
 
 const resolveRoutePathFromUrl = (url, base = '/') => {
 	if (url.indexOf(crawlerUrl) === 0) {
@@ -165,7 +185,7 @@ export default {
 
 	props: ['options'],
 
-	components: { NavbarLogo, Results, pagination, MainNavbarLink, AIChat },
+	components: { NavbarLogo, Results, pagination, MainNavbarLink, AIChat, Skeleton },
 
 	data() {
 		return {
@@ -191,6 +211,13 @@ export default {
 			totalPage: 0, // 搜索结果总共页数
 			curPage: 1, // 当前页
 			pageSize: 0, // 每页条数
+
+			searchAIResult: Promise.resolve(null),
+			aiMessage: {
+				isAI: true,
+				title: 'AI 助手回答',
+				msg: ''
+			}
 		};
 	},
 
@@ -260,10 +287,10 @@ export default {
 			});
 		},
 
-		searchValue: debounce(function () {
-			this.resetSearchPage();
+		/* searchValue: debounce(function () {
+			this.resetSearch();
 			this.search();
-		}, 300),
+		}, 300), */
 
 		$route: {
 			immediate: true,
@@ -320,8 +347,20 @@ export default {
 			}
 		},
 
-		resetSearchPage() {
+		resetSearch() {
 			this.searchPage = 0;
+			this.resetAI();
+		},
+
+		resetAI() {
+			if (this.searchAIResult && typeof this.searchAIResult.abort === 'function') {
+				this.searchAIResult.abort()
+			}
+			this.aiMessage.msg = ''
+			this.searchAIResult = null
+			if (this.enableAI && this.searchValue.trim().length) {
+				this.searchByAI()
+			}
 		},
 
 		research(curPage) {
@@ -345,11 +384,16 @@ export default {
 									items,
 								};
 							});
+
 							this.noResult = !this.resultList.length;
 							this.curHits = nbHits;
 							this.pageSize = hitsPerPage;
 							this.totalPage = nbPages;
 							this.curPage = page + 1;
+
+							if (this.curPage === 1 && this.enableAI) {
+								this.resultList.splice(1, 0, this.aiMessage);
+							}
 						})
 						.finally(() => {
 							this.showLoading = false
@@ -394,6 +438,33 @@ export default {
 					onClose: this.onSearchClose,
 				})
 			);
+		},
+
+		searchByAI() {
+			try {
+				this.searchAIResult = ajax(aiChatForDocSearch, 'POST', {
+					"question": this.searchValue,
+					"group_name": this.currentCategory.text
+				}).then(res => {
+					if (res.errorCode === 0) {
+						return renderMarkdown(res.chunk)
+					} else {
+						this.aiMessage.msg = res.errorMessage || AIErrorMsg;
+						return ''
+					}
+				})
+					.catch((err) => {
+						console.log('err :>> ', err);
+						return ''
+					})
+					.then(msg => {
+						this.aiMessage.msg = msg || AIErrorMsg;
+					})
+			} catch (err) {
+				console.log('err :>> ', err);
+				this.aiMessage.msg = err.message || AIErrorMsg;
+				return ''
+			}
 		},
 
 		searchByServer(append = false) {
@@ -509,4 +580,5 @@ export default {
 
 <style lang="stylus">
 	@import './index'
+	@import './ai-result.styl'
 </style>

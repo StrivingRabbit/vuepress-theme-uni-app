@@ -1,25 +1,30 @@
 // markdown-loader.js
 let markedInstance = null;
-let hljsInstance = null;
 
-function getLangCodeFromExtension (extension) {
-  const extensionMap = {
-    vue: 'markup',
-    html: 'markup',
-    md: 'markdown',
-    rb: 'ruby',
-    ts: 'typescript',
-    py: 'python',
-    sh: 'bash',
-    yml: 'yaml',
-    styl: 'stylus',
-    kt: 'kotlin',
-    rs: 'rust',
+// `1.` 转义为 `1、`，防止 marked 解析失败
+function escapeMD(str) {
+	return str
+		.replace(/(\s*\b)(\d+)\./g, '$1$2、')
+}
+
+function getLangCodeFromExtension(extension) {
+	const extensionMap = {
+		vue: 'markup',
+		html: 'markup',
+		md: 'markdown',
+		rb: 'ruby',
+		ts: 'typescript',
+		py: 'python',
+		sh: 'bash',
+		yml: 'yaml',
+		styl: 'stylus',
+		kt: 'kotlin',
+		rs: 'rust',
 		uts: 'typescript',
 		json5: 'json',
-  }
+	};
 
-  return extensionMap[extension] || extension
+	return extensionMap[extension] || extension;
 }
 
 export async function renderMarkdown(md) {
@@ -39,8 +44,6 @@ export async function renderMarkdown(md) {
 		});
 
 		markedInstance = marked;
-		hljsInstance = hljs;
 	}
-
-	return markedInstance.parse(md || '');
+	return markedInstance.parse(escapeMD(md || ''));
 }

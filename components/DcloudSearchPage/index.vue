@@ -449,7 +449,7 @@ export default {
 					if (res.errorCode === 0) {
 						return renderMarkdown(res.chunk)
 					} else {
-						this.aiMessage.msg = res.errorMessage || AIErrorMsg;
+						this.aiMessage.msg = res.errorMsg || AIErrorMsg;
 						return ''
 					}
 				})

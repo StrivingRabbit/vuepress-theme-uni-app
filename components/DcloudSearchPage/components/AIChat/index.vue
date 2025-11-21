@@ -59,7 +59,7 @@ import SelectPlatform from './SelectPlatform.vue';
 import { ajax } from '../../utils/postDcloudServer';
 import searchPageConfig from '@theme-config/searchPage';
 
-const { aiPlatforms = [], aiChatForDocSearch } = searchPageConfig;
+const { aiPlatforms = [], aiChatForDocSearch = 'https://ai-assist-api.dcloud.net.cn/tbox/chatForDocSearch' } = searchPageConfig;
 
 const props = defineProps({
   currentCategory: {
@@ -164,6 +164,15 @@ function platformChange(newPlatform) {
   sendPlatform.value = newPlatform
 }
 
+// 限制只取最近 5 条消息
+function getChatHistory() {
+  return messages.value.slice(-5).map(m => ({
+    role: m.role,
+    contentType: 'text',
+    content: m.raw
+  }))
+}
+
 async function send() {
   if (!inputText.value.trim() || sending.value) return
 
@@ -186,9 +195,10 @@ async function send() {
 
   let fakeReply = ''
   try {
-    const res = await ajax(aiChatForDocSearch ? aiChatForDocSearch : 'https://ai-assist-api.dcloud.net.cn/tbox/chatForDocSearch', 'POST', {
+    const res = await ajax(aiChatForDocSearch, 'POST', {
       "question": userText,
-      "group_name": sendPlatform.value
+      "group_name": sendPlatform.value,
+      "history": getChatHistory()
     })
     if (res.errorCode === 0) {
       fakeReply = res.chunk
@@ -196,7 +206,7 @@ async function send() {
       fakeReply = `抱歉，AI 助手出错了：${res.errorMessage || '未知错误'}`
     }
   } catch (error) {
-
+    fakeReply = `抱歉，AI 助手出错了：${error.message || '未知错误'}`
   }
   sending.value = false
 

@@ -4,7 +4,7 @@
       <SelectPlatform :currentCategory="currentCategory" :platforms="aiPlatforms" @change="platformChange" />
     </header> -->
 
-    <main ref="msgList" class="chat-messages">
+    <main ref="msgList" class="chat-messages" :style="{ 'padding-bottom': msgListPaddingBottom + 'px' }">
       <div class="title">
         <span>DCloud 文档 AI 助手</span>
       </div>
@@ -18,8 +18,8 @@
             <span class="time">{{ m.time }}</span>
 
             <div class="actions" v-if="m.role === 'assistant'">
-              <LikeButton :active="status.like" type="like" @click.stop="like" />
-              <LikeButton :active="status.dislike" type="dislike" @click.stop="dislike" />
+              <LikeButton :active="!!m.like" type="like" @click.stop="like(m)" />
+              <LikeButton :active="!!m.dislike" type="dislike" @click.stop="dislike(m)" />
             </div>
           </div>
 
@@ -28,17 +28,23 @@
 
       <Skeleton style="width: 60%" v-if="sending" />
     </main>
-    <footer class="chat-input-bar">
-      <div class="input-container">
+    <footer ref="footer" class="chat-input-bar"
+      :style="{ top: !hasMessage ? '50%' : 'auto', bottom: !hasMessage ? 'auto' : '0' }">
+      <div class="input-container" :class="{ 'not-support-backdrop-filter': notSupportBackdrop }">
         <!--  导致多行时修改位于上面的行时会滚动 -->
-        <textarea ref="input" v-model="inputText" class="chat-input" rows="1" placeholder="请输入内容…"@input="autoGrow"
+        <textarea ref="input" v-model="inputText" class="chat-input" rows="1" placeholder="请输入内容…" @input="answerInput"
           @keydown.enter.exact.prevent="send" inputmode="text" enterkeyhint="newline"></textarea>
 
-        <div style="display: flex;justify-content: space-between;align-items: center;" @click.self="inputBottomClick">
+        <div class="footer-toolbar" @click.self="inputBottomClick">
           <SelectPlatform :currentCategory="currentCategory" :platforms="aiPlatforms" @change="platformChange" />
-          <button class="send-btn" :disabled="sending" @click="send">
-            发送
-          </button>
+          <div class="footer-toolbar_right">
+            <span class="tips">
+              ↵ 发送 / shift + ↵ 换行
+            </span>
+            <button class="send-btn" :disabled="sending" @click="send">
+              发送
+            </button>
+          </div>
         </div>
       </div>
     </footer>
@@ -46,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watchEffect, onMounted, reactive } from 'vue'
+import { ref, nextTick, watchEffect, onMounted, reactive, computed } from 'vue'
 import { renderMarkdown } from "./markdown-loader";
 import SelectPlatform from './SelectPlatform.vue';
 import LikeButton from '../LikeButton.vue';
@@ -76,6 +82,15 @@ const sendPlatform = ref(props.currentCategory)
 
 const msgList = ref(null)
 const input = ref(null)
+const footer = ref(null)
+
+const hasMessage = computed(() => messages.value.length > 0)
+
+const notSupportBackdrop = ref(false);
+if (!(CSS && typeof CSS.supports === 'function' && CSS.supports('backdrop-filter', 'blur(10px)'))) {
+  // 不支持 backdrop-filter，则使用更简单的样式
+  notSupportBackdrop.value = true;
+}
 
 function setSessionMessages(value) {
   sessionStorage.setItem('__UNIDOC_MESSAGES__', JSON.stringify(value));
@@ -99,6 +114,14 @@ watchEffect(() => {
   }
 })
 
+const msgListPaddingBottom = ref(120);
+function changeMsgListPadding() {
+  nextTick(() => {
+    const footerHeight = footer.value ? footer.value.offsetHeight : 0;
+    msgListPaddingBottom.value = footerHeight + 20; // 20px 额外空间
+  });
+}
+
 function formatTime() {
   const d = new Date()
   return `${d.getHours().toString().padStart(2, '0')}:${d
@@ -116,6 +139,11 @@ function autoGrow() {
   }
   // TODO +2 是解决在输入第一行时有滚动条的问题，需进一步优化
   el.style.height = el.scrollHeight + 2 + 'px'
+}
+
+function answerInput() {
+  autoGrow()
+  changeMsgListPadding()
 }
 
 function inputBottomClick() {
@@ -136,10 +164,6 @@ function scrollToBottom() {
 async function renderHTML(raw) {
   const rendered = await renderMarkdown(raw)
   return rendered
-}
-
-function setLike(msg, val) {
-  msg.like = msg.like === val ? 0 : val
 }
 
 function fakeAITyping(text, msgObj) {
@@ -181,7 +205,7 @@ async function send() {
 
   const userText = inputText.value.trim()
   inputText.value = ''
-  autoGrow()
+  answerInput()
 
   // 用户消息
   messages.value.push({
@@ -190,7 +214,6 @@ async function send() {
     raw: userText,
     rendered: await renderHTML(userText),
     time: formatTime(),
-    like: 0
   })
   scrollToBottom()
 
@@ -221,7 +244,8 @@ async function send() {
     rendered: await renderHTML(fakeReply),
     time: formatTime(),
     isTyping: false,
-    like: 0
+    like: false,
+    dislike: false
   }
 
   messages.value.push(aiMsg)
@@ -233,24 +257,19 @@ async function send() {
   scrollToBottom()
 }
 
-const status = reactive({
-  like: false,
-  dislike: false
-})
-
-function like() {
+function like(m) {
   console.log('like');
-  status.like = !status.like;
-  if (status.like) {
-    status.dislike = false;
+  m.like = !m.like;
+  if (m.like) {
+    m.dislike = false;
   }
 }
 
-function dislike() {
+function dislike(m) {
   console.log('dislike');
-  status.dislike = !status.dislike;
-  if (status.dislike) {
-    status.like = false;
+  m.dislike = !m.dislike;
+  if (m.dislike) {
+    m.like = false;
   }
 }
 
@@ -258,8 +277,14 @@ window.addEventListener('resize', scrollToBottom)
 </script>
 
 <style lang="stylus">
+.__backdrop-filter__
+  backdrop-filter blur(15px)
+.__not-support-backdrop-filter__
+  background-color: #fff
+
 .chat-wrapper
   display flex
+  position relative
   flex-direction column
   height calc(100vh - 56px - 40px)
   background #f9fafb
@@ -283,7 +308,7 @@ window.addEventListener('resize', scrollToBottom)
   .chat-messages
     flex 1
     overflow-y auto
-    padding 16px
+    padding 16px 16px 120px
     box-sizing border-box
 
   .msg
@@ -352,23 +377,39 @@ window.addEventListener('resize', scrollToBottom)
 
   .chat-input-bar
     padding 10px
-    background transparent
-    // border-top 1px solid #eee
+    position absolute
+    left 10px
+    right 10px
+    bottom 0
     display flex
     align-items flex-end
     justify-content center
 
   .input-container
     width 100%
-    background #fff
-    border 1px solid rgba(0,0,0,.1)
+    border 1px solid rgba(0,0,0,.2)
     border-radius 20px
     padding 8px 12px
-    box-shadow 0 2px 8px rgba(0,0,0,.06)
+    box-shadow 0 2px 10px rgba(0,0,0,.2)
     transition border-color .2s
+    @extend .__backdrop-filter__
     &:focus-within
       border-color $accentColor
       box-shadow 0 0 0 2px rgba($accentColor, .2)
+    &.not-support-backdrop-filter
+      @extend .__not-support-backdrop-filter__
+
+    .footer-toolbar
+      display flex
+      align-items center
+      justify-content space-between
+      .footer-toolbar_right
+        display flex
+        align-items center
+        justify-content center
+        .tips
+          font-size 12px
+          color #888
 
   .chat-input
     width 100%
@@ -383,6 +424,7 @@ window.addEventListener('resize', scrollToBottom)
     overflow-y auto
     font-size 15px
     transition: height 0.2s;
+    background-color transparent
 
   .send-btn
     margin-left 8px

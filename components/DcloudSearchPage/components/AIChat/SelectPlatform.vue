@@ -14,6 +14,12 @@ const props = defineProps({
   }
 })
 
+const notSupportBackdrop = ref(false);
+if (!(CSS && typeof CSS.supports === 'function' && CSS.supports('backdrop-filter', 'blur(10px)'))) {
+  // 不支持 backdrop-filter，则使用更简单的样式
+  notSupportBackdrop.value = true;
+}
+
 const emit = defineEmits(['change'])
 
 const platform = ref(
@@ -27,7 +33,7 @@ watch(platform, (v) => emit('change', v))
 
 <template>
   <div class="select-platform">
-    <select name="select" v-model="platform">
+    <select name="select" v-model="platform" :class="{ 'not-support-backdrop-filter': notSupportBackdrop }">
       <template v-for="value in props.platforms">
         <option :key="value" :value="value">{{ value }}</option>
       </template>
@@ -45,17 +51,16 @@ watch(platform, (v) => emit('change', v))
     border 1px solid rgba(0,0,0,.12)
     border-radius 8px
     font-size 14px
-    background white
+    background-color: transparent
     cursor pointer
     outline none
     transition border .2s
+    &.not-support-backdrop-filter
+      background-color: #fff
 
     &:hover
-      border-color $accentColor
-
-    &:focus
-      border-color $accentColor
-      box-shadow 0 0 0 2px rgba($accentColor, .2)
+      // border-color $accentColor
+      box-shadow 0 0 10px 0px rgba($accentColor,0.3)
 
     &:active
       border-color $accentColor

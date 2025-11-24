@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.6
+
+### Patch Changes
+
+- fix: AI 回答 md 格式异常
+
 ## 1.6.5
 
 ### Patch Changes

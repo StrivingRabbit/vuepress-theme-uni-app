@@ -57,13 +57,13 @@
 
 <script setup>
 import { ref, nextTick, watchEffect, onMounted, computed } from 'vue'
-import { renderMarkdown } from "./markdown-loader";
 import searchPageConfig from '@theme-config/searchPage';
+import { renderMarkdown } from "./markdown-loader";
 import { MAX_AI_ANSWER_LENGTH } from '../constants';
+import { ajax } from '../utils/postDcloudServer';
 import SelectPlatform from '../components/SelectPlatform.vue';
 import LikeButton from '../components/LikeButton.vue';
 import Skeleton from '../components/Skeleton.vue';
-import { ajax } from '../utils/postDcloudServer';
 
 const { aiPlatforms = [], aiChatForDocSearch = 'https://ai-assist-api.dcloud.net.cn/tbox/chatForDocSearch' } = searchPageConfig;
 
@@ -287,6 +287,8 @@ window.addEventListener('resize', scrollToBottom)
 </script>
 
 <style lang="stylus">
+@import '../ai-answer-style-reset.styl'
+
 .__backdrop-filter__
   backdrop-filter blur(15px)
 .__not-support-backdrop-filter__
@@ -309,7 +311,7 @@ window.addEventListener('resize', scrollToBottom)
     border-bottom 1px solid #eee */
 
   .title
-    margin-top 30px
+    margin 30px auto
     text-align center
     font-size 30px
     font-weight 600
@@ -352,27 +354,13 @@ window.addEventListener('resize', scrollToBottom)
   .bubble
     display inline-block
     max-width 50%
-    padding 10px 14px
+    padding 0 14px
     border-radius 14px
     line-height 1.5
     font-size 15px
     word-break break-word
     box-shadow 0 1px 3px rgba(0,0,0,0.08)
-    pre
-      margin: 0
-      padding: 5px
-      border-radius 10px
-      & + pre
-        margin-top 8px
-    pre, code
-      white-space: pre-wrap;    /* 允许换行 */
-      word-wrap: break-word;    /* 允许长行断开 */
-      word-break: break-word;
-    h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote
-      margin: 0
-      padding: 0
-    ul, ol
-      list-style: none
+    @extend .ai-answer-style-reset
 
   .meta
     font-size 12px

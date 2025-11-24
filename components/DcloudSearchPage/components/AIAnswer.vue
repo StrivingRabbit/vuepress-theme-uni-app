@@ -65,6 +65,8 @@ function dislike() {
 </script>
 
 <style lang="stylus">
+@import '../ai-answer-style-reset.styl'
+
 .ai-answer-card
   padding 14px 16px
   margin-top 12px
@@ -101,27 +103,7 @@ function dislike() {
   animation fadeIn .25s ease
 
   /* --- reset 内容区 --- */
-  pre
-    margin 0
-    padding 6px 8px
-    border-radius 10px
-    background #f6f8fa
-    white-space pre-wrap
-    word-break break-word
-
-    & + pre
-      margin-top 8px
-
-  code
-    white-space pre-wrap
-    word-break break-word
-
-  h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote
-    margin 0
-    padding 0
-
-  ul, ol
-    list-style none
+  @extend .ai-answer-style-reset
 
 @keyframes fadeIn
   from

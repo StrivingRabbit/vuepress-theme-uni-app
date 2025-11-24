@@ -1,10 +1,10 @@
 // markdown-loader.js
 let markedInstance = null;
 
-// `1.` 转义为 `1、`，防止 marked 解析失败
+// 防止 ``` 和上一行之前没有空行 marked 解析失败
 function escapeMD(str) {
 	return str
-		.replace(/(\s*\b)(\d+)\./g, '$1$2、')
+		.replace(/\n(```)/g, '\n\n$1')
 }
 
 function getLangCodeFromExtension(extension) {

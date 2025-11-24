@@ -1,9 +1,5 @@
 <template>
   <div class="chat-wrapper">
-    <!-- <header class="chat-header">
-      <SelectPlatform :currentCategory="currentCategory" :platforms="aiPlatforms" @change="platformChange" />
-    </header> -->
-
     <main ref="msgList" class="chat-messages" :style="{ 'padding-bottom': msgListPaddingBottom + 'px' }">
       <div class="title">
         <span>DCloud 文档 AI 助手</span>
@@ -17,10 +13,10 @@
           <div class="meta">
             <span class="time">{{ m.time }}</span>
 
-            <div class="actions" v-if="m.role === 'assistant'">
+            <!-- <div class="actions" v-if="m.role === 'assistant'">
               <LikeButton :active="!!m.like" type="like" @click.stop="like(m)" />
               <LikeButton :active="!!m.dislike" type="dislike" @click.stop="dislike(m)" />
-            </div>
+            </div> -->
           </div>
 
         </div>
@@ -30,14 +26,22 @@
     </main>
     <footer ref="footer" class="chat-input-bar"
       :style="{ top: !hasMessage ? '50%' : 'auto', bottom: !hasMessage ? 'auto' : '0' }">
-      <div class="input-container" :class="{ 'not-support-backdrop-filter': notSupportBackdrop }">
-        <!--  导致多行时修改位于上面的行时会滚动 -->
-        <textarea ref="input" v-model="inputText" class="chat-input" rows="1" placeholder="请输入内容…" @input="answerInput"
-          @keydown.enter.exact.prevent="send" inputmode="text" enterkeyhint="newline"></textarea>
+      <div class="input-container"
+        :class="{ 'not-support-backdrop-filter': notSupportBackdrop, 'error-border': inputError }">
+        <form>
+          <textarea ref="input" v-model="inputText" name="input-container_input" class="chat-input" required rows="1"
+            :minlength="MAX_AI_ANSWER_LENGTH" placeholder="请输入内容…" @input="answerInput"
+            @keydown.enter.exact.prevent="send" inputmode="text" enterkeyhint="newline"></textarea>
+        </form>
 
         <div class="footer-toolbar" @click.self="inputBottomClick">
-          <SelectPlatform :currentCategory="currentCategory" :platforms="aiPlatforms" @change="platformChange" />
+          <div class="footer-toolbar_left">
+            <SelectPlatform :currentCategory="currentCategory" :platforms="aiPlatforms" @change="platformChange" />
+          </div>
           <div class="footer-toolbar_right">
+            <span v-if="inputError" class="error-tips">
+              输入内容不少于 {{ MAX_AI_ANSWER_LENGTH }} 个字符
+            </span>
             <span class="tips">
               ↵ 发送 / shift + ↵ 换行
             </span>
@@ -52,13 +56,14 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watchEffect, onMounted, reactive, computed } from 'vue'
+import { ref, nextTick, watchEffect, onMounted, computed } from 'vue'
 import { renderMarkdown } from "./markdown-loader";
-import SelectPlatform from './SelectPlatform.vue';
-import LikeButton from '../LikeButton.vue';
-import { ajax } from '../../utils/postDcloudServer';
 import searchPageConfig from '@theme-config/searchPage';
-import Skeleton from '../Skeleton';
+import { MAX_AI_ANSWER_LENGTH } from '../constants';
+import SelectPlatform from '../components/SelectPlatform.vue';
+import LikeButton from '../components/LikeButton.vue';
+import Skeleton from '../components/Skeleton.vue';
+import { ajax } from '../utils/postDcloudServer';
 
 const { aiPlatforms = [], aiChatForDocSearch = 'https://ai-assist-api.dcloud.net.cn/tbox/chatForDocSearch' } = searchPageConfig;
 
@@ -85,6 +90,9 @@ const input = ref(null)
 const footer = ref(null)
 
 const hasMessage = computed(() => messages.value.length > 0)
+const inputError = computed(() => {
+  return inputText.value.length > 0 && inputText.value.trim().length < MAX_AI_ANSWER_LENGTH;
+})
 
 const notSupportBackdrop = ref(false);
 if (!(CSS && typeof CSS.supports === 'function' && CSS.supports('backdrop-filter', 'blur(10px)'))) {
@@ -201,9 +209,11 @@ function getChatHistory() {
 }
 
 async function send() {
-  if (!inputText.value.trim() || sending.value) return
-
   const userText = inputText.value.trim()
+
+  if (!userText || sending.value) return
+  if (inputError.value) return
+
   inputText.value = ''
   answerInput()
 
@@ -396,6 +406,9 @@ window.addEventListener('resize', scrollToBottom)
     &:focus-within
       border-color $accentColor
       box-shadow 0 0 0 2px rgba($accentColor, .2)
+    &.error-border, &.error-border:focus-within
+      border-color: #e00 !important;
+      box-shadow 0 0 0 2px rgba(#e00, .2)
     &.not-support-backdrop-filter
       @extend .__not-support-backdrop-filter__
 
@@ -403,32 +416,38 @@ window.addEventListener('resize', scrollToBottom)
       display flex
       align-items center
       justify-content space-between
-      .footer-toolbar_right
+      .footer-toolbar_left, .footer-toolbar_right
         display flex
         align-items center
         justify-content center
+        .error-tips
+          margin-right 12px
+          font-size 12px
+          color #e00
         .tips
           font-size 12px
           color #888
 
   .chat-input
     width 100%
-    padding 10px
     box-sizing border-box
     resize none
     outline none
     border none
     padding 8px 10px
-    line-height 1.5
+    line-height 1.2
     max-height 160px
     overflow-y auto
     font-size 15px
     transition: height 0.2s;
     background-color transparent
+    -webkit-user-select: auto;
+    -webkit-touch-callout: auto;
+    word-break: break-word;
 
   .send-btn
     margin-left 8px
-    padding 8px 14px
+    padding 6px 10px
     border none
     border-radius 8px
     background $accentColor

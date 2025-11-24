@@ -138,20 +138,21 @@ import searchPageConfig from '@theme-config/searchPage';
 import NavbarLogo from '../NavbarLogo.vue';
 import Results from './components/Results.vue';
 import pagination from './components/pagination.vue';
-import AIChat from './components/AIChat/index.vue';
+import AIChat from './AIChat/index.vue';
 import AIAnswer from './components/AIAnswer.vue';
 import MainNavbarLink from '../MainNavbarLink.vue';
 import { search as searchClient } from './utils/searchClient';
 import { postExt, postAsk } from './utils/postDcloudServer';
-import { forbidScroll, debounce } from '../../util';
+import { forbidScroll } from '../../util';
 import { removeHighlightTags, isEditingContent } from './utils/searchUtils';
 import Base64 from './utils/Base64';
 import { ajax } from './utils/postDcloudServer';
-import { renderMarkdown } from "./components/AIChat/markdown-loader";
+import { renderMarkdown } from "./AIChat/markdown-loader";
+import { DEFAULT_ENABLE_AI, MAX_AI_ANSWER_LENGTH } from './constants';
 import 'highlight.js/styles/github.min.css'
 
 const {
-	enableAI = true,
+	enableAI = DEFAULT_ENABLE_AI,
 	category,
 	translations: {
 		searchBox: { placeholder, buttonText, searchBy },
@@ -242,6 +243,9 @@ export default {
 					? 'translateX(100%)'
 					: 'translateX(0%)'
 			}
+		},
+		showAIMessage() {
+			return this.searchValue.trim().length >= MAX_AI_ANSWER_LENGTH || this.aiMessage.msg.trim().length > 0
 		}
 	},
 
@@ -335,6 +339,8 @@ export default {
 				if (this.isAI) {
 					height = height - 200
 				}
+				// 最小高度
+				if (height < 200) height = 200;
 				searchResult.style.height = height + 'px';;
 			}
 		},
@@ -383,7 +389,7 @@ export default {
 							this.totalPage = nbPages;
 							this.curPage = page + 1;
 
-							if (this.curPage === 1 && this.enableAI) {
+							if (this.enableAI && this.curPage === 1 && this.showAIMessage) {
 								this.resultList.splice(1, 0, this.aiMessage);
 							}
 						})
@@ -434,6 +440,7 @@ export default {
 
 		searchByAI() {
 			try {
+				if (!this.showAIMessage) return;
 				this.searchAIResult = ajax(aiChatForDocSearch, 'POST', {
 					"question": this.searchValue,
 					"group_name": this.currentCategory.text

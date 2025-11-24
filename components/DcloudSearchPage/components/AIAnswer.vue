@@ -13,10 +13,10 @@
         本回答由 AI 生成，可能已过期、失效或不适用于当前情形，仅供参考
       </div>
 
-      <div v-show="hasMessage" class="ai-answer-footer_right">
+      <!-- <div v-show="hasMessage" class="ai-answer-footer_right">
         <LikeButton :active="status.like" type="like" @click.stop="like" />
         <LikeButton :active="status.dislike" type="dislike" @click.stop="dislike" />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

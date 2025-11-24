@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.5
+
+### Patch Changes
+
+- feat: 调整输入框样式，使用绝对定位
+  feat: 限制 AI 输入的字符长度
+
 ## 1.6.4
 
 ### Patch Changes

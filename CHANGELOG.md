@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.7
+
+### Patch Changes
+
+- fix: AI 回答 code 代码颜色
+  feat: 搜索结果 AI 回答限制必须有中文
+
 ## 1.6.6
 
 ### Patch Changes

@@ -31,7 +31,7 @@
     "publish:patch": "npm version patch && npm publish",
     "publish:minor": "npm version minor && npm publish",
     "publish:major": "npm version major  && npm publish",
-    "postpublish": "cnpm sync vuepress-theme-uniapp-official"
+    "postpublish": "cnpm sync vuepress-theme-uniapp-official && node ../../scripts/postPublishTheme.js"
   },
   "publishConfig": {
     "access": "public"

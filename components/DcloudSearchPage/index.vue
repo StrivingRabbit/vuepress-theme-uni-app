@@ -245,7 +245,11 @@ export default {
 			}
 		},
 		showAIMessage() {
-			return this.searchValue.trim().length >= MAX_AI_ANSWER_LENGTH || this.aiMessage.msg.trim().length > 0
+			const searchText = this.searchValue.trim()
+			const hasAIMessageHistory = this.aiMessage.msg.trim().length > 0
+			const wordLimitExceeded = searchText.length >= MAX_AI_ANSWER_LENGTH
+			const hasChineseCharacters = /[\u4e00-\u9fa5]/.test(searchText)
+			return this.enableAI && ((wordLimitExceeded && hasChineseCharacters) || hasAIMessageHistory)
 		}
 	},
 
@@ -356,7 +360,7 @@ export default {
 			}
 			this.aiMessage.msg = ''
 			this.searchAIResult = null
-			if (this.enableAI && this.searchValue.trim().length) {
+			if (this.showAIMessage) {
 				this.searchByAI()
 			}
 		},
@@ -389,7 +393,7 @@ export default {
 							this.totalPage = nbPages;
 							this.curPage = page + 1;
 
-							if (this.enableAI && this.curPage === 1 && this.showAIMessage) {
+							if (this.curPage === 1 && this.showAIMessage) {
 								this.resultList.splice(1, 0, this.aiMessage);
 							}
 						})

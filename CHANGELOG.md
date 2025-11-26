@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.8
+
+### Patch Changes
+
+- feat: 问 AI 添加限制: 要有中文
+
 ## 1.6.7
 
 ### Patch Changes

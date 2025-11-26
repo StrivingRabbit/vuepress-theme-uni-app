@@ -92,7 +92,7 @@ const footer = ref(null)
 const hasMessage = computed(() => messages.value.length > 0)
 const inputError = computed(() => {
   const inputTextTrimmed = inputText.value.trim();
-  return inputTextTrimmed.length > 0 && inputTextTrimmed.length < MAX_AI_ANSWER_LENGTH && !/[\u4e00-\u9fa5]/.test(inputTextTrimmed);
+  return (inputTextTrimmed.length > 0 && inputTextTrimmed.length < MAX_AI_ANSWER_LENGTH) || !/[\u4e00-\u9fa5]/.test(inputTextTrimmed);
 })
 
 const notSupportBackdrop = ref(false);

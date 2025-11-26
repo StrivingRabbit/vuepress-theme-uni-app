@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.9
+
+### Patch Changes
+
+- fix: 问 AI 限制中文时判断条件错误
+
 ## 1.6.8
 
 ### Patch Changes

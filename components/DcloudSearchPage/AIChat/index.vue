@@ -40,7 +40,7 @@
           </div>
           <div class="footer-toolbar_right">
             <span v-if="inputError" class="error-tips">
-              输入内容不少于 {{ MAX_AI_ANSWER_LENGTH }} 个字符
+              不少于 {{ MAX_AI_ANSWER_LENGTH }} 个字符且包含中文
             </span>
             <span class="tips">
               ↵ 发送 / shift + ↵ 换行
@@ -91,7 +91,8 @@ const footer = ref(null)
 
 const hasMessage = computed(() => messages.value.length > 0)
 const inputError = computed(() => {
-  return inputText.value.length > 0 && inputText.value.trim().length < MAX_AI_ANSWER_LENGTH;
+  const inputTextTrimmed = inputText.value.trim();
+  return inputTextTrimmed.length > 0 && inputTextTrimmed.length < MAX_AI_ANSWER_LENGTH && !/[\u4e00-\u9fa5]/.test(inputTextTrimmed);
 })
 
 const notSupportBackdrop = ref(false);

@@ -148,7 +148,7 @@ import { removeHighlightTags, isEditingContent } from './utils/searchUtils';
 import Base64 from './utils/Base64';
 import { ajax } from './utils/postDcloudServer';
 import { renderMarkdown } from "./AIChat/markdown-loader";
-import { DEFAULT_ENABLE_AI, MAX_AI_ANSWER_LENGTH } from './constants';
+import { DEFAULT_ENABLE_AI, MAX_AI_ANSWER_LENGTH, AI_CHAT_FOR_DOC_SEARCH_URL, AI_ERROR_MSG } from './constants';
 import 'highlight.js/styles/github.min.css'
 
 const {
@@ -159,10 +159,9 @@ const {
 		resultsScreen: { resultsText, noResultsText, askNoResultsText },
 	},
 	extraFacetFilters = [],
-	aiChatForDocSearch = 'https://ai-assist-api.dcloud.net.cn/tbox/chatForDocSearch'
+	aiChatForDocSearch = AI_CHAT_FOR_DOC_SEARCH_URL
 } = searchPageConfig;
 const crawlerUrl = 'https://zh.uniapp.dcloud.io/'
-const AIErrorMsg = '很抱歉，AI 助手未能找到相关答案。请尝试更换关键词进行搜索。'
 
 const resolveRoutePathFromUrl = (url, base = '/') => {
 	if (url.indexOf(crawlerUrl) === 0) {
@@ -452,7 +451,7 @@ export default {
 					if (res.errorCode === 0) {
 						return renderMarkdown(res.chunk)
 					} else {
-						this.aiMessage.msg = res.errorMsg || AIErrorMsg;
+						this.aiMessage.msg = res.errorMsg || AI_ERROR_MSG;
 						return ''
 					}
 				})
@@ -461,11 +460,11 @@ export default {
 						return ''
 					})
 					.then(msg => {
-						this.aiMessage.msg = msg || AIErrorMsg;
+						this.aiMessage.msg = msg || AI_ERROR_MSG;
 					})
 			} catch (err) {
 				console.log('err :>> ', err);
-				this.aiMessage.msg = err.message || AIErrorMsg;
+				this.aiMessage.msg = err.message || AI_ERROR_MSG;
 				return ''
 			}
 		},

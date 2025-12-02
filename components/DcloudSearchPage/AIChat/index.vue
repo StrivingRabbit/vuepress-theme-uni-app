@@ -59,13 +59,13 @@
 import { ref, nextTick, watchEffect, onMounted, computed } from 'vue'
 import searchPageConfig from '@theme-config/searchPage';
 import { renderMarkdown } from "./markdown-loader";
-import { MAX_AI_ANSWER_LENGTH } from '../constants';
+import { MAX_AI_ANSWER_LENGTH, AI_CHAT_FOR_DOC_SEARCH_URL } from '../constants';
 import { ajax } from '../utils/postDcloudServer';
 import SelectPlatform from '../components/SelectPlatform.vue';
 import LikeButton from '../components/LikeButton.vue';
 import Skeleton from '../components/Skeleton.vue';
 
-const { aiPlatforms = [], aiChatForDocSearch = 'https://ai-assist-api.dcloud.net.cn/tbox/chatForDocSearch' } = searchPageConfig;
+const { aiPlatforms = [], aiChatForDocSearch = AI_CHAT_FOR_DOC_SEARCH_URL } = searchPageConfig;
 
 const props = defineProps({
   currentCategory: {
@@ -92,7 +92,8 @@ const footer = ref(null)
 const hasMessage = computed(() => messages.value.length > 0)
 const inputError = computed(() => {
   const inputTextTrimmed = inputText.value.trim();
-  return (inputTextTrimmed.length > 0 && inputTextTrimmed.length < MAX_AI_ANSWER_LENGTH) || !/[\u4e00-\u9fa5]/.test(inputTextTrimmed);
+  if (inputTextTrimmed.length === 0) return false
+  return inputTextTrimmed.length < MAX_AI_ANSWER_LENGTH || !/[\u4e00-\u9fa5]/.test(inputTextTrimmed);
 })
 
 const notSupportBackdrop = ref(false);
@@ -202,7 +203,7 @@ function platformChange(newPlatform) {
 
 // 限制只取最近 6 条消息
 function getChatHistory() {
-  return messages.value.slice(-6).map(m => ({
+  return messages.value.slice(-5).map(m => ({
     role: m.role,
     contentType: 'text',
     content: m.raw

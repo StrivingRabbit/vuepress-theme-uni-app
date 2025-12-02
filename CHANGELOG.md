@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.10
+
+### Patch Changes
+
+- feat: 更新请求 url
+  fix: input 输入错误判断逻辑
+
 ## 1.6.9
 
 ### Patch Changes

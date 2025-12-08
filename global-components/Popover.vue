@@ -1,8 +1,10 @@
 <script setup>
 import { ref, useSlots } from 'vue'
-import { getNavbarHeight } from '../util'
+import { usePopoverDirective } from '../util'
 
 const emit = defineEmits(['show', 'hide'])
+
+const { mouseEnter, directive: vPopover } = usePopoverDirective('.theme-default-content')
 
 const props = defineProps({
   table: String
@@ -10,18 +12,9 @@ const props = defineProps({
 
 const infoHover = ref(false)
 const slots = useSlots()
-let mouseOptions = {}
 
-const mouseEnter = (e) => {
-  const { top, left, bottom, right, height, width } = e.target.getBoundingClientRect()
-  mouseOptions = {
-    top,
-    left,
-    bottom,
-    right,
-    height,
-    width
-  }
+const wrapperMouseEnter = (e) => {
+  mouseEnter(e)
   infoHover.value = true
   emit('show')
 }
@@ -30,61 +23,12 @@ const mouseLeave = (e) => {
   infoHover.value = false
   emit('hide')
 }
-
-const vPopover = {
-  inserted(el, binding, vnode, prevVnode) {
-    const ThemeDefaultContent = document.querySelector('.theme-default-content')
-    if (ThemeDefaultContent) {
-      ThemeDefaultContent.appendChild(el)
-    }
-  },
-  componentUpdated(el, binding, vnode, prevVnode) {
-    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop
-    const scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
-    const screenWidth = document.documentElement.clientWidth
-
-    const { width, height } = el.getBoundingClientRect()
-    const { left: targetLeft, top: targetTop, bottom: targetBottom, right: targetRight, height: targetHeight, width: targetWidth } = mouseOptions
-    const OFFSET = 10
-    const NAVBAR_HEIGHT = getNavbarHeight()
-
-    // 默认 icon 正中间位置
-    const HALF_WIDTH = width / 2
-    const HALF_TARGET_WIDTH = targetWidth / 2
-    const TOP = height // + OFFSET
-    const LEFT = HALF_TARGET_WIDTH - HALF_WIDTH
-
-    const DEFAULT_TOP = targetTop + scrollTop
-    const DEFAULT_LEFT = targetLeft + scrollLeft
-
-    let currentTop = DEFAULT_TOP - TOP
-    let currentLeft = DEFAULT_LEFT + LEFT
-
-    if (targetTop - NAVBAR_HEIGHT - TOP - OFFSET > 0) {
-      // 上方空间够
-      currentTop = currentTop - OFFSET
-    } else {
-      // 上方空间不够
-      currentTop = currentTop + (height + targetHeight) + OFFSET
-    }
-
-    const RIGHT_OFFSET = (screenWidth - (targetLeft + HALF_TARGET_WIDTH)) - HALF_WIDTH
-    // const LEFT_OFFSET = (screenWidth - targetLeft - HALF_TARGET_WIDTH) - HALF_WIDTH
-
-    if (RIGHT_OFFSET < 0) {
-      // 右侧空间不够
-      currentLeft = screenWidth - width
-    }
-    el.style.top = `${currentTop < 0 ? 0 : currentTop}px`
-    el.style.left = `${currentLeft < 0 ? 0 : currentLeft}px`
-  }
-}
 </script>
 
 <template>
   <div class="popover" @mouseleave="mouseLeave">
     <span>
-      <div class="popover-reference-wrapper" @mouseenter="mouseEnter">
+      <div class="popover-reference-wrapper" @mouseenter="wrapperMouseEnter">
         <slot name="reference"></slot>
         <svg v-if="!slots.reference" width="20" height="20" t="1715917545486" class="icon" viewBox="0 0 1024 1024"
           version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10306" fill="#2c3e50">

@@ -1,121 +1,119 @@
 import Vue from 'vue';
 
-export const isServer = Vue.prototype.$isServer
-export const hashRE = /#.*$/
-export const extRE = /\.(md|html)$/
-export const endingSlashRE = /\/$/
-export const outboundRE = /^[a-z]+:/i
+export const isServer = Vue.prototype.$isServer;
+export const hashRE = /#.*$/;
+export const extRE = /\.(md|html)$/;
+export const endingSlashRE = /\/$/;
+export const outboundRE = /^[a-z]+:/i;
 
 export function normalize(path) {
-  return decodeURI(path)
-    .replace(hashRE, '')
-    .replace(extRE, '')
+	return decodeURI(path).replace(hashRE, '').replace(extRE, '');
 }
 
 export function getHash(path) {
-  const match = path.match(hashRE)
-  if (match) {
-    return match[0]
-  }
+	const match = path.match(hashRE);
+	if (match) {
+		return match[0];
+	}
 }
 
 export function isExternal(path) {
-  return outboundRE.test(path)
+	return outboundRE.test(path);
 }
 
 export function isMailto(path) {
-  return /^mailto:/.test(path)
+	return /^mailto:/.test(path);
 }
 
 export function isTel(path) {
-  return /^tel:/.test(path)
+	return /^tel:/.test(path);
 }
 
 export function ensureExt(path) {
-  if (isExternal(path)) {
-    return path
-  }
-  const hashMatch = path.match(hashRE)
-  const hash = hashMatch ? hashMatch[0] : ''
-  const normalized = normalize(path)
+	if (isExternal(path)) {
+		return path;
+	}
+	const hashMatch = path.match(hashRE);
+	const hash = hashMatch ? hashMatch[0] : '';
+	const normalized = normalize(path);
 
-  if (endingSlashRE.test(normalized)) {
-    return path
-  }
-  return normalized + '.html' + hash
+	if (endingSlashRE.test(normalized)) {
+		return path;
+	}
+	return normalized + '.html' + hash;
 }
 
 export function isActive(route, path) {
-  const routeHash = decodeURIComponent(route.hash)
-  const linkHash = getHash(path)
-  if (linkHash && routeHash !== linkHash) {
-    return false
-  }
-  const routePath = normalize(route.path)
-  const pagePath = normalize(path)
-  return routePath === pagePath
+	const routeHash = decodeURIComponent(route.hash);
+	const linkHash = getHash(path);
+	if (linkHash && routeHash !== linkHash) {
+		return false;
+	}
+	const routePath = normalize(route.path);
+	const pagePath = normalize(path);
+	return routePath === pagePath;
 }
 
 export function resolvePage(pages, rawPath, base) {
-  if (isExternal(rawPath)) {
-    return {
-      type: 'external',
-      path: rawPath
-    }
-  }
-  if (base) {
-    rawPath = resolvePath(rawPath, base)
-  }
-  const path = normalize(rawPath)
-  const hash = rawPath.split('#')[1]
-  for (let i = 0; i < pages.length; i++) {
-    if (normalize(pages[i].regularPath) === path) {
-      return Object.assign({}, pages[i], {
-        type: 'page',
-        path: ensureExt(pages[i].path) + (hash ? `#${hash}` : '')
-      })
-    }
-  }
-  console.error(`[vuepress] No matching page found for sidebar item "${rawPath}"`)
-  return {}
+	if (isExternal(rawPath)) {
+		return {
+			type: 'external',
+			path: rawPath,
+		};
+	}
+	if (base) {
+		rawPath = resolvePath(rawPath, base);
+	}
+	const path = normalize(rawPath);
+	const hash = rawPath.split('#')[1];
+	for (let i = 0; i < pages.length; i++) {
+		if (normalize(pages[i].regularPath) === path) {
+			return Object.assign({}, pages[i], {
+				type: 'page',
+				path: ensureExt(pages[i].path) + (hash ? `#${hash}` : ''),
+			});
+		}
+	}
+	console.error(`[vuepress] No matching page found for sidebar item "${rawPath}"`);
+	return {};
 }
 
 function resolvePath(relative, base, append) {
-  const firstChar = relative.charAt(0)
-  if (firstChar === '/') {
-    return relative
-  }
+	const firstChar = relative.charAt(0);
+	if (firstChar === '/') {
+		return relative;
+	}
 
-  if (firstChar === '?' || firstChar === '#') {
-    return base + relative
-  }
+	if (firstChar === '?' || firstChar === '#') {
+		return base + relative;
+	}
 
-  const stack = base.split('/')
+	const stack = base.split('/');
 
-  // remove trailing segment if:
-  // - not appending
-  // - appending to trailing slash (last segment is empty)
-  if (!append || !stack[stack.length - 1]) {
-    stack.pop()
-  }
+	// remove trailing segment if:
+	// - not appending
+	// - appending to trailing slash (last segment is empty)
+	if (!append || !stack[stack.length - 1]) {
+		stack.pop();
+	}
 
-  // resolve relative path
-  const segments = relative.replace(/^\//, '').split('/')
-  for (let i = 0; i < segments.length; i++) {
-    const segment = segments[i]
-    if (segment === '..') {
-      stack.pop()
-    } else if (segment !== '.') {
-      stack.push(segment)
-    }
-  }
+	// resolve relative path
+	const segments = relative.replace(/^\//, '').split('/');
+	for (let i = 0; i < segments.length; i++) {
+		const segment = segments[i];
+		if (segment === '..') {
+			stack.pop();
+		} else if (segment !== '.') {
+			stack.push(segment);
+		}
+	}
 
-  // ensure leading slash
-  if (stack[0] !== '') {
-    stack.unshift('')
-  }
+	// ensure leading slash
+	if (stack[0] !== '') {
+		stack.unshift('');
+	}
 
-  return stack.join('/')
+	return stack.join('/');
 }
 
 /**
@@ -126,29 +124,25 @@ function resolvePath(relative, base, append) {
  * @returns { SidebarGroup }
  */
 export function resolveSidebarItems(page, regularPath, site, localePath) {
-  const { pages, themeConfig } = site
+	const { pages, themeConfig } = site;
 
-  const localeConfig = localePath && themeConfig.locales
-    ? themeConfig.locales[localePath] || themeConfig
-    : themeConfig
+	const localeConfig = localePath && themeConfig.locales ? themeConfig.locales[localePath] || themeConfig : themeConfig;
 
-  const pageSidebarConfig = page.frontmatter.sidebar || localeConfig.sidebar || themeConfig.sidebar
-  if (pageSidebarConfig === 'auto') {
-    return resolveHeaders(page)
-  }
+	const pageSidebarConfig = page.frontmatter.sidebar || localeConfig.sidebar || themeConfig.sidebar;
+	if (pageSidebarConfig === 'auto') {
+		return resolveHeaders(page);
+	}
 
-  const sidebarConfig = localeConfig.sidebar || themeConfig.sidebar
-  if (!sidebarConfig) {
-    return []
-  } else {
-    const { base, config } = resolveMatchingConfig(regularPath, sidebarConfig)
-    if (config === 'auto') {
-      return resolveHeaders(page)
-    }
-    return config
-      ? config.map(item => resolveItem(item, pages, base))
-      : []
-  }
+	const sidebarConfig = localeConfig.sidebar || themeConfig.sidebar;
+	if (!sidebarConfig) {
+		return [];
+	} else {
+		const { base, config } = resolveMatchingConfig(regularPath, sidebarConfig);
+		if (config === 'auto') {
+			return resolveHeaders(page);
+		}
+		return config ? config.map(item => resolveItem(item, pages, base)) : [];
+	}
 }
 
 /**
@@ -156,41 +150,43 @@ export function resolveSidebarItems(page, regularPath, site, localePath) {
  * @returns { SidebarGroup }
  */
 function resolveHeaders(page) {
-  const headers = groupHeaders(page.headers || [])
-  return [{
-    type: 'group',
-    collapsable: false,
-    title: page.title,
-    path: null,
-    children: headers.map(h => ({
-      type: 'auto',
-      title: h.title,
-      basePath: page.path,
-      path: page.path + '#' + h.slug,
-      children: h.children || []
-    }))
-  }]
+	const headers = groupHeaders(page.headers || []);
+	return [
+		{
+			type: 'group',
+			collapsable: false,
+			title: page.title,
+			path: null,
+			children: headers.map(h => ({
+				type: 'auto',
+				title: h.title,
+				basePath: page.path,
+				path: page.path + '#' + h.slug,
+				children: h.children || [],
+			})),
+		},
+	];
 }
 
 export function groupHeaders(headers) {
-  // group h3s under h2
-  headers = headers.map(h => Object.assign({}, h))
-  let lastH2
-  headers.forEach(h => {
-    if (h.level === 2) {
-      lastH2 = h
-    } else if (lastH2) {
-      (lastH2.children || (lastH2.children = [])).push(h)
-    }
-  })
-  // TODO h1-h3
-  return headers.filter(h => h.level === 2)
+	// group h3s under h2
+	headers = headers.map(h => Object.assign({}, h));
+	let lastH2;
+	headers.forEach(h => {
+		if (h.level === 2) {
+			lastH2 = h;
+		} else if (lastH2) {
+			(lastH2.children || (lastH2.children = [])).push(h);
+		}
+	});
+	// TODO h1-h3
+	return headers.filter(h => h.level === 2);
 }
 
 export function resolveNavLinkItem(linkItem) {
-  return Object.assign(linkItem, {
-    type: linkItem.items && linkItem.items.length ? 'links' : 'link'
-  })
+	return Object.assign(linkItem, {
+		type: linkItem.items && linkItem.items.length ? 'links' : 'link',
+	});
 }
 
 /**
@@ -199,100 +195,98 @@ export function resolveNavLinkItem(linkItem) {
  * @returns { base: string, config: SidebarConfig }
  */
 export function resolveMatchingConfig(regularPath, config) {
-  if (Array.isArray(config)) {
-    return {
-      base: '/',
-      config: config
-    }
-  }
-  for (const base in config) {
-    if (ensureEndingSlash(regularPath).indexOf(encodeURI(base)) === 0) {
-      return {
-        base,
-        config: config[base]
-      }
-    }
-  }
-  return {}
+	if (Array.isArray(config)) {
+		return {
+			base: '/',
+			config: config,
+		};
+	}
+	for (const base in config) {
+		if (ensureEndingSlash(regularPath).indexOf(encodeURI(base)) === 0) {
+			return {
+				base,
+				config: config[base],
+			};
+		}
+	}
+	return {};
 }
 
 function ensureEndingSlash(path) {
-  return /(\.html|\/)$/.test(path)
-    ? path
-    : path + '/'
+	return /(\.html|\/)$/.test(path) ? path : path + '/';
 }
 
 function resolveItem(item, pages, base, groupDepth = 1) {
-  if (typeof item === 'string') {
-    return resolvePage(pages, item, base)
-  } else if (Array.isArray(item)) {
-    return Object.assign(resolvePage(pages, item[0], base), {
-      title: item[1]
-    })
-  } else {
-    const children = item.children || []
-    if (children.length === 0 && item.path) {
-      return Object.assign(resolvePage(pages, item.path, base), {
-        title: item.title
-      })
-    }
-    return {
-      type: 'group',
-      path: item.path,
-      title: item.title,
-      sidebarDepth: item.sidebarDepth,
-      initialOpenGroupIndex: item.initialOpenGroupIndex,
-      children: children.map(child => resolveItem(child, pages, base, groupDepth + 1)),
-      collapsable: item.collapsable !== false
-    }
-  }
+	if (typeof item === 'string') {
+		return resolvePage(pages, item, base);
+	} else if (Array.isArray(item)) {
+		return Object.assign(resolvePage(pages, item[0], base), {
+			title: item[1],
+		});
+	} else {
+		const children = item.children || [];
+		if (children.length === 0 && item.path) {
+			return Object.assign(resolvePage(pages, item.path, base), {
+				title: item.title,
+			});
+		}
+		return {
+			type: 'group',
+			path: item.path,
+			title: item.title,
+			sidebarDepth: item.sidebarDepth,
+			initialOpenGroupIndex: item.initialOpenGroupIndex,
+			children: children.map(child => resolveItem(child, pages, base, groupDepth + 1)),
+			collapsable: item.collapsable !== false,
+		};
+	}
 }
 
 export function forbidScroll(use = true) {
-  if (use) {
-    const classList = document.body.className.split(' ')
-    classList.push('forbid_scroll')
-    document.body.className = classList.join(' ')
-  } else {
-    document.body.className = document.body.className.replace(/\s+forbid_scroll/g, '')
-  }
+	if (use) {
+		const classList = document.body.className.split(' ');
+		classList.push('forbid_scroll');
+		document.body.className = classList.join(' ');
+	} else {
+		document.body.className = document.body.className.replace(/\s+forbid_scroll/g, '');
+	}
 }
 
 export const os = {
-  android: false,
-  ios: false,
-  mobile: false,
-  pc: false,
-  init: function () {
-    var ua = navigator.userAgent;
-    if (ua.match(/(Android);?[\s\/]+([\d+.]+)?/)) {
-      this.android = true;
-      this.mobile = true;
-      this.pc = false;
-    } else if (ua.match(/(iPhone\sOS)\s([\d_]+)/)) {
-      this.ios = true;
-      this.mobile = true;
-      this.pc = false;
-    } else {
-      this.android = false;
-      this.ios = false;
-      this.mobile = false;
-      this.pc = true;
-    }
-  }
+	android: false,
+	ios: false,
+	mobile: false,
+	pc: false,
+	init: function () {
+		var ua = navigator.userAgent;
+		if (ua.match(/(Android);?[\s\/]+([\d+.]+)?/)) {
+			this.android = true;
+			this.mobile = true;
+			this.pc = false;
+		} else if (ua.match(/(iPhone\sOS)\s([\d_]+)/)) {
+			this.ios = true;
+			this.mobile = true;
+			this.pc = false;
+		} else {
+			this.android = false;
+			this.ios = false;
+			this.mobile = false;
+			this.pc = true;
+		}
+	},
 };
 
 export function debounce(fn, delay) {
-  let timeout
-  const newFn = function () {
-    clearTimeout(timeout)
-    const timerFn = () => fn.apply(this, arguments)
-    timeout = setTimeout(timerFn, delay)
-  }
-  newFn.cancel = function () {
-    clearTimeout(timeout)
-  }
-  return newFn
+	let timeout;
+	const newFn = function () {
+		clearTimeout(timeout);
+		const timerFn = () => fn.apply(this, arguments);
+		timeout = setTimeout(timerFn, delay);
+	};
+	newFn.cancel = function () {
+		clearTimeout(timeout);
+	};
+	return newFn;
 }
 
 /*
@@ -303,31 +297,105 @@ export function debounce(fn, delay) {
  * @returns {Element}
  */
 export function findContainerInVm(ref, vm, def) {
-  if (!ref) return def
-  let container
-  let parent = vm
-  while ((parent = parent.$parent) && !container) {
-    container = parent.$refs[ref]
-  }
-  // Ensure it's html element (ref could be component)
-  if (container && container.$el) {
-    container = container.$el
-  }
-  return container || def
+	if (!ref) return def;
+	let container;
+	let parent = vm;
+	while ((parent = parent.$parent) && !container) {
+		container = parent.$refs[ref];
+	}
+	// Ensure it's html element (ref could be component)
+	if (container && container.$el) {
+		container = container.$el;
+	}
+	return container || def;
 }
 
 export function once(fn, ctx = null) {
-  let res
-  return (...args) => {
-    if (fn) {
-      res = fn.apply(ctx, args)
-      fn = null
-    }
-    return res
-  }
+	let res;
+	return (...args) => {
+		if (fn) {
+			res = fn.apply(ctx, args);
+			fn = null;
+		}
+		return res;
+	};
 }
 
 export const getNavbarHeight = () => {
-  const { height, top } = document.querySelector('.navbar').getBoundingClientRect()
-  return height + top
-}
+	const { height, top } = document.querySelector('.navbar').getBoundingClientRect();
+	return height + top;
+};
+
+export const usePopoverDirective = selector => {
+	let mouseOptions = {};
+	const mouseEnter = e => {
+		const { top, left, bottom, right, height, width } = e.target.getBoundingClientRect();
+		mouseOptions = {
+			top,
+			left,
+			bottom,
+			right,
+			height,
+			width,
+		};
+	};
+
+	return {
+		mouseEnter,
+		directive: {
+			inserted(el, binding, vnode, prevVnode) {
+				const insertContent = document.querySelector(selector);
+				if (insertContent) {
+					insertContent.appendChild(el);
+				}
+			},
+			componentUpdated(el, binding, vnode, prevVnode) {
+				const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+				const scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+				const screenWidth = document.documentElement.clientWidth;
+
+				const { width, height } = el.getBoundingClientRect();
+				const {
+					left: targetLeft,
+					top: targetTop,
+					bottom: targetBottom,
+					right: targetRight,
+					height: targetHeight,
+					width: targetWidth,
+				} = mouseOptions;
+				const OFFSET = 10;
+				const NAVBAR_HEIGHT = getNavbarHeight();
+
+				// 默认 icon 正中间位置
+				const HALF_WIDTH = width / 2;
+				const HALF_TARGET_WIDTH = targetWidth / 2;
+				const TOP = height; // + OFFSET
+				const LEFT = HALF_TARGET_WIDTH - HALF_WIDTH;
+
+				const DEFAULT_TOP = targetTop + scrollTop;
+				const DEFAULT_LEFT = targetLeft + scrollLeft;
+
+				let currentTop = DEFAULT_TOP - TOP;
+				let currentLeft = DEFAULT_LEFT + LEFT;
+
+				if (targetTop - NAVBAR_HEIGHT - TOP - OFFSET > 0) {
+					// 上方空间够
+					currentTop = currentTop - OFFSET;
+				} else {
+					// 上方空间不够
+					currentTop = currentTop + (height + targetHeight) + OFFSET;
+				}
+
+				const RIGHT_OFFSET = screenWidth - (targetLeft + HALF_TARGET_WIDTH) - HALF_WIDTH;
+				// const LEFT_OFFSET = (screenWidth - targetLeft - HALF_TARGET_WIDTH) - HALF_WIDTH
+
+				if (RIGHT_OFFSET < 0) {
+					// 右侧空间不够
+					currentLeft = screenWidth - width;
+				}
+				el.style.top = `${currentTop < 0 ? 0 : currentTop}px`;
+				el.style.left = `${currentLeft < 0 ? 0 : currentLeft}px`;
+			},
+		},
+	};
+};

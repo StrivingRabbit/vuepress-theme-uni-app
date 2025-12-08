@@ -1,5 +1,13 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.11
+
+### Patch Changes
+
+- feat: 提高 Popover 的 z-index
+  feat: Popover 组件支持鼠标 hover 弹出不隐藏
+  feat: AI 回答支持赞、踩
+
 ## 1.6.10
 
 ### Patch Changes

@@ -13,10 +13,9 @@
           <div class="meta">
             <span class="time">{{ m.time }}</span>
 
-            <!-- <div class="actions" v-if="m.role === 'assistant'">
-              <LikeButton :active="!!m.like" type="like" @click.stop="like(m)" />
-              <LikeButton :active="!!m.dislike" type="dislike" @click.stop="dislike(m)" />
-            </div> -->
+            <div class="actions" v-if="m.role === 'assistant' && m.uni_ai_feedback_id.length > 0">
+              <AIFeedback :like="m.like" :dislike="m.dislike" :uni_ai_feedback_id="m.uni_ai_feedback_id" @action="data => feedbackAction(m.id, data)"/>
+            </div>
           </div>
 
         </div>
@@ -59,13 +58,13 @@
 import { ref, nextTick, watchEffect, onMounted, computed } from 'vue'
 import searchPageConfig from '@theme-config/searchPage';
 import { renderMarkdown } from "./markdown-loader";
-import { MAX_AI_ANSWER_LENGTH, AI_CHAT_FOR_DOC_SEARCH_URL } from '../constants';
+import { MAX_AI_ANSWER_LENGTH, AI_CHAT_FOR_DOC_SEARCH_URL, AI_UPDATE_FEEDBACK_URL } from '../constants';
 import { ajax } from '../utils/postDcloudServer';
 import SelectPlatform from '../components/SelectPlatform.vue';
-import LikeButton from '../components/LikeButton.vue';
+import AIFeedback from '../components/AIFeedback.vue';
 import Skeleton from '../components/Skeleton.vue';
 
-const { aiPlatforms = [], aiChatForDocSearch = AI_CHAT_FOR_DOC_SEARCH_URL } = searchPageConfig;
+const { aiPlatforms = [], aiChatForDocSearch = AI_CHAT_FOR_DOC_SEARCH_URL, aiUpdateFeedbackUrl = AI_UPDATE_FEEDBACK_URL } = searchPageConfig;
 
 const props = defineProps({
   currentCategory: {
@@ -232,6 +231,7 @@ async function send() {
   sending.value = true
 
   let fakeReply = ''
+  let uni_ai_feedback_id = ''
   try {
     const res = await ajax(aiChatForDocSearch, 'POST', {
       "question": userText,
@@ -240,6 +240,7 @@ async function send() {
     })
     if (res.errorCode === 0) {
       fakeReply = res.chunk
+      uni_ai_feedback_id = res.uni_ai_feedback_id
     } else {
       fakeReply = `抱歉，AI 助手出错了：${res.errorMsg || '未知错误'}`
     }
@@ -253,6 +254,7 @@ async function send() {
     id: Date.now() + 1,
     role: 'assistant',
     raw: fakeReply,
+    uni_ai_feedback_id, // 从接口获取反馈 ID
     rendered: await renderHTML(fakeReply),
     time: formatTime(),
     isTyping: false,
@@ -269,19 +271,13 @@ async function send() {
   scrollToBottom()
 }
 
-function like(m) {
-  console.log('like');
-  m.like = !m.like;
-  if (m.like) {
-    m.dislike = false;
-  }
-}
-
-function dislike(m) {
-  console.log('dislike');
-  m.dislike = !m.dislike;
-  if (m.dislike) {
-    m.like = false;
+function feedbackAction(messageId, data) {
+  // 更新对应消息的反馈状态
+  const msg = messages.value.find(m => m.id === messageId);
+  if (msg) {
+    msg.like = data.like;
+    msg.dislike = data.dislike;
+    setSessionMessages(messages.value)
   }
 }
 

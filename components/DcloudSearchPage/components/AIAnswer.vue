@@ -13,23 +13,17 @@
         本回答由 AI 生成，可能已过期、失效或不适用于当前情形，仅供参考
       </div>
 
-      <!-- <div v-show="hasMessage" class="ai-answer-footer_right">
-        <LikeButton :active="status.like" type="like" @click.stop="like" />
-        <LikeButton :active="status.dislike" type="dislike" @click.stop="dislike" />
-      </div> -->
+      <div v-show="hasMessage && props.item.uni_ai_feedback_id.length > 0">
+        <AIFeedback :uni_ai_feedback_id="props.item.uni_ai_feedback_id"/>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import searchPageConfig from '@theme-config/searchPage';
+import { computed } from 'vue';
 import Skeleton from './Skeleton.vue';
-import LikeButton from './LikeButton.vue';
-import { computed, reactive } from 'vue';
-
-const {
-  aiChatForDocSearch = 'https://ai-assist-api.dcloud.net.cn/tbox/chatForDocSearch'
-} = searchPageConfig;
+import AIFeedback from './AIFeedback.vue';
 
 const props = defineProps({
   item: {
@@ -41,27 +35,6 @@ const props = defineProps({
 const hasMessage = computed(() => {
   return props.item.msg && props.item.msg.length > 0;
 })
-
-const status = reactive({
-  like: false,
-  dislike: false
-})
-
-function like() {
-  console.log('like');
-  status.like = !status.like;
-  if (status.like) {
-    status.dislike = false;
-  }
-}
-
-function dislike() {
-  console.log('dislike');
-  status.dislike = !status.dislike;
-  if (status.dislike) {
-    status.like = false;
-  }
-}
 </script>
 
 <style lang="stylus">
@@ -122,7 +95,4 @@ function dislike() {
   justify-content space-between
   font-size 12px
   color #888
-
-  .ai-answer-footer_right
-    display flex
 </style>

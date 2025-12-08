@@ -159,7 +159,7 @@ const {
 		resultsScreen: { resultsText, noResultsText, askNoResultsText },
 	},
 	extraFacetFilters = [],
-	aiChatForDocSearch = AI_CHAT_FOR_DOC_SEARCH_URL
+	aiChatForDocSearch = AI_CHAT_FOR_DOC_SEARCH_URL,
 } = searchPageConfig;
 const crawlerUrl = 'https://zh.uniapp.dcloud.io/'
 
@@ -206,6 +206,7 @@ export default {
 
 			searchAIResult: Promise.resolve(null),
 			aiMessage: {
+				uni_ai_feedback_id: '',
 				isAI: true,
 				title: 'AI 助手回答',
 				msg: ''
@@ -448,6 +449,7 @@ export default {
 					"question": this.searchValue,
 					"group_name": this.currentCategory.text
 				}).then(res => {
+					this.aiMessage.uni_ai_feedback_id = res.uni_ai_feedback_id || ''
 					if (res.errorCode === 0) {
 						return renderMarkdown(res.chunk)
 					} else {

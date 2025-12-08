@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.12
+
+### Patch Changes
+
+- fix: 兼容旧版 AI 回答数据
+
 ## 1.6.11
 
 ### Patch Changes

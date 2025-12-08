@@ -113,7 +113,7 @@ const vPopover = {
 .popover-content-wrapper {
   position: absolute;
   background-color: #fff;
-  z-index: 11;
+  z-index: 601;
   border-radius: 5px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   transition: opacity .1s cubic-bezier(0.57, 0.85, 0.85, 0.57);

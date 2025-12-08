@@ -13,7 +13,7 @@
           <div class="meta">
             <span class="time">{{ m.time }}</span>
 
-            <div class="actions" v-if="m.role === 'assistant' && m.uni_ai_feedback_id.length > 0">
+            <div class="actions" v-if="m.role === 'assistant' && typeof m.uni_ai_feedback_id === 'string' && m.uni_ai_feedback_id.length > 0">
               <AIFeedback :like="m.like" :dislike="m.dislike" :uni_ai_feedback_id="m.uni_ai_feedback_id" @action="data => feedbackAction(m.id, data)"/>
             </div>
           </div>

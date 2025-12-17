@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.13
+
+### Patch Changes
+
+- feat: 改进 navbar 显示
+
 ## 1.6.12
 
 ### Patch Changes

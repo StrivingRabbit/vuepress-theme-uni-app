@@ -35,18 +35,17 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
     justify-content center
     align-items center
     .main-navbar-links
-      width 55%
+      // width 55%
       display inline-block
       @media (min-width: 1080px) and (max-width: 1680px)
         &
           flex 1
-          padding 0 300px
       show-after()
         opacity 1
         transform scaleX(1)
       .main-navbar-item
         display inline-block
-        padding 0 3%
+        padding 0 15px
         position relative
         &.active a
           color $accentColor

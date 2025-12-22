@@ -262,6 +262,8 @@ export default {
 	max-height: 667px;
 	border: 1px #eee solid;
 	margin-top: 16px;
+  border-radius: 6px;
+  overflow: hidden
 }
 .page-snippet {
 	width: 100%;

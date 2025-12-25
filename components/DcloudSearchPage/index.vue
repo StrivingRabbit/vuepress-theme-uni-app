@@ -165,7 +165,7 @@ const crawlerUrl = 'https://zh.uniapp.dcloud.io/'
 
 const resolveRoutePathFromUrl = (url, base = '/') => {
 	if (url.indexOf(crawlerUrl) === 0) {
-		return url.replace(crawlerUrl, 'https://uniapp.dcloud.io/')
+		return url.replace(crawlerUrl, location.origin + '/');
 	}
 	return url
 	// remove url origin

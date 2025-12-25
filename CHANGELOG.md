@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.15
+
+### Patch Changes
+
+- feat: 搜索结果使用当前 origin
+- a252012: feat: 自定义 code 添加圆角
+
 ## 1.6.13
 
 ### Patch Changes

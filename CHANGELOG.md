@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.16
+
+### Patch Changes
+
+- fix: 在 uni-app-x 下搜索到 uni-app 文档 plugin 内容时跳转 404
+
 ## 1.6.15
 
 ### Patch Changes

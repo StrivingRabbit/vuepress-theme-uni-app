@@ -399,6 +399,12 @@ export default {
 									title: removeHighlightTags(items[0]),
 									items,
 									onSelect: ({ item, event, index }) => {
+										/* aa("convertedObjectIDsAfterSearch", {
+											eventName: "Article Read",
+											index: "YourIndexName",
+											queryID: "query-1",
+											objectIDs: ["objectID-1"],
+										}); */
 										aa("clickedObjectIDsAfterSearch", {
 											index: indexName,
 											eventName: `[${this.currentCategory.text}] Item Clicked`,

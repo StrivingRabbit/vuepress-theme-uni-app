@@ -25,7 +25,8 @@
     "styles",
     "util",
     "enhanceApp.js",
-    "index.js"
+    "index.js",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "publish:patch": "npm version patch && npm publish",

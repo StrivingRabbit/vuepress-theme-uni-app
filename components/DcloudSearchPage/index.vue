@@ -162,8 +162,15 @@ const {
 	aiChatForDocSearch = AI_CHAT_FOR_DOC_SEARCH_URL,
 } = searchPageConfig;
 const crawlerUrl = 'https://zh.uniapp.dcloud.io/'
+const unidocsUrl = 'https://uniapp.dcloud.io/'
+const docDcloudNetUrl = 'https://doc.dcloud.net.cn/'
 
 const resolveRoutePathFromUrl = (url, base = '/') => {
+	// uni-app-x、uniCloud (doc.dcloud.net.cn 域名下) 等独立站点不需要转换，只需要将爬虫的域名替换为正确域名即可
+	if (location.origin.includes(docDcloudNetUrl)) {
+		return url.replace(crawlerUrl, unidocsUrl)
+	}
+	// unidocs 文档分中英文，因此需要转换回当前站点域名 zh、en
 	if (url.indexOf(crawlerUrl) === 0) {
 		return url.replace(crawlerUrl, location.origin + '/');
 	}

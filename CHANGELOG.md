@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.17
+
+### Patch Changes
+
+- feat: Algolia 搜索结果点击事件分析
+
 ## 1.6.16
 
 ### Patch Changes

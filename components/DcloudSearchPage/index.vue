@@ -386,29 +386,29 @@ export default {
 					this.showLoading = true;
 					this.searchByAlgolia()
 						.then(({ hitsPerPage, nbHits, nbPages, page, hits, queryID, indexName }) => {
+							this.noResult = !this.resultList.length;
+							this.curHits = nbHits;
+							this.pageSize = hitsPerPage;
+							this.totalPage = nbPages;
+							this.curPage = page + 1;
+
 							this.resultList = hits.map(item => {
 								const items = item.getItems();
 								return {
 									...item,
 									title: removeHighlightTags(items[0]),
 									items,
-									onSelect: ({ item, event }) => {
+									onSelect: ({ item, event, index }) => {
 										aa("clickedObjectIDsAfterSearch", {
 											index: indexName,
 											eventName: `[${this.currentCategory.text}] Item Clicked`,
 											queryID,
 											objectIDs: [item.objectID],
-											positions: [1],
+											positions: [index + page * hitsPerPage],
 										});
 									}
 								};
 							});
-
-							this.noResult = !this.resultList.length;
-							this.curHits = nbHits;
-							this.pageSize = hitsPerPage;
-							this.totalPage = nbPages;
-							this.curPage = page + 1;
 
 							if (this.curPage === 1 && this.showAIMessage) {
 								this.resultList.splice(1, 0, this.aiMessage);

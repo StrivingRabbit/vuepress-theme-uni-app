@@ -134,6 +134,7 @@
 </template>
 
 <script>
+import aa from "search-insights";
 import searchPageConfig from '@theme-config/searchPage';
 import NavbarLogo from '../NavbarLogo.vue';
 import Results from './components/Results.vue';
@@ -384,13 +385,22 @@ export default {
 				case 'algolia':
 					this.showLoading = true;
 					this.searchByAlgolia()
-						.then(({ hitsPerPage, nbHits, nbPages, page, hits }) => {
+						.then(({ hitsPerPage, nbHits, nbPages, page, hits, queryID, indexName }) => {
 							this.resultList = hits.map(item => {
 								const items = item.getItems();
 								return {
 									...item,
 									title: removeHighlightTags(items[0]),
 									items,
+									onSelect: ({ item, event }) => {
+										aa("clickedObjectIDsAfterSearch", {
+											index: indexName,
+											eventName: `[${this.currentCategory.text}] Item Clicked`,
+											queryID,
+											objectIDs: [item.objectID],
+											positions: [1],
+										});
+									}
 								};
 							});
 

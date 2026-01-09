@@ -1,10 +1,12 @@
 import algoliasearch from 'algoliasearch/dist/algoliasearch-lite.esm.browser';
+import aa from "search-insights";
 import { removeHighlightTags, groupBy } from './searchUtils'
 
 let searchClient
 function createSearchClient(appId, apiKey) {
   if (searchClient) return searchClient
   searchClient = algoliasearch(appId, apiKey);
+  aa("init", { appId, apiKey });
   searchClient.addAlgoliaAgent('dcloudsearch', '1.0.0');
 
   return searchClient
@@ -45,6 +47,7 @@ export function search({ query, indexName, appId, apiKey, searchParameters = {},
           highlightPreTag: '<mark>',
           highlightPostTag: '</mark>',
           hitsPerPage: 20,
+          clickAnalytics: true,
           ...searchParameters,
           ...args,
         },
@@ -54,7 +57,7 @@ export function search({ query, indexName, appId, apiKey, searchParameters = {},
       throw error;
     })
     .then(({ results }) => {
-      const { hits, hitsPerPage, nbHits, nbPages, page } = results[0];
+      const { hits, hitsPerPage, nbHits, nbPages, page, queryID } = results[0];
       const sources = groupBy(hits, (hit) => removeHighlightTags(hit));
       return {
         hitsPerPage, nbHits, nbPages, page,
@@ -95,7 +98,9 @@ export function search({ query, indexName, appId, apiKey, searchParameters = {},
               },
             };
           }
-        )
+        ),
+        queryID,
+        indexName
       }
     });
 }

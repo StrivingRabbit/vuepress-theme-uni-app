@@ -10,7 +10,7 @@
 					:key="[title, item.objectID].join(':')"
 					:item="item"
 					:index="index"
-					@click.native="event => onSelect({ item, event, index })"
+					@click.native.stop="event => onSelect({ item, event, index })"
 				/>
 			</template>
 		</ul>

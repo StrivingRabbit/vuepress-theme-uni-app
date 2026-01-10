@@ -392,13 +392,13 @@ export default {
 							this.totalPage = nbPages;
 							this.curPage = page + 1;
 
-							this.resultList = hits.map(item => {
+							this.resultList = hits.map((item, index) => {
 								const items = item.getItems();
 								return {
 									...item,
 									title: removeHighlightTags(items[0]),
 									items,
-									onSelect: ({ item, event, index }) => {
+									onSelect: ({ item, event }) => {
 										/* aa("convertedObjectIDsAfterSearch", {
 											eventName: "Article Read",
 											index: "YourIndexName",
@@ -410,8 +410,9 @@ export default {
 											eventName: `[${this.currentCategory.text}] Item Clicked`,
 											queryID,
 											objectIDs: [item.objectID],
-											positions: [index + page * hitsPerPage],
+											positions: [(index + 1) + (page * hitsPerPage)],
 										});
+										item.onSelect()
 									}
 								};
 							});

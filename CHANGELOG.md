@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.18
+
+### Patch Changes
+
+- feat: 优化搜索体验
+- fix: 修复点击事件 positions 不正确
+
 ## 1.6.17
 
 ### Patch Changes

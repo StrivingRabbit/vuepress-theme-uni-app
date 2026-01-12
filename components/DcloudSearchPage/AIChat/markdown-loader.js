@@ -1,3 +1,6 @@
+import marked from 'marked'
+import hljs from 'highlight.js'
+
 // markdown-loader.js
 let markedInstance = null;
 
@@ -27,10 +30,8 @@ function getLangCodeFromExtension(extension) {
 	return extensionMap[extension] || extension;
 }
 
-export async function renderMarkdown(md) {
+export function renderMarkdown(md) {
 	if (!markedInstance) {
-		const [marked, hljs] = await Promise.all([import('marked'), import('highlight.js')]);
-
 		marked.setOptions({
 			headerIds: false,
 			mangle: false,

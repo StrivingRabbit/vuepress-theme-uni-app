@@ -170,8 +170,8 @@ function scrollToBottom() {
   })
 }
 
-async function renderHTML(raw) {
-  const rendered = await renderMarkdown(raw)
+function renderHTML(raw) {
+  const rendered = renderMarkdown(raw)
   return rendered
 }
 
@@ -182,14 +182,14 @@ function fakeAITyping(text, msgObj) {
       if (i >= text.length) {
         clearInterval(timer)
         msgObj.raw = text
-        msgObj.rendered = await renderHTML(text)
+        msgObj.rendered = renderHTML(text)
         msgObj.isTyping = false
         resolve()
         return
       }
 
       msgObj.raw += text[i]
-      msgObj.rendered = await renderHTML(msgObj.raw)
+      msgObj.rendered = renderHTML(msgObj.raw)
       i++
       scrollToBottom()
     }, 25)
@@ -209,7 +209,39 @@ function getChatHistory() {
   }))
 }
 
-async function send() {
+// 创建用户消息
+function createUserMessage(text) {
+  return {
+    id: Date.now(),
+    role: 'user',
+    raw: text,
+    rendered: renderHTML(text),
+    time: formatTime(),
+  }
+}
+
+// 创建 AI 消息
+function createAIMessage(text, feedbackId = '') {
+  return {
+    id: Date.now() + 1,
+    role: 'assistant',
+    raw: text,
+    uni_ai_feedback_id: feedbackId,
+    rendered: renderHTML(text),
+    time: formatTime(),
+    isTyping: false,
+    like: false,
+    dislike: false
+  }
+}
+
+// 添加消息并保存到会话
+function addMessage(message) {
+  messages.value.push(message)
+  setSessionMessages(messages.value)
+}
+
+function send() {
   const userText = inputText.value.trim()
 
   if (!userText || sending.value) return
@@ -219,13 +251,7 @@ async function send() {
   answerInput()
 
   // 用户消息
-  messages.value.push({
-    id: Date.now(),
-    role: 'user',
-    raw: userText,
-    rendered: await renderHTML(userText),
-    time: formatTime(),
-  })
+  addMessage(createUserMessage(userText))
   scrollToBottom()
 
   sending.value = true
@@ -233,42 +259,40 @@ async function send() {
   let fakeReply = ''
   let uni_ai_feedback_id = ''
   try {
-    const res = await ajax(aiChatForDocSearch, 'POST', {
+    ajax(aiChatForDocSearch, 'POST', {
       "question": userText,
       "group_name": sendPlatform.value,
       "history": getChatHistory()
+    }).then(res => {
+      if (res.errorCode === 0) {
+        fakeReply = res.chunk
+        uni_ai_feedback_id = res.uni_ai_feedback_id
+      } else {
+        fakeReply = `抱歉，AI 助手出错了：${res.errorMsg || '未知错误'}`
+      }
+
+      sending.value = false
+
+      // AI 消息对象
+      const aiMsg = createAIMessage(fakeReply, uni_ai_feedback_id)
+      addMessage(aiMsg)
+
+      // 动态打字
+      // await fakeAITyping(fakeReply, aiMsg)
+    }).catch(error => {
+      sending.value = false
+      fakeReply = `抱歉，AI 助手出错了：${error.message || '未知错误'}`
+
+      // 添加错误消息到聊天记录
+      addMessage(createAIMessage(fakeReply))
+    }).finally(() => {
+      scrollToBottom()
     })
-    if (res.errorCode === 0) {
-      fakeReply = res.chunk
-      uni_ai_feedback_id = res.uni_ai_feedback_id
-    } else {
-      fakeReply = `抱歉，AI 助手出错了：${res.errorMsg || '未知错误'}`
-    }
   } catch (error) {
+    sending.value = false
     fakeReply = `抱歉，AI 助手出错了：${error.message || '未知错误'}`
+    scrollToBottom()
   }
-  sending.value = false
-
-  // AI 消息对象
-  const aiMsg = {
-    id: Date.now() + 1,
-    role: 'assistant',
-    raw: fakeReply,
-    uni_ai_feedback_id, // 从接口获取反馈 ID
-    rendered: await renderHTML(fakeReply),
-    time: formatTime(),
-    isTyping: false,
-    like: false,
-    dislike: false
-  }
-
-  messages.value.push(aiMsg)
-
-  // 动态打字
-  // await fakeAITyping(fakeReply, aiMsg)
-  setSessionMessages(messages.value)
-
-  scrollToBottom()
 }
 
 function feedbackAction(messageId, data) {
@@ -352,12 +376,14 @@ window.addEventListener('resize', scrollToBottom)
   .bubble
     display inline-block
     max-width 50%
-    padding 14px 14px
+    padding 0px 14px
     border-radius 14px
     line-height 1.5
     font-size 15px
     word-break break-word
     box-shadow 0 1px 3px rgba(0,0,0,0.08)
+    & > pre
+      margin-top 14px
     @extend .ai-answer-style-reset
 
   .meta

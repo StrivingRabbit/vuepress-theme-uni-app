@@ -399,17 +399,18 @@ export default {
 									title: removeHighlightTags(items[0]),
 									items,
 									onSelect: ({ item, event }) => {
+										const objectIDs = [item.objectID]
 										/* aa("convertedObjectIDsAfterSearch", {
-											eventName: "Article Read",
-											index: "YourIndexName",
-											queryID: "query-1",
-											objectIDs: ["objectID-1"],
+											eventName: `[${this.currentCategory.text}] Item Converted`,
+											index: indexName,
+											queryID,
+											objectIDs,
 										}); */
 										aa("clickedObjectIDsAfterSearch", {
 											index: indexName,
 											eventName: `[${this.currentCategory.text}] Item Clicked`,
 											queryID,
-											objectIDs: [item.objectID],
+											objectIDs,
 											positions: [(index + 1) + (page * hitsPerPage)],
 										});
 										item.onSelect()

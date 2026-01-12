@@ -1,5 +1,13 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.19
+
+### Patch Changes
+
+- fix: 问 AI 用户输入没有 ``` 包裹的 html 代码时显示异常
+  feat: 优化用户消息显示速度
+  feat: 优化用户信息显示
+
 ## 1.6.18
 
 ### Patch Changes

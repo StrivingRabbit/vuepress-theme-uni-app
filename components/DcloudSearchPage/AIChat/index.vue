@@ -364,7 +364,6 @@ window.addEventListener('resize', scrollToBottom)
 
   .msg.assistant
     .bubble
-      max-width 80%
       background white
       border 1px solid #eee
       margin-right auto
@@ -375,7 +374,7 @@ window.addEventListener('resize', scrollToBottom)
 
   .bubble
     display inline-block
-    max-width 50%
+    max-width 80%
     padding 0px 14px
     border-radius 14px
     line-height 1.5

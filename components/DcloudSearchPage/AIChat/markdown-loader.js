@@ -34,6 +34,7 @@ export async function renderMarkdown(md) {
 		marked.setOptions({
 			headerIds: false,
 			mangle: false,
+			sanitize: true,
 			highlight(code, lang) {
 				lang = getLangCodeFromExtension(lang);
 				if (lang && hljs.getLanguage(lang)) {

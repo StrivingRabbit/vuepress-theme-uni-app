@@ -352,7 +352,7 @@ window.addEventListener('resize', scrollToBottom)
   .bubble
     display inline-block
     max-width 50%
-    padding 0 14px
+    padding 14px 14px
     border-radius 14px
     line-height 1.5
     font-size 15px

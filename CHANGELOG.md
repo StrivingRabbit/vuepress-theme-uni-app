@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.20
+
+### Patch Changes
+
+- fix: 搜索时有滚动条
+- fix: algolia 搜索有结果时但显示文案显示异常
+
 ## 1.6.19
 
 ### Patch Changes

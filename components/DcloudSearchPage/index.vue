@@ -386,7 +386,7 @@ export default {
 					this.showLoading = true;
 					this.searchByAlgolia()
 						.then(({ hitsPerPage, nbHits, nbPages, page, hits, queryID, indexName }) => {
-							this.noResult = !this.resultList.length;
+							debugger;
 							this.curHits = nbHits;
 							this.pageSize = hitsPerPage;
 							this.totalPage = nbPages;
@@ -417,6 +417,8 @@ export default {
 									}
 								};
 							});
+
+							this.noResult = !this.resultList.length;
 
 							if (this.curPage === 1 && this.showAIMessage) {
 								this.resultList.splice(1, 0, this.aiMessage);

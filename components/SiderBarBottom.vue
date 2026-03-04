@@ -44,7 +44,7 @@
 						</a>
 					</div>
 					<div v-else :key="item.prefix">
-						{{ item.prefix }}：{{ item.number }}（{{ item.attendance || 2000 }}人已满）
+						{{ item.prefix }}：{{ item.number }}（已满）
 					</div>
 				</template>
 			</div>

@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.21
+
+### Patch Changes
+
+- feat: update attendance message format in SiderBarBottom component
+- feat: 优化 navbar 样式
+
 ## 1.6.20
 
 ### Patch Changes

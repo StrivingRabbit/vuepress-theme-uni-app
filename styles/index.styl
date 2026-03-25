@@ -81,7 +81,6 @@ body.forbid_scroll
 main.page
 	padding-bottom 0px
 	padding-right 0px
-
 	@media (min-width $vuepress-display-min-width)
 		&
 			padding-right $vuepress-toc-width
@@ -113,13 +112,14 @@ main.page
 	.table-of-contents
 		margin-top: $navbarHeight - 2rem !important
 
+@media (min-width $MQMobile)
+	.nav-dropdown
+		z-index 1
+
 {$contentClass}:not(.custom)
 	> *:first-child
 		margin-top 0
 
-/* @media (max-width $MQMobile)
-&
-	margin-top 2rem */
 img
 	max-width 100% !important
 
@@ -139,13 +139,6 @@ h1, h2, h3, h4, h5, h6
 		&:first-child
 			margin-top 3rem - $navbarHeight
 			padding-top: ($navbarHeight - 3rem)
-
-/* @media (max-width $MQMobile)
-&
-	margin-top 3rem */
-@media (min-width $MQMobile)
-	.nav-dropdown
-		z-index 1
 
 .sidebar
 	.sidebar-group.is-sub-group>.sidebar-heading

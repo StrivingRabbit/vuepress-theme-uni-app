@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.22
+
+### Patch Changes
+
+- feat: 优化 navbar 结构; 多语言配置可为空
+- feat: repo config
+
 ## 1.6.21
 
 ### Patch Changes

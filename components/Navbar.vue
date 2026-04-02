@@ -28,36 +28,39 @@
         </div>
       </div>
 
-      <div class="dropdown-language" @click="switchLanguage">
-        <div style="display: flex;align-items: center;">
-          <span>{{navbarLanguage[navConfig.languageIndex].text}}</span>
-          <svg t="1629441415944" viewBox="0 20 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3713"
-            width="16" height="16" class="icon">
-            <path
-              d="M508.025406 655.446718c-14.45307 0-28.183486-5.781228-39.023289-15.898376l-231.249118-231.249118c-10.117149-10.117149-10.117149-26.015526 0-36.132675s26.015526-10.117149 36.132675 0l231.249118 231.249118c2.16796 2.16796 4.335921 2.16796 5.781228 0l231.971771-231.971771c10.117149-10.117149 26.015526-10.117149 35.410021 0 10.117149 10.117149 10.117149 26.015526 0 36.132674l-231.971771 231.971772c-9.394495 10.117149-23.124912 15.898377-38.300635 15.898376z"
-              p-id="3714"></path>
-          </svg>
+      <div class="main-navbar_right">
+        <div class="links" :style="{ top: `${this.SearchBoxTop}px` }">
+          <!-- <a class="switch-version" href="javascript:void(0)">回到旧版</a> -->
+          <DcloudSearchPage v-if="isAlgoliaSearch" ref="dcloudSearchPage" :options="algolia" />
+          <AlgoliaSearchBox v-if="isAlgoliaSearch" />
+          <SearchBox v-else-if="$site.themeConfig.search !== false && $page.frontmatter.search !== false" />
         </div>
-        <div v-if="showLanguage" class="dropdown-content">
-          <div
-            v-for="(item,index) in navbarLanguage"
-            :key="item.link"
-            @click="() => { typeof item.click === 'function' && item.click(index === navConfig.languageIndex) }"
-          >
-            <a :href="index === navConfig.languageIndex ? 'javascript:;' : item.link" target="_self" :key="item.text"
-              :class="[index === navConfig.languageIndex ? 'clickDisabled' : '']">
-              {{item.text}}
-            </a>
+
+        <div v-if="navbarLanguage" class="dropdown-language" @click="switchLanguage">
+          <div style="display: flex;align-items: center;">
+            <span>{{navbarLanguage[navConfig.languageIndex].text}}</span>
+            <svg t="1629441415944" viewBox="0 20 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3713"
+              width="16" height="16" class="icon">
+              <path
+                d="M508.025406 655.446718c-14.45307 0-28.183486-5.781228-39.023289-15.898376l-231.249118-231.249118c-10.117149-10.117149-10.117149-26.015526 0-36.132675s26.015526-10.117149 36.132675 0l231.249118 231.249118c2.16796 2.16796 4.335921 2.16796 5.781228 0l231.971771-231.971771c10.117149-10.117149 26.015526-10.117149 35.410021 0 10.117149 10.117149 10.117149 26.015526 0 36.132674l-231.971771 231.971772c-9.394495 10.117149-23.124912 15.898377-38.300635 15.898376z"
+                p-id="3714"></path>
+            </svg>
+          </div>
+          <div v-if="showLanguage" class="dropdown-content">
+            <div
+              v-for="(item,index) in navbarLanguage"
+              :key="item.link"
+              @click="() => { typeof item.click === 'function' && item.click(index === navConfig.languageIndex) }"
+            >
+              <a :href="index === navConfig.languageIndex ? 'javascript:;' : item.link" target="_self" :key="item.text"
+                :class="[index === navConfig.languageIndex ? 'clickDisabled' : '']">
+                {{item.text}}
+              </a>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="links" :style="{ top: `${this.SearchBoxTop}px` }">
-        <!-- <a class="switch-version" href="javascript:void(0)">回到旧版</a> -->
-        <DcloudSearchPage v-if="isAlgoliaSearch" ref="dcloudSearchPage" :options="algolia" />
-        <AlgoliaSearchBox v-if="isAlgoliaSearch" />
-        <SearchBox v-else-if="$site.themeConfig.search !== false && $page.frontmatter.search !== false" />
-      </div>
     </div>
 
     <div class="sub-navbar">
@@ -264,10 +267,6 @@ $navbar-horizontal-padding = 1.5rem
     // background-color white
     white-space nowrap
     font-size 0.9rem
-    position absolute
-    right $navbar-horizontal-padding
-    top 0 //$navbar-vertical-padding
-    transition: top 0.1s ease 0s
     display flex
     .search-box
       flex: 0 0 auto
@@ -280,7 +279,6 @@ $navbar-horizontal-padding = 1.5rem
       display none !important
     .links
       padding-left 0rem // 1.5rem
-      top 0 !important
     .site-name
       width calc(100vw - 9.4rem)
       overflow hidden

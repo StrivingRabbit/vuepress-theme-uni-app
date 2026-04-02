@@ -94,13 +94,17 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
     span
       font-size 16px
 
-  .dropdown-language
-    user-select none
+  .main-navbar_right
+    display flex
+    justify-content: center
+    align-items: center
     position absolute
-    right 10rem
-    @media (max-width: $DocSearch_MQMobile)
-      &
-        right 4.5rem
+    right $navbar-horizontal-padding
+    & > div:nth-child(1)
+      padding-right 5px
+  .dropdown-language
+    position relative
+    user-select none
     &>div:nth-child(1)
       cursor pointer
     svg

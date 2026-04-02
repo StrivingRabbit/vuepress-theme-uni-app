@@ -29,6 +29,7 @@
       </div>
 
       <div class="main-navbar_right">
+
         <div class="links" :style="{ top: `${this.SearchBoxTop}px` }">
           <!-- <a class="switch-version" href="javascript:void(0)">回到旧版</a> -->
           <DcloudSearchPage v-if="isAlgoliaSearch" ref="dcloudSearchPage" :options="algolia" />
@@ -59,6 +60,20 @@
             </div>
           </div>
         </div>
+
+        <!-- repo link -->
+        <a
+          v-if="repoLink"
+          :href="repoLink"
+          class="repo-link"
+          style="color: black"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {{ repoLabel }}
+          <OutboundLink />
+        </a>
+
       </div>
 
     </div>
@@ -122,6 +137,34 @@ export default {
 
     isAlgoliaSearch () {
       return this.algolia && this.algolia.apiKey && this.algolia.indexName
+    },
+
+    repoLink () {
+      const { repo } = this.$site.themeConfig
+      if (repo) {
+        return /^https?:/.test(repo)
+          ? repo
+          : `https://github.com/${repo}`
+      }
+      return null
+    },
+
+    repoLabel () {
+      if (!this.repoLink) return
+      if (this.$site.themeConfig.repoLabel) {
+        return this.$site.themeConfig.repoLabel
+      }
+
+      const repoHost = this.repoLink.match(/^https?:\/\/[^/]+/)[0]
+      const platforms = ['GitHub', 'GitLab', 'GitCode', 'Gitee', 'Bitbucket']
+      for (let i = 0; i < platforms.length; i++) {
+        const platform = platforms[i]
+        if (new RegExp(platform, 'i').test(repoHost)) {
+          return platform
+        }
+      }
+
+      return 'Source'
     }
   },
 

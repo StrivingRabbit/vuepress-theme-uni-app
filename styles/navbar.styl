@@ -100,7 +100,7 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
     align-items: center
     position absolute
     right $navbar-horizontal-padding
-    & > div:nth-child(1)
+    & > div:not(:last-child)
       padding-right 5px
   .dropdown-language
     position relative
@@ -147,7 +147,7 @@ $navbar-logo-height = $navbar-main-navbar-height - 2rem
       justify-content flex-end
     .mobile-main-navbar
       display inline-block
-      padding-right 170px
+      padding-right 230px
       a
         color $navbar-a-color
       .mobile-links__btn:after

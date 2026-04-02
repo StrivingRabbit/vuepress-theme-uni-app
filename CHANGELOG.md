@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.23
+
+### Patch Changes
+
+- fix: 移动模式下一级菜单下拉样式异常
+
 ## 1.6.22
 
 ### Patch Changes

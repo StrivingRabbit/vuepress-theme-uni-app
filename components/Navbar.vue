@@ -15,9 +15,6 @@
       </div>
 
       <div class="mobile-main-navbar">
-        <div class="mobile-links_mobile">
-          <a href="javascript:;" class="mobile-links__btn" @click="toggleMobilePanel">{{mainNavBarText}}</a>
-        </div>
         <div class="mobile-links__panel" :class="{open: showMobilePanel}">
           <template v-for="(item, index) in customNavBar">
             <div :class="mainNavLinkClass(index)" :key="item.text">
@@ -29,6 +26,9 @@
       </div>
 
       <div class="main-navbar_right">
+        <div class="mobile-links_mobile">
+          <a href="javascript:;" class="mobile-links__btn" @click="toggleMobilePanel">{{mainNavBarText}}</a>
+        </div>
 
         <div class="links" :style="{ top: `${this.SearchBoxTop}px` }">
           <!-- <a class="switch-version" href="javascript:void(0)">回到旧版</a> -->

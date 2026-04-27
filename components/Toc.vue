@@ -8,6 +8,18 @@
         <span v-html="item.title"></span>
       </RouterLink>
     </div>
+    <div v-if="ads && ads.length" class="vuepress-toc-ads">
+      <a
+        v-for="(ad, i) in ads"
+        :key="i"
+        :href="ad.href"
+        :target="ad.target || '_blank'"
+        rel="noopener noreferrer"
+        class="vuepress-toc-ad-item"
+      >
+        <img :src="ad.img" :alt="ad.alt || ''" />
+      </a>
+    </div>
   </Sticker>
 </template>
 
@@ -35,6 +47,7 @@ export default {
       activeIndex: 0,
       tocConfig,
       onThisPage,
+      ads: tocConfig.ads || [],
     }
   },
   watch: {
@@ -159,4 +172,26 @@ export default {
       padding-left 1rem * (i - 1) */
 .vuepress-toc:hover
 	overflow-y auto
+
+.vuepress-toc-ads
+  padding 0.6rem 0.6rem 0.4rem
+  display flex
+  flex-direction column
+  gap 0.5rem
+
+.vuepress-toc-ad-item
+  display block
+  border-radius 4px
+  overflow hidden
+  line-height 0
+  max-width 100%
+  width 15rem
+  img
+    width 100%
+    height auto
+    display block
+    border-radius 4px
+    transition opacity 0.2s
+  &:hover img
+    opacity 0.85
 </style>

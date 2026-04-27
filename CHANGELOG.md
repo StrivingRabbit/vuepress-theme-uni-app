@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.24
+
+### Patch Changes
+
+- feat: 支持 source frontmatter
+
 ## 1.6.23
 
 ### Patch Changes

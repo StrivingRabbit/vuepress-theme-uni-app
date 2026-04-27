@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.25
+
+### Patch Changes
+
+- feat: 右侧 toc 添加广告位
+
 ## 1.6.24
 
 ### Patch Changes

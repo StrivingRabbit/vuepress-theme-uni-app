@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.26
+
+### Patch Changes
+
+- feat: 调整 ads 样式
+
 ## 1.6.25
 
 ### Patch Changes

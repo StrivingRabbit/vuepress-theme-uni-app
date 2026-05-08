@@ -174,7 +174,7 @@ export default {
 	overflow-y auto
 
 .vuepress-toc-ads
-  padding 0.6rem 0.6rem 0.4rem
+  margin-top 0.5rem
   display flex
   flex-direction column
   gap 0.5rem

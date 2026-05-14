@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.27
+
+### Patch Changes
+
+- feat: 在 mobile 时隐藏仓库链接、语言配置多个时才显示切换语言
+
 ## 1.6.26
 
 ### Patch Changes

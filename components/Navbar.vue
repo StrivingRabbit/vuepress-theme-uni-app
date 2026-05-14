@@ -37,7 +37,7 @@
           <SearchBox v-else-if="$site.themeConfig.search !== false && $page.frontmatter.search !== false" />
         </div>
 
-        <div v-if="navbarLanguage" class="dropdown-language" @click="switchLanguage">
+        <div v-if="showNavbarLanguage" class="dropdown-language" @click="switchLanguage">
           <div style="display: flex;align-items: center;">
             <span>{{navbarLanguage[navConfig.languageIndex].text}}</span>
             <svg t="1629441415944" viewBox="0 20 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3713"
@@ -65,7 +65,7 @@
         <a
           v-if="repoLink"
           :href="repoLink"
-          class="repo-link"
+          class="repo-link can-hide"
           style="color: black"
           target="_blank"
           rel="noopener noreferrer"
@@ -165,6 +165,10 @@ export default {
       }
 
       return 'Source'
+    },
+
+    showNavbarLanguage() {
+      return this.navbarLanguage && Array.isArray(this.navbarLanguage) && this.navbarLanguage.length > 1
     }
   },
 

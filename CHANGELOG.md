@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.28
+
+### Patch Changes
+
+- feat: 删除 image crisp-edges 样式
+
 ## 1.6.27
 
 ### Patch Changes

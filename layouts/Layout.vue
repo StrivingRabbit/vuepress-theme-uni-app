@@ -144,43 +144,38 @@ export default {
     },
     renderNavLinkState() {
       this.$nextTick(() => {
-        const navs = document.querySelectorAll('nav')
-        const navLinks = []
-        const sidebarLinks = Object.keys(this.$themeConfig.sidebar)
-        const matchSidebar = sidebarLinks
-          .filter(i => this.$page.path.includes(i))
+        const sidebarKeys = Object.keys(this.$themeConfig.sidebar || {}).filter(key => key !== '/')
+        const currentPath = this.$page.path
+        const matchedSidebarKey = sidebarKeys
+          .filter(key => currentPath.includes(key))
           .sort((a, b) => b.length - a.length)[0]
-        navs.forEach(nav => {
-          nav.querySelectorAll('a').forEach(navLink => {
-            if (navLink.className.indexOf('external') === -1) {
-              navLinks.push(navLink)
-            }
-          })
-        })
+        const hasMatchedSidebarKey = typeof matchedSidebarKey === 'string' && matchedSidebarKey.length > 0
 
-        navLinks.forEach((navLink, index) => {
-          navLink.classList.remove('router-link-active')
-          const matchWithoutMatchSidebar = sidebarLinks
-            .filter(i => i !== matchSidebar && i !== '/')
-            .find(i => navLink.href.match(i) !== null)
-          // debugger
-          const path = (this.$route.fullPath.match(/\/([\w-]+)+\//) || [])[1]
-          if (path) {
-            if (
-              navLink.href.match(matchSidebar) !== null &&
-              (typeof matchWithoutMatchSidebar === 'undefined' || matchWithoutMatchSidebar.length < matchSidebar.length)
-            ) {
-              navLink.classList.add('router-link-active')
+        /**
+         * @type {HTMLAnchorElement[]} navLinks
+         */
+        const navLinks = Array.from(document.querySelectorAll('nav a:not(.external)'))
+        const isSubPage = /\/([\w-]+)+\//.test(this.$route.fullPath)
+        navLinks.forEach((link, index) => {
+          link.classList.remove('router-link-active')
+
+          if (isSubPage && hasMatchedSidebarKey) {
+            const isMatchedLink = link.href.includes(matchedSidebarKey)
+            const matchWithoutMatchSidebar = sidebarKeys
+              .filter(i => i !== matchedSidebarKey && i !== this.$site.base)
+              .find(i => link.href.match(i) !== null)
+            // 当 base 不为 '/' 时，可能会出现 link.href 包含 sidebarKey，但实际并不匹配的情况，此时需要排除掉这种情况
+            const hasNoMoreSpecificMatch = typeof matchWithoutMatchSidebar === 'undefined' || matchWithoutMatchSidebar.length < matchedSidebarKey.length
+
+            if (isMatchedLink && hasNoMoreSpecificMatch) {
+              link.classList.add('router-link-active')
             }
-            // if (path === href) {
-            //   navLink.classList.add('router-link-active')
-            // }
           } else {
             // 0 => PC
             // navLinks.length / 2 => mobile
-            if (index === 0 || index === navLinks.length / 2) {
-              navLink.classList.add('router-link-active')
-              return
+            const isFirstLink = index === 0 || index === navLinks.length / 2
+            if (isFirstLink) {
+              link.classList.add('router-link-active')
             }
           }
         })
@@ -188,15 +183,23 @@ export default {
     },
     activeSidebarLinkVisible() {
       this.$nextTick(() => {
-        const sidebarEL = this.$refs.sidebar.$el
-        const activeLink = sidebarEL.querySelector('.sidebar-link.active')
-        if (activeLink) {
-          const sidebarScrollTop = sidebarEL.scrollTop
-          const windowInnerHeight = window.innerHeight
-          const { height, top, bottom } = activeLink.getBoundingClientRect()
-          if (sidebarScrollTop + 50 > activeLink.offsetTop || bottom + height > windowInnerHeight) {
-            activeLink.scrollIntoView({ block: 'center' })
-          }
+        const sidebarRef = this.$refs.sidebar
+        const sidebarEl = sidebarRef && sidebarRef.$el
+        if (!sidebarEl) return
+
+        const activeLink = sidebarEl.querySelector('.sidebar-link.active')
+        if (!activeLink) return
+
+        const topOffset = 50
+        const bottomOffset = 24
+        const sidebarScrollTop = sidebarEl.scrollTop
+        const windowInnerHeight = window.innerHeight
+        const { bottom } = activeLink.getBoundingClientRect()
+        const isNearTop = sidebarScrollTop + topOffset > activeLink.offsetTop
+        const isNearBottom = bottom > windowInnerHeight - bottomOffset
+
+        if (isNearTop || isNearBottom) {
+          activeLink.scrollIntoView({ block: 'center' })
         }
       })
     },

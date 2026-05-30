@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.29
+
+### Patch Changes
+
+- refactor: 重构二级导航匹配逻辑以修复匹配错误时表现
+
 ## 1.6.28
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.31
+
+### Patch Changes
+
+- feat: 优化 toc-item ad 图片的显示效果
+
 ## 1.6.30
 
 ### Patch Changes

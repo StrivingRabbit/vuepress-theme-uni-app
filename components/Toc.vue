@@ -143,6 +143,7 @@ export default {
 </script>
 
 <style lang="stylus">
+$tocItemPaddingRight = 0.6rem
 .table-of-contents-sticker
   display none !important
 .vuepress-toc
@@ -160,7 +161,7 @@ export default {
   z-index 0
   .vuepress-toc-item
     position relative
-    padding 0.1rem 0.6rem 0.1rem 1.5rem
+    padding 0.1rem $tocItemPaddingRight 0.1rem 1.5rem
     line-height 1.5rem
     border-left 2px solid rgba(0, 0, 0, 0.08)
     overflow hidden
@@ -204,7 +205,7 @@ export default {
   overflow hidden
   line-height 0
   max-width 100%
-  width 15rem
+  padding-right $tocItemPaddingRight
   img
     width 100%
     height auto

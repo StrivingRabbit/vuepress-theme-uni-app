@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.30
+
+### Patch Changes
+
+- refacor(navbar): 使用 css 变量替换直接修改 style 方案优化性能
+
 ## 1.6.29
 
 ### Patch Changes

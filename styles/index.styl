@@ -1,6 +1,13 @@
 @import './custom-block'
 @import './animation'
 
+:root
+	--navbar-main-height 0px
+	--navbar-full-height $navbarHeight
+	--navbar-sub-height $navbar-sub-navbar-height
+	--navbar-top 0px
+	--navbar-sticky-top $navbarHeight
+
 .custom-page-class
 	word-break break-word
 	position relative
@@ -134,6 +141,8 @@ h1, h2, h3, h4, h5, h6
 			padding-top: ($navbarHeight - 3rem)
 
 .sidebar
+	@media (min-width: ($MQMobile + 1px))
+		top var(--navbar-sticky-top, $navbarHeight)
 	.sidebar-group.is-sub-group>.sidebar-heading
 		word-break break-word
 

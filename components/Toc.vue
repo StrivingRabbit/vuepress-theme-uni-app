@@ -30,7 +30,6 @@ import tocConfig from '@theme-config/toc'
 
 const { onThisPage } = tocConfig
 
-let initTop
 // get offset top
 function getAbsoluteTop(dom) {
   return dom && dom.getBoundingClientRect
@@ -48,6 +47,8 @@ export default {
       tocConfig,
       onThisPage,
       ads: tocConfig.ads || [],
+      headingPositions: [],
+      scrollRafId: 0,
     }
   },
   watch: {
@@ -63,7 +64,13 @@ export default {
       } else if (top + rect.height > wrapperRect.height) {
         this.$el.scrollTop += rect.top - (wrapperRect.height - rect.height)
       }
-    }
+    },
+    pageHeaders() {
+      this.$nextTick(() => {
+        this.refreshHeadingPositions()
+        this.syncActiveByScroll()
+      })
+    },
   },
   mounted() {
     // sync visible to parent component
@@ -73,8 +80,19 @@ export default {
     syncVisible()
     this.$watch('visible', syncVisible)
     // binding event
+    this._onScroll = () => {
+      if (this.scrollRafId) return
+      this.scrollRafId = window.requestAnimationFrame(() => {
+        this.scrollRafId = 0
+        this.syncActiveByScroll()
+      })
+    }
+    this._onResize = () => {
+      this.refreshHeadingPositions()
+      this._onScroll()
+    }
+    this.refreshHeadingPositions()
     setTimeout(() => this._onScroll(), 1000)
-    this._onScroll = () => this.onScroll()
     this._onHashChange = () => {
       const hash = decodeURIComponent(location.hash.substring(1))
       const index = (this.pageHeaders || []).findIndex(h => h.slug === hash)
@@ -82,38 +100,39 @@ export default {
       const dom = hash && document.getElementById(hash)
       if (dom) window.scrollTo(0, getAbsoluteTop(dom) - 20)
     }
-    window.addEventListener('scroll', this._onScroll)
+    window.addEventListener('scroll', this._onScroll, { passive: true })
+    window.addEventListener('resize', this._onResize, { passive: true })
     // window.addEventListener('hashchange', this._onHashChange);
-    const sideBar = document.querySelector('.sidebar')
-    this.$refs.sticker.$el.style.top = sideBar && sideBar.style && sideBar.style.top
   },
   beforeDestroy() {
     window.removeEventListener('scroll', this._onScroll)
+    window.removeEventListener('resize', this._onResize)
     window.removeEventListener('hashchange', this._onHashChange)
+    if (this.scrollRafId) {
+      window.cancelAnimationFrame(this.scrollRafId)
+      this.scrollRafId = 0
+    }
   },
   methods: {
-    onScroll() {
-      if (initTop === undefined) {
-        initTop = getAbsoluteTop(this.$el)
-      }
-      // update position
-      const scrollTop = document.body.scrollTop + document.documentElement.scrollTop
+    refreshHeadingPositions() {
       const headings = this.pageHeaders || []
-      // change active toc with scrolling
-      let i = 0
-      const addLink = index => {
-        this.activeIndex = index
+      this.headingPositions = headings.map(item => {
+        const dom = document.getElementById(item.slug)
+        return dom ? getAbsoluteTop(dom) : Number.POSITIVE_INFINITY
+      })
+    },
+    syncActiveByScroll() {
+      const scrollTop = document.body.scrollTop + document.documentElement.scrollTop
+      const positions = this.headingPositions || []
+      if (!positions.length) return
+
+      let nextActive = 0
+      for (let i = 0; i < positions.length; i++) {
+        if (positions[i] - 50 < scrollTop) nextActive = i
+        else break
       }
-      for (; i < headings.length; i++) {
-        const dom = document.getElementById(headings[i].slug)
-        const top = getAbsoluteTop(dom)
-        if (top - 50 < scrollTop) {
-          addLink(i)
-        } else {
-          if (!i) addLink(i)
-          break
-        }
-      }
+
+      if (this.activeIndex !== nextActive) this.activeIndex = nextActive
     },
     triggerEvt() {
       this._onScroll()
@@ -133,7 +152,7 @@ export default {
   width $vuepress-toc-width
   overflow-y hidden
   // margin-top $navbarHeight
-  top $navbarHeight
+  top var(--navbar-sticky-top, $navbarHeight)
   right 0
   box-sizing border-box
   background-color #fff

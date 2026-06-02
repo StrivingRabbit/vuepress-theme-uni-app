@@ -1,5 +1,5 @@
 <template>
-  <header class="navbar" :class="{ 'navbar-fixed': fixedNavbar }">
+  <header class="navbar navbar-fixed" :class="{ 'navbar-collapsed': fixedNavbar && showSubNavBar }">
     <div class="main-navbar">
       <!-- <SidebarButton @toggle-sidebar="$emit('toggle-sidebar')" /> -->
 
@@ -30,7 +30,7 @@
           <a href="javascript:;" class="mobile-links__btn" @click="toggleMobilePanel">{{mainNavBarText}}</a>
         </div>
 
-        <div class="links" :style="{ top: `${this.SearchBoxTop}px` }">
+        <div class="links">
           <!-- <a class="switch-version" href="javascript:void(0)">回到旧版</a> -->
           <DcloudSearchPage v-if="isAlgoliaSearch" ref="dcloudSearchPage" :options="algolia" />
           <AlgoliaSearchBox v-if="isAlgoliaSearch" />
@@ -125,7 +125,7 @@ export default {
     return {
       showMobilePanel: false,
       fixedNavbar: false,
-      SearchBoxTop: 0,
+      navbarOffset: 0,
       showLanguage: false
     }
   },
@@ -173,89 +173,101 @@ export default {
   },
 
   mounted () {
-    const handleLinksWrapWidth = () => {
-      this.$nextTick(this.initNavBar)
-    }
-    handleLinksWrapWidth()
-    window.addEventListener('resize', handleLinksWrapWidth, false)
-    window.addEventListener('click',(e)=> {
+    this.handleLinksWrapWidth()
+    window.addEventListener('resize', this.handleLinksWrapWidth, false)
+    this.handleWindowClick = () => {
       this.showLanguage = false
-    })
-    this.initNavBar()
+    }
+    window.addEventListener('click', this.handleWindowClick)
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.handleLinksWrapWidth, false)
+    window.removeEventListener('click', this.handleWindowClick)
+    this.removeWindowScroll()
+    this.clearScrollFrame()
+    if (!this.pageContainer) {
+      this.pageContainer = document.querySelector('.page')
+    }
+    this.pageContainer && (this.pageContainer.style.marginTop = 'auto')
   },
 
   methods: {
+    handleLinksWrapWidth() {
+      this.$nextTick(this.initNavBar)
+    },
     initNavBar () {
       os.init()
-      this.sideBar = document.querySelector('.sidebar')
       this.navbar = document.querySelector('.navbar')
       this.mainNavBar = document.querySelector('.main-navbar')
       this.subNavBar = document.querySelector('.sub-navbar')
       this.pageContainer = document.querySelector('.page')
-      this.vuepressToc = document.querySelector('.vuepress-toc')
-      this.navbarHeight = this.navbar.clientHeight
-      this.subNavBarHeight = this.subNavBar.clientHeight
-      this.mainNavBarHeight = this.mainNavBar.clientHeight
+      this.navbarHeight = (this.navbar && this.navbar.clientHeight) || 0
+      this.subNavBarHeight = (this.subNavBar && this.subNavBar.clientHeight) || 0
+      this.mainNavBarHeight = (this.mainNavBar && this.mainNavBar.clientHeight) || 0
+      this.updateFloatingState()
       this.scrollBehavior()
     },
     scrollBehavior () {
       this.removeWindowScroll()
-      this.onWindowScroll()
-      if(this.showSubNavBar) {
+      if (this.showSubNavBar && os.pc) {
         this.addWindowScroll()
       } else {
-        this.fixedNavbar = true
-        this.SearchBoxTop = 0
+        this.updateFloatingState()
       }
     },
     addWindowScroll () {
-      window.addEventListener('scroll', this.onWindowScroll, false)
+      window.addEventListener('scroll', this.onWindowScroll, { passive: true })
     },
     removeWindowScroll () {
       window.removeEventListener('scroll', this.onWindowScroll)
-      this.fixedNavbar = false
-      this.sideBar && this.sideBar.removeAttribute('style')
-      this.vuepressToc && this.vuepressToc.removeAttribute('style')
-      this.navbar && this.navbar.removeAttribute('style')
-      if (this.pageContainer) {
-        this.pageContainer.style.marginTop = this.showSubNavBar || !os.pc ? 'auto' : `${this.navbarHeight}px`
-      }
+      this.clearScrollFrame()
     },
     onWindowScroll () {
-      const scrollTop = !this.showSubNavBar ? 0 : document.documentElement.scrollTop || document.body.scrollTop;
-
-      if (!this.fixedNavbar) {
-        let sideTop = this.navbarHeight - scrollTop
-        sideTop <= this.subNavBarHeight && (sideTop = this.subNavBarHeight)
-        this.sideBar && (this.sideBar.style.top = `${sideTop + 1}px`)
-        this.vuepressToc && (this.vuepressToc.style.top = `${sideTop + 1}px`)
-      }
-
-      if (scrollTop >= this.mainNavBarHeight) {
-        if (!this.fixedNavbar) {
-          this.fixedNavbar = true
-          this.navbar.style.top = `-${this.mainNavBarHeight}px`
-          this.SearchBoxTop = this.mainNavBarHeight + (this.subNavBarHeight - this.mainNavBarHeight) / 2
-          this.$nextTick(() => {
-            this.pageContainer && (this.pageContainer.style.marginTop = `${this.navbarHeight}px`)
-          })
-        }
-      } else if (scrollTop < this.mainNavBarHeight) {
-        if (this.fixedNavbar) {
-          this.fixedNavbar = false
-          this.pageContainer && (this.pageContainer.style.marginTop = 'auto')
-          this.SearchBoxTop = 0
-        }
-      }
+      if (this.scrollRafId) return
+      this.scrollRafId = window.requestAnimationFrame(() => {
+        this.scrollRafId = 0
+        this.updateFloatingState()
+      })
     },
-    fixedSideBarHeight () {
-      if(!os.pc) return
-      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-      this.navbarHeight = this.navbar.clientHeight
-      this.subNavBarHeight = this.subNavBar.clientHeight
-      const setHeight = !!scrollTop || this.fixedNavbar ? this.subNavBarHeight : this.navbarHeight
-      this.sideBar.style.top = `${setHeight + 1}px`
-      this.vuepressToc.style.top = `${setHeight + 1}px`
+    clearScrollFrame () {
+      if (!this.scrollRafId) return
+      window.cancelAnimationFrame(this.scrollRafId)
+      this.scrollRafId = 0
+    },
+    setFixedNavbar (fixed) {
+      if (this.fixedNavbar === fixed) return
+      this.fixedNavbar = fixed
+    },
+    updateFloatingState () {
+      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop || 0
+      const shouldSlide = this.showSubNavBar && os.pc
+      const offset = shouldSlide
+        ? Math.min(Math.max(scrollTop, 0), this.mainNavBarHeight)
+        : 0
+
+      this.navbarOffset = offset
+      this.setFixedNavbar(!shouldSlide || offset >= this.mainNavBarHeight)
+      this.updateStickyTop(offset)
+    },
+    updateStickyTop (offset = this.navbarOffset) {
+      const fullHeight = this.navbarHeight
+      const subHeight = this.subNavBarHeight || fullHeight
+      const top = fullHeight - offset
+      const rootStyle = document.documentElement.style
+      rootStyle.setProperty('--navbar-main-height', `${this.mainNavBarHeight}px`)
+      rootStyle.setProperty('--navbar-full-height', `${fullHeight}px`)
+      rootStyle.setProperty('--navbar-sub-height', `${subHeight}px`)
+      rootStyle.setProperty('--navbar-top', `${-offset}px`)
+      rootStyle.setProperty('--navbar-sticky-top', `${top}px`)
+      this.updatePageOffset()
+    },
+    updatePageOffset () {
+      if (!this.pageContainer) return
+      if (!os.pc) {
+        this.pageContainer.style.marginTop = 'auto'
+        return
+      }
+      this.pageContainer.style.marginTop = `${this.navbarHeight}px`
     },
     mainNavLinkClass (index) {
       return ['main-navbar-item', this.navConfig.userNavIndex === index ? 'active' : '']
@@ -271,15 +283,11 @@ export default {
   },
 
   watch: {
-    fixedNavbar () {
-      this.fixedSideBarHeight()
-      this.scrollBehavior()
+    showSubNavBar () {
+      this.$nextTick(this.initNavBar)
     },
     'navConfig.userNavIndex' () {
-      this.$nextTick(()=>{
-        this.fixedSideBarHeight()
-        this.scrollBehavior()
-      })
+      this.$nextTick(this.initNavBar)
     }
   }
 }

@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.32
+
+### Patch Changes
+
+- fix: 页面滚动后使用搜索时搜索框不可见
+
 ## 1.6.31
 
 ### Patch Changes

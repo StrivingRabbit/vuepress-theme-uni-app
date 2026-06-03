@@ -53,7 +53,7 @@
 							</div>
 
 							<div class="search-category">
-								<div class="navbar">
+								<div class="navbar" style="top:0;">
 									<div class="main-navbar">
 										<div class="main-navbar-links">
 											<template v-for="(item, index) in category">

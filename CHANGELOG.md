@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.33
+
+### Patch Changes
+
+- feat: 优化文档兼容性表格懒加载与显示
+
 ## 1.6.32
 
 ### Patch Changes

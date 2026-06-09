@@ -15,8 +15,8 @@ const slots = useSlots()
 
 const wrapperMouseEnter = (e) => {
   mouseEnter(e)
-  infoHover.value = true
   emit('show')
+  infoHover.value = true
 }
 
 const mouseLeave = (e) => {
@@ -26,9 +26,9 @@ const mouseLeave = (e) => {
 </script>
 
 <template>
-  <div class="popover" @mouseleave="mouseLeave">
+  <div class="popover">
     <span>
-      <div class="popover-reference-wrapper" @mouseenter="wrapperMouseEnter">
+      <div class="popover-reference-wrapper" @mouseleave="mouseLeave" @mouseenter="wrapperMouseEnter">
         <slot name="reference"></slot>
         <svg v-if="!slots.reference" width="20" height="20" t="1715917545486" class="icon" viewBox="0 0 1024 1024"
           version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10306" fill="#2c3e50">
@@ -51,6 +51,7 @@ const mouseLeave = (e) => {
 
 <style lang="stylus" scoped>
 .popover {
+  display: inline-block;
   position: relative;
 }
 
@@ -70,7 +71,7 @@ const mouseLeave = (e) => {
 }
 
 .fade-in-enter-active,.fade-in-leave-active {
-    transition: all .15s cubic-bezier(.55,0,.1,1)
+    transition: opacity .15s cubic-bezier(.55,0,.1,1)
 }
 
 .fade-in-enter,.fade-in-leave-active {

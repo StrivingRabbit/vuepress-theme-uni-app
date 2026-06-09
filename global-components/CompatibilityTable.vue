@@ -1,4 +1,21 @@
+<script>
+import { ref } from 'vue'
+
+const MAX_RENDERED_TABLES = 2
+let compatibilityTableId = 0
+const renderedTableIds = ref([])
+const addRenderedTable = id => {
+  const ids = renderedTableIds.value.filter(item => item !== id)
+  renderedTableIds.value = [...ids, id].slice(-MAX_RENDERED_TABLES)
+}
+
+const removeRenderedTable = id => {
+  renderedTableIds.value = renderedTableIds.value.filter(item => item !== id)
+}
+</script>
+
 <script setup>
+import { computed, onBeforeUnmount } from 'vue'
 import Popover from './Popover.vue'
 
 const props = defineProps({
@@ -6,8 +23,10 @@ const props = defineProps({
 })
 
 /** @type {MdTableOptions} */
-const TABLE_OPTIONS = JSON.parse(props.table.replace(/\\/g, ''))
+const TABLE_OPTIONS = computed(() => JSON.parse(props.table.replace(/\\/g, '')))
 const iconWidth = '22px'
+const currentTableId = ++compatibilityTableId
+let hideTableTimer = null
 
 const resolveTableCelContent = content => {
   if (/~~.+~~/.test(content)) {
@@ -21,39 +40,66 @@ const NOT_SUPPORTED = 'NOT_SUPPORTED'
 const PARTIALLY_SUPPORTED = 'PARTIALLY_SUPPORTED'
 const PERCH = 'PERCH'
 
-let status = PARTIALLY_SUPPORTED
+const status = computed(() => {
+  let currentStatus = PARTIALLY_SUPPORTED
 
-// 不会同时出现都是 - 的情况
-if (typeof TABLE_OPTIONS.rows === 'object') {
-  let hasDefaultTag = false
-  let hasNotSupportedTag = false
-  let hasSupportedTag = false
-  TABLE_OPTIONS.rows[0].forEach(cel => {
-    if (cel === '-') {
-      hasDefaultTag = true
-    } else if (cel === 'x') {
-      hasNotSupportedTag = true
+  // 不会同时出现都是 - 或 ' ' 的情况
+  if (typeof TABLE_OPTIONS.value.rows === 'object') {
+    let hasDefaultTag = false
+    let hasNotSupportedTag = false
+    let hasSupportedTag = false
+    TABLE_OPTIONS.value.rows[0].forEach(cel => {
+      if (cel === '-' || cel === ' ') {
+        hasDefaultTag = true
+      } else if (cel === 'x') {
+        hasNotSupportedTag = true
+      } else {
+        hasSupportedTag = true
+      }
+    })
+
+    if (!hasDefaultTag && !hasNotSupportedTag && hasSupportedTag) {
+      currentStatus = SUPPORTED
+    } else if (!hasDefaultTag && hasNotSupportedTag && !hasSupportedTag) {
+      currentStatus = NOT_SUPPORTED
+    } else if (hasDefaultTag && !hasNotSupportedTag && !hasSupportedTag) {
+      currentStatus = PERCH
     } else {
-      hasSupportedTag = true
+      currentStatus = PARTIALLY_SUPPORTED
     }
-  })
+  }
 
-  if (!hasDefaultTag && !hasNotSupportedTag && hasSupportedTag) {
-    status = SUPPORTED
-  } else if (!hasDefaultTag && hasNotSupportedTag && !hasSupportedTag) {
-    status = NOT_SUPPORTED
-  } else if (hasDefaultTag && !hasNotSupportedTag && !hasSupportedTag) {
-    status = PERCH
-  } else {
-    status = PARTIALLY_SUPPORTED
+  return currentStatus
+})
+
+const shouldRenderTable = computed(() => renderedTableIds.value.includes(currentTableId))
+const clearHideTableTimer = () => {
+  if (hideTableTimer) {
+    clearTimeout(hideTableTimer)
+    hideTableTimer = null
   }
 }
+const showTable = () => {
+  clearHideTableTimer()
+  addRenderedTable(currentTableId)
+}
+const hideTable = () => {
+  clearHideTableTimer()
+  hideTableTimer = setTimeout(() => {
+    removeRenderedTable(currentTableId)
+  }, 180)
+}
+
+onBeforeUnmount(() => {
+  clearHideTableTimer()
+  removeRenderedTable(currentTableId)
+})
 </script>
 
 <template>
-  <Popover>
+  <Popover @show="showTable" @hide="hideTable">
     <template #reference>
-      <span class="info">
+      <span class="info" @mouseenter.capture="showTable">
         <svg
           v-if="status === SUPPORTED"
           :width="iconWidth"
@@ -107,7 +153,7 @@ if (typeof TABLE_OPTIONS.rows === 'object') {
         </template>
       </span>
     </template>
-    <table>
+    <table v-if="shouldRenderTable">
       <thead>
         <tr>
           <th

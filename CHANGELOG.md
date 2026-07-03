@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.34
+
+### Patch Changes
+
+- feat: 调整 table tr、td padding 样式
+
 ## 1.6.33
 
 ### Patch Changes

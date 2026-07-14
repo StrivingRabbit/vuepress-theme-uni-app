@@ -48,6 +48,27 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 		});
 		md.use(require('markdown-it-task-lists'));
 		md.use(require('markdown-it-raw-table'));
+		// 修正最后一个表头的 colspan/rowspan 被 attrs 挂到 thead 的问题
+		md.core.ruler.after('curly_attributes', 'raw-table-header-cell-attrs', (state) => {
+			state.tokens.forEach((token, index) => {
+				if (token.type !== 'thead_open' || !token.attrs) return
+
+				let lastHeaderOpen
+				let lastHeaderInline
+				for (let i = index + 1; i < state.tokens.length && state.tokens[i].type !== 'thead_close'; i++) {
+					if (state.tokens[i].type === 'th_open') lastHeaderOpen = state.tokens[i]
+					if (state.tokens[i].type === 'inline') lastHeaderInline = state.tokens[i]
+				}
+				if (!lastHeaderOpen || !lastHeaderInline || !/#\{[^}]*(?:colspan|rowspan)=/.test(lastHeaderInline.content)) return
+
+				const cellAttrs = token.attrs.filter(([name]) => name === 'colspan' || name === 'rowspan')
+				if (!cellAttrs.length) return
+
+				lastHeaderOpen.attrs = [...(lastHeaderOpen.attrs || []), ...cellAttrs]
+				token.attrs = token.attrs.filter(attr => !cellAttrs.includes(attr))
+				if (!token.attrs.length) token.attrs = null
+			})
+		})
 	})
 
 	const originalShouldPrefetch = ctx.siteConfig.shouldPrefetch || function () { return false }

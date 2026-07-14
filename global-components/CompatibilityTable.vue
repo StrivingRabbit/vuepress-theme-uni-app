@@ -28,6 +28,29 @@ const iconWidth = '22px'
 const currentTableId = ++compatibilityTableId
 let hideTableTimer = null
 
+const hasGroupedHeader = computed(() => TABLE_OPTIONS.value.headers.some(header => header.group))
+const primaryHeaders = computed(() => {
+  if (!hasGroupedHeader.value) return TABLE_OPTIONS.value.headers
+
+  return TABLE_OPTIONS.value.headers.reduce((headers, header, index, allHeaders) => {
+    if (!header.group) {
+      headers.push({ ...header, rowspan: 2 })
+      return headers
+    }
+
+    if (allHeaders[index - 1] && allHeaders[index - 1].group === header.group) {
+      const groupHeader = headers[headers.length - 1]
+      groupHeader.colspan = (groupHeader.colspan || 1) + 1
+    } else {
+      headers.push({ title: header.group, colspan: 1 })
+    }
+    return headers
+  }, [])
+})
+const secondaryHeaders = computed(() => TABLE_OPTIONS.value.headers
+  .filter(header => header.group)
+  .map(header => ({ ...header, title: header.subtitle || header.title })))
+
 const resolveTableCelContent = content => {
   if (/~~.+~~/.test(content)) {
     return `<s>${content}</s>`
@@ -157,20 +180,31 @@ onBeforeUnmount(() => {
       <thead>
         <tr>
           <th
-            v-for="header in TABLE_OPTIONS.headers"
+            v-for="(header, headerIndex) in primaryHeaders"
+            :colspan="header.colspan"
+            :rowspan="header.rowspan"
             :style="header.align ? { textAlign: header.align } : ''"
-            :key="header.title"
+            :key="`${header.title}-${headerIndex}`"
+          >
+            {{ header.title }}
+          </th>
+        </tr>
+        <tr v-if="hasGroupedHeader">
+          <th
+            v-for="(header, headerIndex) in secondaryHeaders"
+            :style="header.align ? { textAlign: header.align } : ''"
+            :key="`${header.group}-${header.title}-${headerIndex}`"
           >
             {{ header.title }}
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, rowIndex) in TABLE_OPTIONS.rows">
+        <tr v-for="row in TABLE_OPTIONS.rows">
           <td
             v-for="(cel, celIndex) in row"
             :key="celIndex"
-            :style="TABLE_OPTIONS.headers[rowIndex].align ? { textAlign: TABLE_OPTIONS.headers[rowIndex].align } : ''"
+            :style="TABLE_OPTIONS.headers[celIndex].align ? { textAlign: TABLE_OPTIONS.headers[celIndex].align } : ''"
           >
             <span v-html="resolveTableCelContent(cel)" />
           </td>

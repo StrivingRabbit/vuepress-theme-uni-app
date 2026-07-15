@@ -63,15 +63,15 @@ const NOT_SUPPORTED = 'NOT_SUPPORTED'
 const PARTIALLY_SUPPORTED = 'PARTIALLY_SUPPORTED'
 const PERCH = 'PERCH'
 
-const status = computed(() => {
+const resolveLegacyStatus = tableOptions => {
   let currentStatus = PARTIALLY_SUPPORTED
 
   // 不会同时出现都是 - 或 ' ' 的情况
-  if (typeof TABLE_OPTIONS.value.rows === 'object') {
+  if (typeof tableOptions.rows === 'object') {
     let hasDefaultTag = false
     let hasNotSupportedTag = false
     let hasSupportedTag = false
-    TABLE_OPTIONS.value.rows[0].forEach(cel => {
+    tableOptions.rows[0].forEach(cel => {
       if (cel === '-' || cel === ' ') {
         hasDefaultTag = true
       } else if (cel === 'x') {
@@ -93,7 +93,9 @@ const status = computed(() => {
   }
 
   return currentStatus
-})
+}
+
+const status = computed(() => TABLE_OPTIONS.value.status ?? resolveLegacyStatus(TABLE_OPTIONS.value))
 
 const shouldRenderTable = computed(() => renderedTableIds.value.includes(currentTableId))
 const clearHideTableTimer = () => {

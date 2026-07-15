@@ -95,7 +95,7 @@ const resolveLegacyStatus = tableOptions => {
   return currentStatus
 }
 
-const status = computed(() => TABLE_OPTIONS.value.status ?? resolveLegacyStatus(TABLE_OPTIONS.value))
+const status = computed(() => TABLE_OPTIONS.value.status || resolveLegacyStatus(TABLE_OPTIONS.value))
 
 const shouldRenderTable = computed(() => renderedTableIds.value.includes(currentTableId))
 const clearHideTableTimer = () => {

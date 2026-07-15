@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.36
+
+### Patch Changes
+
+- fix: CompatibilitypTable 语法错误
+
 ## 1.6.35
 
 ### Patch Changes

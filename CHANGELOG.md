@@ -1,5 +1,13 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.35
+
+### Patch Changes
+
+- feat: CompatibilityTable 支持 status
+- Updated dependencies
+  - vuepress-plugin-expandable-row@1.0.11
+
 ## 1.6.34
 
 ### Patch Changes

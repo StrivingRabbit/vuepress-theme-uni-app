@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.37
+
+### Patch Changes
+
+- feat: 添加 Help 组件
+
 ## 1.6.36
 
 ### Patch Changes

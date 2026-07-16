@@ -2,7 +2,7 @@
   <sup class="help">
     <a
       class="help__link"
-      :href="href"
+      :href="_href"
       :title="resolvedLabel"
       :aria-label="resolvedLabel"
       :target="target"
@@ -13,7 +13,7 @@
 <script>
 import helpConfig from '@theme-config/help'
 
-const COMPATIBILITY_HELP_HREF = helpConfig.compatibilityHelpHref || '/tutorial/compatibility.md'
+const COMPATIBILITY_HELP_HREF = helpConfig.compatibilityHelpHref || '/tutorial/compatibility.html'
 
 export default {
   name: 'Help',
@@ -34,6 +34,17 @@ export default {
   },
 
   computed: {
+    _href() {
+      const baseEndwithSlash = this.$site.base.slice(-1) === '/'
+      const hrefStartwithSlash = this.href.slice(0, 1) === '/'
+      return baseEndwithSlash && hrefStartwithSlash
+        ? this.$site.base + this.href.slice(1)
+        : baseEndwithSlash
+        ? this.$site.base + this.href
+        : hrefStartwithSlash
+        ? this.$site.base.slice(0, -1) + this.href
+        : this.$site.base + '/' + this.href
+    },
     resolvedLabel() {
       if (this.label) return this.label
 

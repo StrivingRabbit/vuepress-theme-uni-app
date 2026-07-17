@@ -9,5 +9,5 @@ type Row = string[]
 export interface MdTableOptions {
   rows: Row[]
   headers: Header[]
-  status: 'SUPPORTED' | 'UNSUPPORTED' | 'PARTIALLY_SUPPORTED'
+  status: 'SUPPORTED' | 'NOT_SUPPORTED' | 'PARTIALLY_SUPPORTED'
 }

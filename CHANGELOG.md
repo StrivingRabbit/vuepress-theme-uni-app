@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.38
+
+### Patch Changes
+
+- feat: Help 兼容以 $site.base 开头的 href
+
 ## 1.6.37
 
 ### Patch Changes

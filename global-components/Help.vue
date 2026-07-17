@@ -1,6 +1,10 @@
 <template>
   <sup class="help">
+    <template v-if="!href || href.length === 0">
+      <slot>?</slot>
+    </template>
     <a
+      v-else
       class="help__link"
       :href="_href"
       :title="resolvedLabel"
@@ -35,15 +39,18 @@ export default {
 
   computed: {
     _href() {
-      const baseEndwithSlash = this.$site.base.slice(-1) === '/'
+      if (this.href.length === 0) return this.href
+      const siteBase = this.$site.base
+      if (this.href.indexOf(siteBase) === 0) return this.href
+      const baseEndwithSlash = siteBase.slice(-1) === '/'
       const hrefStartwithSlash = this.href.slice(0, 1) === '/'
       return baseEndwithSlash && hrefStartwithSlash
-        ? this.$site.base + this.href.slice(1)
+        ? siteBase + this.href.slice(1)
         : baseEndwithSlash
-        ? this.$site.base + this.href
+        ? siteBase + this.href
         : hrefStartwithSlash
-        ? this.$site.base.slice(0, -1) + this.href
-        : this.$site.base + '/' + this.href
+        ? siteBase.slice(0, -1) + this.href
+        : siteBase + '/' + this.href
     },
     resolvedLabel() {
       if (this.label) return this.label

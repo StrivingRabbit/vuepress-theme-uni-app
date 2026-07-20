@@ -125,7 +125,6 @@ export default {
     return {
       showMobilePanel: false,
       fixedNavbar: false,
-      navbarOffset: 0,
       showLanguage: false
     }
   },
@@ -173,18 +172,19 @@ export default {
   },
 
   mounted () {
-    this.handleLinksWrapWidth()
-    window.addEventListener('resize', this.handleLinksWrapWidth, false)
+    this.scheduleInitNavBar()
+    window.addEventListener('resize', this.scheduleInitNavBar, false)
     this.handleWindowClick = () => {
       this.showLanguage = false
     }
     window.addEventListener('click', this.handleWindowClick)
   },
   beforeDestroy () {
-    window.removeEventListener('resize', this.handleLinksWrapWidth, false)
+    window.removeEventListener('resize', this.scheduleInitNavBar, false)
     window.removeEventListener('click', this.handleWindowClick)
+    this.clearInitNavBarFrame()
     this.removeWindowScroll()
-    this.clearScrollFrame()
+    this.resetFloatingStyles()
     if (!this.pageContainer) {
       this.pageContainer = document.querySelector('.page')
     }
@@ -192,27 +192,50 @@ export default {
   },
 
   methods: {
-    handleLinksWrapWidth() {
-      this.$nextTick(this.initNavBar)
+    scheduleInitNavBar () {
+      // resize 和导航栏 watcher 可能同时触发，将布局读取延迟并合并到同一帧。
+      if (this.initNavBarPending) return
+      this.initNavBarPending = true
+      this.$nextTick(() => {
+        if (!this.initNavBarPending) return
+        this.initNavBarRafId = window.requestAnimationFrame(() => {
+          this.initNavBarRafId = 0
+          this.initNavBarPending = false
+          if (!this.$el || !this.$el.parentElement) return
+          this.initNavBar()
+        })
+      })
+    },
+    clearInitNavBarFrame () {
+      this.initNavBarPending = false
+      if (!this.initNavBarRafId) return
+      window.cancelAnimationFrame(this.initNavBarRafId)
+      this.initNavBarRafId = 0
     },
     initNavBar () {
       os.init()
-      this.navbar = document.querySelector('.navbar')
-      this.mainNavBar = document.querySelector('.main-navbar')
-      this.subNavBar = document.querySelector('.sub-navbar')
-      this.pageContainer = document.querySelector('.page')
+      const themeContainer = this.$el.parentElement
+      this.navbar = this.$el
+      this.mainNavBar = this.navbar.querySelector('.main-navbar')
+      this.pageContainer = themeContainer.querySelector('.page')
+      // 只匹配布局中的直属元素，避免修改 Markdown 内容里的同名 class。
+      this.stickyElements = Array.from(themeContainer.querySelectorAll(
+        '.content-container > .sidebar, .content-container > .vuepress-toc'
+      ))
       this.navbarHeight = (this.navbar && this.navbar.clientHeight) || 0
-      this.subNavBarHeight = (this.subNavBar && this.subNavBar.clientHeight) || 0
       this.mainNavBarHeight = (this.mainNavBar && this.mainNavBar.clientHeight) || 0
-      this.updateFloatingState()
+      this.isDesktop = os.pc
+      this.shouldSlideNavbar = this.showSubNavBar && this.isDesktop
+      // 偏移量只用于直接更新 DOM，不需要放入 Vue 响应式数据。
+      this.lastNavbarOffset = null
+      this.updatePageOffset()
       this.scrollBehavior()
     },
     scrollBehavior () {
       this.removeWindowScroll()
-      if (this.showSubNavBar && os.pc) {
+      this.updateFloatingState()
+      if (this.shouldSlideNavbar) {
         this.addWindowScroll()
-      } else {
-        this.updateFloatingState()
       }
     },
     addWindowScroll () {
@@ -223,7 +246,8 @@ export default {
       this.clearScrollFrame()
     },
     onWindowScroll () {
-      if (this.scrollRafId) return
+      // 滚动超过折叠阈值后偏移量不再变化，跳过后续动画帧。
+      if (this.scrollRafId || this.getNavbarOffset() === this.lastNavbarOffset) return
       this.scrollRafId = window.requestAnimationFrame(() => {
         this.scrollRafId = 0
         this.updateFloatingState()
@@ -234,32 +258,48 @@ export default {
       window.cancelAnimationFrame(this.scrollRafId)
       this.scrollRafId = 0
     },
+    getNavbarOffset () {
+      if (!this.shouldSlideNavbar) return 0
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
+      return Math.min(Math.max(scrollTop, 0), this.mainNavBarHeight)
+    },
     setFixedNavbar (fixed) {
       if (this.fixedNavbar === fixed) return
       this.fixedNavbar = fixed
     },
     updateFloatingState () {
-      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop || 0
-      const shouldSlide = this.showSubNavBar && os.pc
-      const offset = shouldSlide
-        ? Math.min(Math.max(scrollTop, 0), this.mainNavBarHeight)
-        : 0
-
-      this.navbarOffset = offset
-      this.setFixedNavbar(!shouldSlide || offset >= this.mainNavBarHeight)
+      const offset = this.getNavbarOffset()
+      if (this.lastNavbarOffset === offset) return
+      this.lastNavbarOffset = offset
+      this.setFixedNavbar(!this.shouldSlideNavbar || offset >= this.mainNavBarHeight)
       this.updateStickyTop(offset)
     },
-    updateStickyTop (offset = this.navbarOffset) {
+    updateStickyTop (offset) {
       const fullHeight = this.navbarHeight
-      const subHeight = this.subNavBarHeight || fullHeight
       const top = fullHeight - offset
-      const rootStyle = document.documentElement.style
-      rootStyle.setProperty('--navbar-main-height', `${this.mainNavBarHeight}px`)
-      rootStyle.setProperty('--navbar-full-height', `${fullHeight}px`)
-      rootStyle.setProperty('--navbar-sub-height', `${subHeight}px`)
-      rootStyle.setProperty('--navbar-top', `${-offset}px`)
-      rootStyle.setProperty('--navbar-sticky-top', `${top}px`)
-      this.updatePageOffset()
+      // 只更新相关元素：修改根节点 CSS 变量会使整棵 Markdown DOM 树的样式失效；
+      // transform 会创建新的包含块，改变导航栏内部 fixed 元素的定位行为。
+      if (this.navbar) {
+        this.navbar.style.top = `${-offset}px`
+      }
+      const stickyElements = this.stickyElements || []
+      stickyElements.forEach(element => {
+        if (this.isDesktop) {
+          element.style.top = `${top}px`
+        } else {
+          element.style.removeProperty('top')
+        }
+      })
+    },
+    resetFloatingStyles () {
+      if (this.navbar) {
+        this.navbar.style.removeProperty('top')
+      }
+      const stickyElements = this.stickyElements || []
+      stickyElements.forEach(element => {
+        element.style.removeProperty('top')
+      })
+      this.lastNavbarOffset = null
     },
     updatePageOffset () {
       if (!this.pageContainer) return
@@ -284,10 +324,10 @@ export default {
 
   watch: {
     showSubNavBar () {
-      this.$nextTick(this.initNavBar)
+      this.scheduleInitNavBar()
     },
     'navConfig.userNavIndex' () {
-      this.$nextTick(this.initNavBar)
+      this.scheduleInitNavBar()
     }
   }
 }

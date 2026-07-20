@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.39
+
+### Patch Changes
+
+- feat: 优化 Navbar 一级导航滚动时性能
+
 ## 1.6.38
 
 ### Patch Changes

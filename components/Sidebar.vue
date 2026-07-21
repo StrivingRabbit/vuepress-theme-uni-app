@@ -6,6 +6,7 @@
           class="contextual-sidebar-links"
           :depth="0"
           :items="children"
+          @layout-updated="scheduleActiveLinkScroll"
         />
       </template>
     </NavLinks>
@@ -17,6 +18,7 @@
       class="sidebar-links-fallback"
       :depth="0"
       :items="items"
+      @layout-updated="scheduleActiveLinkScroll"
     />
     <slot name="bottom" />
   </aside>
@@ -27,6 +29,9 @@ import NavLinks from '@theme/components/NavLinks.vue'
 import SidebarLinks from '@theme/components/SidebarLinks.vue'
 import navInject from '../mixin/navInject'
 import { isExternal, normalizeNavPath, resolveSidebarItems } from '../util'
+
+const ACTIVE_LINK_SCROLL_DELAY = 120
+const ACTIVE_LINK_EDGE_SPACE = 24
 
 export default {
   name: 'Sidebar',
@@ -66,6 +71,53 @@ export default {
       })
 
       return result
+    }
+  },
+
+  mounted () {
+    this.scheduleActiveLinkScroll()
+  },
+
+  beforeDestroy () {
+    this.cancelActiveLinkScroll()
+  },
+
+  methods: {
+    scheduleActiveLinkScroll () {
+      if (this._isBeingDestroyed || this._isDestroyed) return
+      this.cancelActiveLinkScroll()
+
+      // SidebarLinks 会在路由变化后展开当前分组，等待其动画结束再计算位置。
+      this._activeLinkScrollTimer = window.setTimeout(() => {
+        this._activeLinkScrollTimer = 0
+        this.scrollActiveLinkIntoView()
+      }, ACTIVE_LINK_SCROLL_DELAY)
+    },
+
+    cancelActiveLinkScroll () {
+      if (!this._activeLinkScrollTimer) return
+      window.clearTimeout(this._activeLinkScrollTimer)
+      this._activeLinkScrollTimer = 0
+    },
+
+    scrollActiveLinkIntoView () {
+      const sidebar = this.$el
+      const activeLinks = sidebar.querySelectorAll('.sidebar-link.active')
+      // hash 路由会同时激活页面和标题链接，最后一个才是当前标题。
+      const activeLink = activeLinks[activeLinks.length - 1]
+      if (!activeLink) return
+
+      const sidebarRect = sidebar.getBoundingClientRect()
+      const activeLinkRect = activeLink.getBoundingClientRect()
+      const visibleTop = sidebarRect.top + ACTIVE_LINK_EDGE_SPACE
+      const visibleBottom = sidebarRect.bottom - ACTIVE_LINK_EDGE_SPACE
+
+      // 只滚动 Sidebar 自身，并采用最近边缘，避免 scrollIntoView 带动页面跳动。
+      if (activeLinkRect.top < visibleTop) {
+        sidebar.scrollTop -= visibleTop - activeLinkRect.top
+      } else if (activeLinkRect.bottom > visibleBottom) {
+        sidebar.scrollTop += activeLinkRect.bottom - visibleBottom
+      }
     }
   }
 }
@@ -262,7 +314,36 @@ function findPageByNavLink (pagesByPath, link, base) {
       padding 1rem 0
 
 @media (min-width: ($MQMobile + 1px))
-  .sidebar > .nav-links > .current-nav-item > .nav-item-children
-    // 移动端的折叠状态不能隐藏桌面端 Sidebar。
-    display block !important
+  .sidebar
+    > .nav-links > .current-nav-item > .nav-item-children
+      // 移动端的折叠状态不能隐藏桌面端 Sidebar。
+      display block !important
+    border-right 1px solid #e5eae7
+    scrollbar-width thin
+    scrollbar-color #cbd5d0 transparent
+    &::-webkit-scrollbar
+      width 6px
+    &::-webkit-scrollbar-thumb
+      border-radius 3px
+      background-color #cbd5d0
+    &::-webkit-scrollbar-track
+      background transparent
+    > .nav-links .contextual-sidebar-links,
+    > .sidebar-links-fallback
+      padding 1.5rem 1rem 2rem
+    // 子级背景随层级缩进，右边界保持对齐，避免层级关系被等宽背景削弱。
+    .sidebar-group-items > li > a.sidebar-link,
+    .sidebar-group.is-sub-group > .sidebar-heading
+      width calc(100% - 0.5rem)
+      margin-left 0.5rem
+    a.sidebar-link,
+    .sidebar-heading.clickable,
+    .sidebar-group.collapsable > .sidebar-heading
+      border-radius 4px
+      transition color .15s ease, background-color .15s ease
+      &:hover,
+      &:focus-visible
+        background-color #f5f8f6
+      &.active
+        background-color #edf7f1
 </style>

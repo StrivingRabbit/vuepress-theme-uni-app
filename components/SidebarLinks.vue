@@ -27,7 +27,7 @@
 <script>
 import SidebarGroup from '@theme/components/SidebarGroup.vue'
 import SidebarLink from '@theme/components/SidebarLink.vue'
-import { isActive, debounce } from '../util'
+import { isActive } from '../util'
 
 export default {
   name: 'SidebarLinks',
@@ -48,9 +48,10 @@ export default {
   },
 
   watch: {
-    '$route': debounce(function () {
+    '$route' () {
       this.refreshIndex()
-    })
+      this.emitLayoutUpdated()
+    }
   },
 
   created () {
@@ -70,6 +71,13 @@ export default {
 
     toggleGroup (index) {
       this.openGroupIndex = index === this.openGroupIndex ? -1 : index
+    },
+
+    emitLayoutUpdated () {
+      if (this.depth !== 0) return
+      this.$nextTick(() => {
+        if (!this._isDestroyed) this.$emit('layout-updated')
+      })
     },
 
     isActive (page) {

@@ -13,10 +13,8 @@
     <div class="content-container">
       <div class="sidebar-column">
         <Sidebar
-          ref="sidebar"
           :items="sidebarItems"
           @toggle-sidebar="toggleSidebar"
-          @hook:mounted="activeSidebarLinkVisible"
         >
           <template #top>
             <slot name="sidebar-top" />
@@ -176,34 +174,11 @@ export default {
         })
       })
     },
-    activeSidebarLinkVisible() {
-      this.$nextTick(() => {
-        const sidebarRef = this.$refs.sidebar
-        const sidebarEl = sidebarRef && sidebarRef.$el
-        if (!sidebarEl) return
-
-        const activeLink = sidebarEl.querySelector('.sidebar-link.active')
-        if (!activeLink) return
-
-        const topOffset = 50
-        const bottomOffset = 24
-        const sidebarScrollTop = sidebarEl.scrollTop
-        const windowInnerHeight = window.innerHeight
-        const { bottom } = activeLink.getBoundingClientRect()
-        const isNearTop = sidebarScrollTop + topOffset > activeLink.offsetTop
-        const isNearBottom = bottom > windowInnerHeight - bottomOffset
-
-        if (isNearTop || isNearBottom) {
-          activeLink.scrollIntoView({ block: 'center' })
-        }
-      })
-    },
   },
   watch: {
     isSidebarOpen: forbidScroll,
     $route() {
       this.renderNavLinkState()
-      this.activeSidebarLinkVisible()
     },
   },
 }

@@ -203,9 +203,11 @@ $mobile-nav-arrow-image = url("data:image/svg+xml;charset=UTF-8,%3csvg width='12
           visibility visible
         .main-navbar-item
           &.active > .mobile-nav-title,
-          &.active > .main-navbar-link > a,
-          &.mobile-nav-expanded > .mobile-nav-title
+          &.active > .main-navbar-link > a
             color $accentColor
+            &::after
+              height 2px
+              background-color $accentColor
           > .mobile-nav-title,
           > .main-navbar-link > a
             display block
@@ -281,7 +283,9 @@ $mobile-nav-arrow-image = url("data:image/svg+xml;charset=UTF-8,%3csvg width='12
               line-height 1.5
               text-align left
             > .main-navbar-link > a.router-link-active
-              color $accentColor
+              color #fff
+              background-color $accentColor
+              border-radius 4px
             .dropdown-wrapper
               height auto
               .arrow

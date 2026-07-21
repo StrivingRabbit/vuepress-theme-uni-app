@@ -323,7 +323,7 @@ function findPageByNavLink (pagesByPath, link, base) {
           // font-weight 400
           line-height 1.5
           &.active
-            background-color #eaf6f0
+            background-color #edf7f1
             font-weight 600
     > .sidebar-links-fallback
       padding 1rem 0

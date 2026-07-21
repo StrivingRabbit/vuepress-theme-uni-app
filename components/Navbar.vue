@@ -21,11 +21,48 @@
       </div>
 
       <div class="mobile-main-navbar">
-        <div class="mobile-links__panel" :class="{open: showMobilePanel}">
+        <div
+          id="mobile-nav-panel"
+          class="mobile-links__panel"
+          :class="{ open: showMobilePanel }"
+          @click="handleMobilePanelClick"
+          @keydown.esc="closeMobilePanel"
+        >
           <template v-for="(item, index) in customNavBar">
-            <div :class="mainNavLinkClass(index)" :key="item.text">
-              <MainNavbarLink v-if="item.type" :item='item' @click.native="toggleMobilePanel" />
-              <a v-else href="javascript:;" @click="changeUserNav(index),toggleMobilePanel()">{{item.text}}</a>
+            <div
+              :key="item.link || item.text || index"
+              :class="[
+                mainNavLinkClass(index),
+                { 'mobile-nav-expanded': mobileExpandedIndex === index }
+              ]"
+            >
+              <button
+                v-if="hasMobileSubLinks(item)"
+                class="mobile-nav-title"
+                type="button"
+                :aria-expanded="String(mobileExpandedIndex === index)"
+                :aria-controls="`mobile-sub-nav-${index}`"
+                @click="toggleMobileNav(index)"
+              >
+                <span>{{ item.text }}</span>
+                <span class="mobile-nav-arrow" aria-hidden="true" />
+              </button>
+              <MainNavbarLink v-else :item="item" />
+
+              <div
+                v-if="hasMobileSubLinks(item)"
+                v-show="mobileExpandedIndex === index"
+                :id="`mobile-sub-nav-${index}`"
+                class="mobile-sub-links"
+              >
+                <div
+                  v-for="(subItem, subIndex) in item.items"
+                  :key="subItem.link || subItem.text || subIndex"
+                  class="mobile-sub-link"
+                >
+                  <MainNavbarLink :item="subItem" />
+                </div>
+              </div>
             </div>
           </template>
         </div>
@@ -33,7 +70,15 @@
 
       <div class="main-navbar_right">
         <div class="mobile-links_mobile">
-          <a href="javascript:;" class="mobile-links__btn" @click="toggleMobilePanel">{{mainNavBarText}}</a>
+          <a
+            href="javascript:;"
+            class="mobile-links__btn"
+            aria-controls="mobile-nav-panel"
+            :aria-expanded="String(showMobilePanel)"
+            @click="toggleMobilePanel"
+          >
+            {{ mainNavBarText }}
+          </a>
         </div>
 
         <div class="links">
@@ -130,6 +175,7 @@ export default {
   data () {
     return {
       showMobilePanel: false,
+      mobileExpandedIndex: -1,
       fixedNavbar: false,
       showLanguage: false
     }
@@ -191,6 +237,7 @@ export default {
     this.clearInitNavBarFrame()
     this.removeWindowScroll()
     this.resetNavbarPosition()
+    this.closeMobilePanel()
   },
 
   methods: {
@@ -217,8 +264,17 @@ export default {
     initNavBar () {
       os.init()
       const mainNavBar = this.$el.querySelector('.main-navbar')
+      const mobileMainNavBar = this.$el.querySelector('.mobile-main-navbar')
       this.mainNavBarHeight = (mainNavBar && mainNavBar.clientHeight) || 0
       this.shouldSlideNavbar = this.showSubNavBar && os.pc
+      // 从移动端切换到桌面端时，隐藏的菜单不能继续锁住页面滚动。
+      if (
+        this.showMobilePanel &&
+        mobileMainNavBar &&
+        window.getComputedStyle(mobileMainNavBar).display === 'none'
+      ) {
+        this.closeMobilePanel()
+      }
       // 偏移量只用于直接更新 DOM，不需要放入 Vue 响应式数据。
       this.lastNavbarOffset = null
       this.scrollBehavior()
@@ -271,9 +327,44 @@ export default {
     mainNavLinkClass (index) {
       return ['main-navbar-item', this.navConfig.userNavIndex === index ? 'active' : '']
     },
+    hasMobileSubLinks (item) {
+      return Array.isArray(item.items) && item.items.length > 0
+    },
+    toggleMobileNav (index) {
+      this.mobileExpandedIndex = this.mobileExpandedIndex === index ? -1 : index
+    },
+    handleMobilePanelClick (event) {
+      let target = event.target
+      // 所有层级的实际链接统一在这里关闭面板，折叠按钮不会触发关闭。
+      while (target && target !== event.currentTarget) {
+        if (target.tagName === 'A') {
+          this.closeMobilePanel()
+          return
+        }
+        target = target.parentElement
+      }
+    },
+    closeMobilePanel () {
+      if (!this.showMobilePanel) return
+      this.showMobilePanel = false
+      this.mobileExpandedIndex = -1
+      forbidScroll(false)
+    },
     toggleMobilePanel () {
-      this.showMobilePanel = !this.showMobilePanel
-      forbidScroll(this.showMobilePanel)
+      if (this.showMobilePanel) {
+        this.closeMobilePanel()
+        return
+      }
+
+      // 打开面板时先展示完整的一级导航，二级导航只在点击一级项后展开。
+      this.mobileExpandedIndex = -1
+      this.showMobilePanel = true
+      // 一级菜单和文档侧边栏不能同时占用移动端视口。
+      this.$emit('toggle-sidebar', false)
+      // 等父组件完成侧边栏解锁后再加锁，避免异步解锁覆盖菜单状态。
+      this.$nextTick(() => {
+        if (this.showMobilePanel) forbidScroll(true)
+      })
     },
     switchLanguage (e) {
       e.stopPropagation()
@@ -287,6 +378,9 @@ export default {
     },
     'navConfig.userNavIndex' () {
       this.scheduleInitNavBar()
+    },
+    $route () {
+      this.closeMobilePanel()
     }
   }
 }

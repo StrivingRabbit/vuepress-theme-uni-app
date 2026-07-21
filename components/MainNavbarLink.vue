@@ -35,7 +35,7 @@ export default {
 
   computed: {
     show() {
-      return this.item.type === 'link' 
+      return this.item.type === 'link'
         ? this.item.link
         : this.item.type === 'links'
           ? !!this.item.items.length
@@ -50,8 +50,9 @@ export default {
  color inherit
 
 @media (max-width: $MQMobile)
- ul
-  list-style none
-  a
-    padding-top 0 !important
+  .main-navbar-link
+    ul
+      list-style none
+      a
+        padding-top 0 !important
 </style>

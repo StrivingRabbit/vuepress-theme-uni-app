@@ -149,32 +149,29 @@ export default {
           .sort((a, b) => b.length - a.length)[0]
         const hasMatchedSidebarKey = typeof matchedSidebarKey === 'string' && matchedSidebarKey.length > 0
 
-        /**
-         * @type {HTMLAnchorElement[]} navLinks
-         */
-        const navLinks = Array.from(document.querySelectorAll('nav a:not(.external)'))
         const isSubPage = /\/([\w-]+)+\//.test(this.$route.fullPath)
-        navLinks.forEach((link, index) => {
-          link.classList.remove('router-link-active')
+        const navContainers = Array.from(document.querySelectorAll('nav.nav-links'))
+        navContainers.forEach(nav => {
+          const navLinks = Array.from(nav.querySelectorAll('a.nav-link:not(.external)'))
+          navLinks.forEach(link => {
+            link.classList.remove('router-link-active')
 
-          if (isSubPage && hasMatchedSidebarKey) {
-            const isMatchedLink = link.href.includes(matchedSidebarKey)
-            const matchWithoutMatchSidebar = sidebarKeys
-              .filter(i => i !== matchedSidebarKey && i !== this.$site.base)
-              .find(i => link.href.match(i) !== null)
-            // 当 base 不为 '/' 时，可能会出现 link.href 包含 sidebarKey，但实际并不匹配的情况，此时需要排除掉这种情况
-            const hasNoMoreSpecificMatch = typeof matchWithoutMatchSidebar === 'undefined' || matchWithoutMatchSidebar.length < matchedSidebarKey.length
+            if (isSubPage && hasMatchedSidebarKey) {
+              const isMatchedLink = link.href.includes(matchedSidebarKey)
+              const matchWithoutMatchSidebar = sidebarKeys
+                .filter(i => i !== matchedSidebarKey && i !== this.$site.base)
+                .find(i => link.href.match(i) !== null)
+              // 当 base 不为 '/' 时，可能会出现 link.href 包含 sidebarKey，但实际并不匹配的情况，此时需要排除掉这种情况
+              const hasNoMoreSpecificMatch = typeof matchWithoutMatchSidebar === 'undefined' || matchWithoutMatchSidebar.length < matchedSidebarKey.length
 
-            if (isMatchedLink && hasNoMoreSpecificMatch) {
-              link.classList.add('router-link-active')
+              if (isMatchedLink && hasNoMoreSpecificMatch) {
+                link.classList.add('router-link-active')
+              }
             }
-          } else {
-            // 0 => PC
-            // navLinks.length / 2 => mobile
-            const isFirstLink = index === 0 || index === navLinks.length / 2
-            if (isFirstLink) {
-              link.classList.add('router-link-active')
-            }
+          })
+
+          if ((!isSubPage || !hasMatchedSidebarKey) && navLinks.length) {
+            navLinks[0].classList.add('router-link-active')
           }
         })
       })

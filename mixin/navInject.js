@@ -1,3 +1,5 @@
+import { isExternal, normalizeNavPath } from '../util'
+
 export default {
   inject: ['navConfig', 'customNavBar', 'changeUserNav', 'customNavBarKeys', 'navbarLanguage', 'customNavBarLinks'],
 
@@ -8,14 +10,29 @@ export default {
     mainNavBarText() {
       return this.customNavBar[this.navConfig.userNavIndex].text
     },
-    subNavBarText() {
+    subNavBarItem() {
       const curNavBar = this.customNavBar[this.navConfig.userNavIndex]
-      // fix: /uni-app-x/api/ 获取不到 subNavBarText
-      const curLink = (this.$page.path.match(/\/([^\/]+)\/([^\/]+)?/) || [])[1]
-      const item = curNavBar.items ? curNavBar.items.filter(
-        item => item.type === 'link' && item.link.indexOf(curLink) !== -1
-      )[0] : curNavBar
-      return item ? item.text : curNavBar.items[0].text
+      const items = curNavBar.items || []
+      const currentPath = normalizeNavPath(this.$page.path)
+      let matchedItem
+      let matchedLength = -1
+
+      items.forEach(item => {
+        if (item.type !== 'link' || !item.link || isExternal(item.link)) return
+        const itemPath = normalizeNavPath(item.link)
+        const matched = currentPath === itemPath || (
+          itemPath !== '/' && currentPath.indexOf(`${itemPath}/`) === 0
+        )
+        if (matched && itemPath.length > matchedLength) {
+          matchedItem = item
+          matchedLength = itemPath.length
+        }
+      })
+
+      return matchedItem || items[0] || curNavBar
+    },
+    subNavBarText() {
+      return this.subNavBarItem.text
     }
   }
 }

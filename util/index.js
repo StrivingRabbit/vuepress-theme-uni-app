@@ -10,6 +10,11 @@ export function normalize(path) {
 	return decodeURI(path).replace(hashRE, '').replace(extRE, '');
 }
 
+export function normalizeNavPath(path) {
+	const cleanPath = normalize((path || '').split('?')[0]).replace(/\/index$/, '');
+	return cleanPath.replace(endingSlashRE, '') || '/';
+}
+
 export function getHash(path) {
 	const match = path.match(hashRE);
 	if (match) {

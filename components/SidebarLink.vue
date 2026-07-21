@@ -140,7 +140,7 @@ a.sidebar-link
   &.active
     font-weight 600
     color $accentColor
-    border-left-color $accentColor
+    // border-left-color $accentColor
   .sidebar-group &
     padding-left 2rem
   .sidebar-sub-headers &

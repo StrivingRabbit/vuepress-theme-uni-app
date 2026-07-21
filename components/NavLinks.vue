@@ -5,9 +5,13 @@
   >
     <!-- user links -->
     <div
-      v-for="item in userLinks"
+      v-for="(item, index) in userLinks"
       :key="item.link"
       class="nav-item"
+      :class="{
+        'current-nav-item': index === currentUserLinkIndex,
+        'router-link-active': index === currentUserLinkIndex && hasItemChildren(item)
+      }"
     >
       <DropdownLink
         v-if="item.type === 'links'"
@@ -17,6 +21,34 @@
         v-else
         :item="item"
       />
+      <button
+        v-if="hasItemChildren(item)"
+        class="nav-item-toggle"
+        type="button"
+        :aria-controls="itemChildrenId(index)"
+        :aria-expanded="String(isItemOpen(item, index))"
+        :aria-label="item.ariaLabel || item.text"
+        @click="toggleItem(item, index)"
+      >
+        <span
+          class="arrow"
+          :class="isItemOpen(item, index) ? 'down' : 'right'"
+          aria-hidden="true"
+        />
+      </button>
+      <div
+        v-if="hasItemChildren(item)"
+        v-show="isItemOpen(item, index)"
+        :id="itemChildrenId(index)"
+        class="nav-item-children"
+      >
+        <slot
+          v-if="index === currentUserLinkIndex || isItemOpen(item, index)"
+          name="item-children"
+          :item="item"
+          :children="getItemChildren(item)"
+        />
+      </div>
     </div>
   </nav>
 </template>
@@ -35,6 +67,19 @@ export default {
   components: {
     NavLink,
     DropdownLink
+  },
+
+  props: {
+    itemChildren: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+
+  data () {
+    return {
+      openItemKey: ''
+    }
   },
 
   computed: {
@@ -81,6 +126,49 @@ export default {
           items: (link.items || []).map(resolveNavLinkItem)
         })
       })
+    },
+
+    currentUserLinkIndex () {
+      const index = this.userLinks.indexOf(this.subNavBarItem)
+      return index === -1 ? 0 : index
+    }
+  },
+
+  methods: {
+    getItemChildren (item) {
+      return this.itemChildren[item.link] || []
+    },
+    hasItemChildren (item) {
+      return this.getItemChildren(item).length > 0
+    },
+    itemKey (item, index) {
+      return item.link || item.text || String(index)
+    },
+    itemChildrenId (index) {
+      return `sidebar-nav-children-${index}`
+    },
+    isItemOpen (item, index) {
+      return this.openItemKey === this.itemKey(item, index)
+    },
+    toggleItem (item, index) {
+      const key = this.itemKey(item, index)
+      this.openItemKey = this.openItemKey === key ? '' : key
+    },
+    openCurrentItem () {
+      const item = this.userLinks[this.currentUserLinkIndex]
+      this.openItemKey = item && this.hasItemChildren(item)
+        ? this.itemKey(item, this.currentUserLinkIndex)
+        : ''
+    }
+  },
+
+  created () {
+    this.openCurrentItem()
+  },
+
+  watch: {
+    $route () {
+      this.$nextTick(this.openCurrentItem)
     }
   }
 }

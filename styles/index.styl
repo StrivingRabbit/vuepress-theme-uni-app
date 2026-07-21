@@ -8,6 +8,21 @@ $page-layout-without-toc-width = $sidebarWidth + $page-column-width
 $page-layout-without-sidebar-width = $page-column-width + $vuepress-toc-width
 $page-layout-width = $sidebarWidth + $page-layout-without-sidebar-width
 
+sidebar-fixed(offset)
+	position fixed
+	top offset
+	left auto
+	bottom 0
+	height auto
+
+toc-fixed(offset)
+	position fixed
+	top offset
+	left auto
+	right auto
+	width $vuepress-toc-width
+	max-height s('calc(100vh - %s)', offset)
+
 .custom-page-class
 	word-break break-word
 	position relative
@@ -116,13 +131,13 @@ main.page
 		display flex
 		align-items flex-start
 
-	.content-container > .sidebar-column
+	.sidebar-column
 		position relative
 		flex 0 0 $sidebarWidth
 		width $sidebarWidth
 		height s('calc(100vh - %s)', $navbarHeight)
 
-	.content-container > .sidebar-column > .sidebar
+	.sidebar-column > .sidebar
 		position relative
 		width $sidebarWidth
 		height 100%
@@ -137,36 +152,28 @@ main.page
 		max-width $page-column-width
 		padding-left 0
 
-	.theme-container.no-sidebar .content-container
+	.no-sidebar .content-container
 		max-width $page-column-width
 
-	.theme-container.no-sidebar .content-container > .sidebar-column
+	.no-sidebar .sidebar-column
 		display none
 
-	.navbar:not(.navbar-with-subnav) ~ .content-container > .sidebar-column
+	.navbar:not(.navbar-with-subnav) ~ .content-container .sidebar-column
 		height s('calc(100vh - %s)', $navbar-main-height)
 
-	.theme-container.no-navbar .content-container > .sidebar-column
+	.no-navbar .sidebar-column
 		height 100vh
 
 	// 有二级导航时先随内容滚动，一级导航收起后再固定侧栏。
-	.navbar-collapsed ~ .content-container > .sidebar-column > .sidebar,
-	.navbar:not(.navbar-with-subnav) ~ .content-container > .sidebar-column > .sidebar,
-	.theme-container.no-navbar .content-container > .sidebar-column > .sidebar
-		position fixed
+	.navbar-collapsed ~ .content-container .sidebar-column > .sidebar
 		// 使用占位列提供的静态横向位置，fixed 前后不会发生水平跳动。
-		left auto
-		bottom 0
-		height auto
+		sidebar-fixed($navbar-sub-navbar-height)
 
-	.navbar-collapsed ~ .content-container > .sidebar-column > .sidebar
-		top $navbar-sub-navbar-height
+	.navbar:not(.navbar-with-subnav) ~ .content-container .sidebar-column > .sidebar
+		sidebar-fixed($navbar-main-height)
 
-	.navbar:not(.navbar-with-subnav) ~ .content-container > .sidebar-column > .sidebar
-		top $navbar-main-height
-
-	.theme-container.no-navbar .content-container > .sidebar-column > .sidebar
-		top 0
+	.no-navbar .sidebar-column > .sidebar
+		sidebar-fixed(0)
 
 @media (min-width: ($MQMobile + 1px)) and (max-width: ($page-layout-width - 1px))
 	.desktop-sidebar-toggle
@@ -212,19 +219,15 @@ main.page
 	.theme-container.no-navbar .desktop-sidebar-toggle
 		top 50%
 
-	.theme-container.sidebar-collapsed .content-container
+	.sidebar-collapsed .content-container
 		max-width $page-column-width
 
-	.theme-container.sidebar-collapsed .content-container > .sidebar-column
+	.sidebar-collapsed .sidebar-column
 		flex-basis 0
 		width 0
 
-	.theme-container.sidebar-collapsed .content-container > .sidebar-column > .sidebar
-		opacity 0
-		visibility hidden
-		pointer-events none
-
-	.theme-container.sidebar-expanding .content-container > .sidebar-column > .sidebar
+	.sidebar-collapsed .sidebar-column > .sidebar,
+	.sidebar-expanding .sidebar-column > .sidebar
 		opacity 0
 		visibility hidden
 		pointer-events none
@@ -280,67 +283,56 @@ main.page
 	.content-container
 		max-width $page-layout-width
 
-	.content-container > .toc-column
+	.toc-column
 		display block
 		flex 0 0 $vuepress-toc-width
 		width $vuepress-toc-width
 		height s('calc(100vh - %s)', $navbarHeight)
 
-	.content-container > .toc-column > .vuepress-toc:not(.table-of-contents-sticker)
+	.toc-column > .vuepress-toc:not(.table-of-contents-sticker)
 		display block !important
 
-	.content-container > .toc-column > .vuepress-toc
+	.toc-column > .vuepress-toc
 		position relative
 		width 100%
 		max-height s('calc(100vh - %s)', $navbarHeight)
 		top auto
 		right auto
 
-	.navbar:not(.navbar-with-subnav) ~ .content-container > .toc-column
+	.navbar:not(.navbar-with-subnav) ~ .content-container .toc-column
 		height s('calc(100vh - %s)', $navbar-main-height)
 
-	.theme-container.no-navbar .content-container > .toc-column
+	.no-navbar .toc-column
 		height 100vh
 
-	.theme-container.no-sidebar .content-container
+	.no-sidebar .content-container
 		max-width $page-layout-without-sidebar-width
 
-	.theme-container.no-toc .content-container
+	.no-toc .content-container
 		max-width $page-layout-without-toc-width
 
-	.theme-container.no-toc .content-container > .toc-column
+	.no-toc .toc-column
 		display none
 
-	.theme-container.no-sidebar.no-toc .content-container
+	.no-sidebar.no-toc .content-container
 		max-width $page-column-width
 
 	@media (max-width: ($page-layout-width - 1px))
-		.theme-container.sidebar-collapsed .content-container
+		.sidebar-collapsed .content-container
 			max-width $page-layout-without-sidebar-width
 
-		.theme-container.sidebar-collapsed.no-toc .content-container
+		.sidebar-collapsed.no-toc .content-container
 			max-width $page-column-width
 
 	// Toc 与 Sidebar 使用同一个折叠状态切换 fixed，不再由滚动事件逐帧修改 top。
-	.navbar-collapsed ~ .content-container > .toc-column > .vuepress-toc,
-	.navbar:not(.navbar-with-subnav) ~ .content-container > .toc-column > .vuepress-toc,
-	.theme-container.no-navbar .content-container > .toc-column > .vuepress-toc
-		position fixed
-		left auto
-		right auto
-		width $vuepress-toc-width
+	.navbar-collapsed ~ .content-container .toc-column > .vuepress-toc
+		toc-fixed($navbar-sub-navbar-height)
 
-	.navbar-collapsed ~ .content-container > .toc-column > .vuepress-toc
-		top $navbar-sub-navbar-height
-		max-height s('calc(100vh - %s)', $navbar-sub-navbar-height)
+	.navbar:not(.navbar-with-subnav) ~ .content-container .toc-column > .vuepress-toc
+		toc-fixed($navbar-main-height)
 
-	.navbar:not(.navbar-with-subnav) ~ .content-container > .toc-column > .vuepress-toc
-		top $navbar-main-height
-		max-height s('calc(100vh - %s)', $navbar-main-height)
-
-	.theme-container.no-navbar .content-container > .toc-column > .vuepress-toc
-		top 0
-		max-height 100vh
+	.no-navbar .toc-column > .vuepress-toc
+		toc-fixed(0)
 
 @media (max-width $MQMobile)
 	.content-container

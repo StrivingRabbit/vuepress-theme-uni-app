@@ -33,6 +33,11 @@ export default {
       return this.expand ? this.formatTitlePageHeaders : this.formatTitlePageHeaders.slice(0, this.expandHeaderLength)
     },
   },
+  watch: {
+    $route() {
+      this.$nextTick(() => this.expand = false)
+    },
+  },
   methods: {
     expandClick() {
       this.expand = !this.expand

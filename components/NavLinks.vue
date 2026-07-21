@@ -1,6 +1,6 @@
 <template>
   <nav
-    v-if="(userLinks.length || repoLink) && showSubNavBar"
+    v-if="userLinks.length && showSubNavBar"
     class="nav-links"
   >
     <!-- user links -->

@@ -1,12 +1,12 @@
 @import './custom-block'
 @import './animation'
 
-:root
-	--navbar-main-height 0px
-	--navbar-full-height $navbarHeight
-	--navbar-sub-height $navbar-sub-navbar-height
-	--navbar-top 0px
-	--navbar-sticky-top $navbarHeight
+$navbar-main-height = $navbarHeight - $navbar-sub-navbar-height
+// 三列宽度统一使用 px，避免 Stylus 混合计算 px/rem 时生成错误的媒体查询。
+$page-column-width = $contentWidth + 80px
+$page-layout-without-toc-width = $sidebarWidth + $page-column-width
+$page-layout-without-sidebar-width = $page-column-width + $vuepress-toc-width
+$page-layout-width = $sidebarWidth + $page-layout-without-sidebar-width
 
 .custom-page-class
 	word-break break-word
@@ -78,37 +78,152 @@ body.forbid_scroll
 	height 100%
 	overflow hidden
 
+.content-container
+	width 100%
+	min-width 0
+	max-width $page-layout-without-toc-width
+	margin 0 auto
+	padding-top $navbarHeight
+	box-sizing border-box
+
+.navbar:not(.navbar-with-subnav) ~ .content-container
+	padding-top $navbar-main-height
+
+.theme-container.no-navbar .content-container
+	padding-top 0
+
 main.page
 	padding-bottom 0px
 	padding-right 0px
-	@media (min-width $vuepress-display-min-width)
-		&
-			padding-right $vuepress-toc-width
-
-.vuepress-toc
-	@media (min-width $vuepress-display-min-width)
-		&
-			display block !important
 
 .table-of-contents
 	@media (min-width $vuepress-display-min-width)
 		&
 			display none !important
 
-	@media (max-width $vuepress-display-min-width)
+	@media (max-width: ($vuepress-display-min-width - 1px))
 		&
 			display block !important
 
-@media (min-width 2000px)
-	$vuepress-toc-width = 20rem
+@media (min-width: ($MQMobile + 1px))
+	.content-container
+		display flex
+		align-items flex-start
 
-	.vuepress-toc
-		width $vuepress-toc-width !important
+	.content-container > .sidebar-column
+		flex 0 0 $sidebarWidth
+		width $sidebarWidth
+		height s('calc(100vh - %s)', $navbarHeight)
 
-	main.page
-		padding-right $vuepress-toc-width
+	.content-container > .sidebar-column > .sidebar
+		position relative
+		width $sidebarWidth
+		height 100%
+		top auto
+		left auto
+		bottom auto
+
+	.content-container > .page
+		flex 1 1 $page-column-width
+		min-width 0
+		max-width $page-column-width
+		padding-left 0
+
+	.theme-container.no-sidebar .content-container
+		max-width $page-column-width
+
+	.theme-container.no-sidebar .content-container > .sidebar-column
+		display none
+
+	.navbar:not(.navbar-with-subnav) ~ .content-container > .sidebar-column
+		height s('calc(100vh - %s)', $navbar-main-height)
+
+	.theme-container.no-navbar .content-container > .sidebar-column
+		height 100vh
+
+	// 有二级导航时先随内容滚动，一级导航收起后再固定侧栏。
+	.navbar-collapsed ~ .content-container > .sidebar-column > .sidebar,
+	.navbar:not(.navbar-with-subnav) ~ .content-container > .sidebar-column > .sidebar,
+	.theme-container.no-navbar .content-container > .sidebar-column > .sidebar
+		position fixed
+		// 使用占位列提供的静态横向位置，fixed 前后不会发生水平跳动。
+		left auto
+		bottom 0
+		height auto
+
+	.navbar-collapsed ~ .content-container > .sidebar-column > .sidebar
+		top $navbar-sub-navbar-height
+
+	.navbar:not(.navbar-with-subnav) ~ .content-container > .sidebar-column > .sidebar
+		top $navbar-main-height
+
+	.theme-container.no-navbar .content-container > .sidebar-column > .sidebar
+		top 0
+
+@media (min-width: $vuepress-display-min-width)
+	.content-container
+		max-width $page-layout-width
+
+	.content-container > .toc-column
+		display block
+		flex 0 0 $vuepress-toc-width
+		width $vuepress-toc-width
+		height s('calc(100vh - %s)', $navbarHeight)
+
+	.content-container > .toc-column > .vuepress-toc:not(.table-of-contents-sticker)
+		display block !important
+
+	.content-container > .toc-column > .vuepress-toc
+		position relative
+		width 100%
+		max-height s('calc(100vh - %s)', $navbarHeight)
+		top auto
+		right auto
+
+	.navbar:not(.navbar-with-subnav) ~ .content-container > .toc-column
+		height s('calc(100vh - %s)', $navbar-main-height)
+
+	.theme-container.no-navbar .content-container > .toc-column
+		height 100vh
+
+	.theme-container.no-sidebar .content-container
+		max-width $page-layout-without-sidebar-width
+
+	.theme-container.no-toc .content-container
+		max-width $page-layout-without-toc-width
+
+	.theme-container.no-toc .content-container > .toc-column
+		display none
+
+	.theme-container.no-sidebar.no-toc .content-container
+		max-width $page-column-width
+
+	// Toc 与 Sidebar 使用同一个折叠状态切换 fixed，不再由滚动事件逐帧修改 top。
+	.navbar-collapsed ~ .content-container > .toc-column > .vuepress-toc,
+	.navbar:not(.navbar-with-subnav) ~ .content-container > .toc-column > .vuepress-toc,
+	.theme-container.no-navbar .content-container > .toc-column > .vuepress-toc
+		position fixed
+		left auto
+		right auto
+		width $vuepress-toc-width
+
+	.navbar-collapsed ~ .content-container > .toc-column > .vuepress-toc
+		top $navbar-sub-navbar-height
+		max-height s('calc(100vh - %s)', $navbar-sub-navbar-height)
+
+	.navbar:not(.navbar-with-subnav) ~ .content-container > .toc-column > .vuepress-toc
+		top $navbar-main-height
+		max-height s('calc(100vh - %s)', $navbar-main-height)
+
+	.theme-container.no-navbar .content-container > .toc-column > .vuepress-toc
+		top 0
+		max-height 100vh
 
 @media (max-width $MQMobile)
+	.content-container
+		max-width none
+		padding-top $navbar-main-height
+
 	.table-of-contents
 		margin-top: $navbarHeight - 2rem !important
 
@@ -145,8 +260,6 @@ h1, h2, h3, h4, h5, h6
 			padding-top: ($navbarHeight - 3rem)
 
 .sidebar
-	@media (min-width: ($MQMobile + 1px))
-		top var(--navbar-sticky-top, $navbarHeight)
 	.sidebar-group.is-sub-group>.sidebar-heading
 		word-break break-word
 

@@ -147,14 +147,11 @@ $tocItemPaddingRight = 0.6rem
 .table-of-contents-sticker
   display none !important
 .vuepress-toc
-  position fixed
+  position relative
   display none
   max-height 89vh
   width $vuepress-toc-width
   overflow-y hidden
-  // margin-top $navbarHeight
-  top var(--navbar-sticky-top, $navbarHeight)
-  right 0
   box-sizing border-box
   background-color #fff
   /* background: #fff; */

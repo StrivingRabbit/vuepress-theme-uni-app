@@ -1,5 +1,11 @@
 <template>
-  <header class="navbar navbar-fixed" :class="{ 'navbar-collapsed': fixedNavbar && showSubNavBar }">
+  <header
+    class="navbar navbar-fixed"
+    :class="{
+      'navbar-with-subnav': showSubNavBar,
+      'navbar-collapsed': fixedNavbar && showSubNavBar
+    }"
+  >
     <div class="main-navbar">
       <!-- <SidebarButton @toggle-sidebar="$emit('toggle-sidebar')" /> -->
 
@@ -184,11 +190,7 @@ export default {
     window.removeEventListener('click', this.handleWindowClick)
     this.clearInitNavBarFrame()
     this.removeWindowScroll()
-    this.resetFloatingStyles()
-    if (!this.pageContainer) {
-      this.pageContainer = document.querySelector('.page')
-    }
-    this.pageContainer && (this.pageContainer.style.marginTop = 'auto')
+    this.resetNavbarPosition()
   },
 
   methods: {
@@ -214,21 +216,11 @@ export default {
     },
     initNavBar () {
       os.init()
-      const themeContainer = this.$el.parentElement
-      this.navbar = this.$el
-      this.mainNavBar = this.navbar.querySelector('.main-navbar')
-      this.pageContainer = themeContainer.querySelector('.page')
-      // 只匹配布局中的直属元素，避免修改 Markdown 内容里的同名 class。
-      this.stickyElements = Array.from(themeContainer.querySelectorAll(
-        '.content-container > .sidebar, .content-container > .vuepress-toc'
-      ))
-      this.navbarHeight = (this.navbar && this.navbar.clientHeight) || 0
-      this.mainNavBarHeight = (this.mainNavBar && this.mainNavBar.clientHeight) || 0
-      this.isDesktop = os.pc
-      this.shouldSlideNavbar = this.showSubNavBar && this.isDesktop
+      const mainNavBar = this.$el.querySelector('.main-navbar')
+      this.mainNavBarHeight = (mainNavBar && mainNavBar.clientHeight) || 0
+      this.shouldSlideNavbar = this.showSubNavBar && os.pc
       // 偏移量只用于直接更新 DOM，不需要放入 Vue 响应式数据。
       this.lastNavbarOffset = null
-      this.updatePageOffset()
       this.scrollBehavior()
     },
     scrollBehavior () {
@@ -263,51 +255,18 @@ export default {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
       return Math.min(Math.max(scrollTop, 0), this.mainNavBarHeight)
     },
-    setFixedNavbar (fixed) {
-      if (this.fixedNavbar === fixed) return
-      this.fixedNavbar = fixed
-    },
     updateFloatingState () {
       const offset = this.getNavbarOffset()
       if (this.lastNavbarOffset === offset) return
       this.lastNavbarOffset = offset
-      this.setFixedNavbar(!this.shouldSlideNavbar || offset >= this.mainNavBarHeight)
-      this.updateStickyTop(offset)
+      const fixedNavbar = !this.shouldSlideNavbar || offset >= this.mainNavBarHeight
+      if (this.fixedNavbar !== fixedNavbar) this.fixedNavbar = fixedNavbar
+      // 不使用 transform，避免创建新的包含块并改变导航栏内部 fixed 元素的定位行为。
+      this.$el.style.top = `${-offset}px`
     },
-    updateStickyTop (offset) {
-      const fullHeight = this.navbarHeight
-      const top = fullHeight - offset
-      // 只更新相关元素：修改根节点 CSS 变量会使整棵 Markdown DOM 树的样式失效；
-      // transform 会创建新的包含块，改变导航栏内部 fixed 元素的定位行为。
-      if (this.navbar) {
-        this.navbar.style.top = `${-offset}px`
-      }
-      const stickyElements = this.stickyElements || []
-      stickyElements.forEach(element => {
-        if (this.isDesktop) {
-          element.style.top = `${top}px`
-        } else {
-          element.style.removeProperty('top')
-        }
-      })
-    },
-    resetFloatingStyles () {
-      if (this.navbar) {
-        this.navbar.style.removeProperty('top')
-      }
-      const stickyElements = this.stickyElements || []
-      stickyElements.forEach(element => {
-        element.style.removeProperty('top')
-      })
+    resetNavbarPosition () {
+      if (this.$el) this.$el.style.removeProperty('top')
       this.lastNavbarOffset = null
-    },
-    updatePageOffset () {
-      if (!this.pageContainer) return
-      if (!os.pc) {
-        this.pageContainer.style.marginTop = 'auto'
-        return
-      }
-      this.pageContainer.style.marginTop = `${this.navbarHeight}px`
     },
     mainNavLinkClass (index) {
       return ['main-navbar-item', this.navConfig.userNavIndex === index ? 'active' : '']

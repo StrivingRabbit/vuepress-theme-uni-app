@@ -11,24 +11,26 @@
     <div class="sidebar-mask" @click="toggleSidebar(false)" />
 
     <div class="content-container">
-      <Sidebar
-        ref="sidebar"
-        :items="sidebarItems"
-        @toggle-sidebar="toggleSidebar"
-        @hook:mounted="activeSidebarLinkVisible"
-      >
-        <template #top>
-          <slot name="sidebar-top" />
-        </template>
-        <template #bottom>
-          <slot name="sidebar-bottom" />
-          <SiderBarBottom v-if="$lang === LOCALE_ZH_HANS" />
-        </template>
-      </Sidebar>
+      <div class="sidebar-column">
+        <Sidebar
+          ref="sidebar"
+          :items="sidebarItems"
+          @toggle-sidebar="toggleSidebar"
+          @hook:mounted="activeSidebarLinkVisible"
+        >
+          <template #top>
+            <slot name="sidebar-top" />
+          </template>
+          <template #bottom>
+            <slot name="sidebar-bottom" />
+            <SiderBarBottom v-if="$lang === LOCALE_ZH_HANS" />
+          </template>
+        </Sidebar>
+      </div>
 
       <Home v-if="$page.frontmatter.home" />
 
-      <Page v-else :sidebar-items="sidebarItems" :style="pageStyle">
+      <Page v-else :sidebar-items="sidebarItems">
         <template #top>
           <slot name="page-top" />
           <TocTop />
@@ -39,7 +41,9 @@
         </template>
       </Page>
 
-      <Toc />
+      <div class="toc-column">
+        <Toc />
+      </div>
     </div>
   </div>
 </template>
@@ -100,16 +104,10 @@ export default {
           'no-navbar': !this.shouldShowNavbar,
           'sidebar-open': this.isSidebarOpen,
           'no-sidebar': !this.shouldShowSidebar,
+          'no-toc': !this.visible,
         },
         userPageClass,
       ]
-    },
-    pageStyle() {
-      const style = {}
-
-      !this.visible && (style.paddingRight = '0px')
-
-      return style
     },
   },
   mounted() {

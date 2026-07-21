@@ -13,6 +13,8 @@
     <div class="content-container">
       <div class="sidebar-column">
         <Sidebar
+          id="theme-sidebar"
+          :collapsed="isDesktopSidebarCollapsed || isDesktopSidebarExpanding"
           :items="sidebarItems"
           @toggle-sidebar="toggleSidebar"
         >
@@ -24,6 +26,32 @@
             <SiderBarBottom v-if="$lang === LOCALE_ZH_HANS" />
           </template>
         </Sidebar>
+        <button
+          v-if="shouldShowSidebar && !isDesktopSidebarCollapsed && !isDesktopSidebarExpanding"
+          class="desktop-sidebar-toggle"
+          type="button"
+          aria-controls="theme-sidebar"
+          :aria-expanded="String(!isDesktopSidebarCollapsed)"
+          :aria-label="desktopSidebarToggleLabel"
+          :title="desktopSidebarToggleLabel"
+          @click="toggleDesktopSidebar"
+        >
+          <span
+            class="arrow left"
+            aria-hidden="true"
+          />
+        </button>
+        <button
+          v-if="shouldShowSidebar && isDesktopSidebarCollapsed"
+          class="desktop-sidebar-expand-rail"
+          type="button"
+          aria-controls="theme-sidebar"
+          aria-expanded="false"
+          aria-label="展开侧边栏"
+          @click="toggleDesktopSidebar"
+        >
+          <span class="desktop-sidebar-expand-rail__label">展开侧栏</span>
+        </button>
       </div>
 
       <Home v-if="$page.frontmatter.home" />
@@ -60,6 +88,9 @@ import navProvider from '../mixin/navProvider'
 import toc from '../mixin/toc'
 import { LOCALE_ZH_HANS } from '@theme-config/i18n'
 
+// 与 styles/index.styl 的 $MQMobile 和 $page-layout-width 保持一致。
+const DESKTOP_SIDEBAR_MEDIA = '(min-width: 1141px) and (max-width: 1823px)'
+
 export default {
   name: 'Layout',
   mixins: [navProvider, toc],
@@ -76,6 +107,8 @@ export default {
   data() {
     return {
       isSidebarOpen: false,
+      isDesktopSidebarCollapsed: false,
+      isDesktopSidebarExpanding: false,
       LOCALE_ZH_HANS,
     }
   },
@@ -95,12 +128,17 @@ export default {
     sidebarItems() {
       return resolveSidebarItems(this.$page, this.$page.regularPath, this.$site, this.$localePath)
     },
+    desktopSidebarToggleLabel() {
+      return this.isDesktopSidebarCollapsed ? '展开侧边栏' : '收起侧边栏'
+    },
     pageClasses() {
       const userPageClass = this.$page.frontmatter.pageClass
       return [
         {
           'no-navbar': !this.shouldShowNavbar,
           'sidebar-open': this.isSidebarOpen,
+          'sidebar-collapsed': this.isDesktopSidebarCollapsed && this.shouldShowSidebar,
+          'sidebar-expanding': this.isDesktopSidebarExpanding && this.shouldShowSidebar,
           'no-sidebar': !this.shouldShowSidebar,
           'no-toc': !this.visible,
         },
@@ -114,11 +152,57 @@ export default {
     })
     forbidScroll(this.isSidebarOpen)
     this.renderNavLinkState()
+    this._desktopSidebarMediaQuery = window.matchMedia(DESKTOP_SIDEBAR_MEDIA)
+    this._desktopSidebarMediaQuery.addListener(this.handleDesktopSidebarMediaChange)
+  },
+  beforeDestroy() {
+    if (this._desktopSidebarMediaQuery) {
+      this._desktopSidebarMediaQuery.removeListener(this.handleDesktopSidebarMediaChange)
+    }
+    this.cancelDesktopSidebarExpand()
   },
   methods: {
     toggleSidebar(to) {
       this.isSidebarOpen = typeof to === 'boolean' ? to : !this.isSidebarOpen
       this.$emit('toggle-sidebar', this.isSidebarOpen)
+    },
+    toggleDesktopSidebar() {
+      if (this.isDesktopSidebarCollapsed) {
+        this.isDesktopSidebarCollapsed = false
+        this.isDesktopSidebarExpanding = true
+        this.$nextTick(() => {
+          if (
+            this._isBeingDestroyed ||
+            this._isDestroyed ||
+            !this.isDesktopSidebarExpanding
+          ) return
+          this._desktopSidebarExpandFrame = window.requestAnimationFrame(() => {
+            this._desktopSidebarExpandFrame = 0
+            this.finishDesktopSidebarExpand()
+          })
+        })
+      } else {
+        this.isDesktopSidebarCollapsed = true
+        this.cancelDesktopSidebarExpand()
+      }
+    },
+    finishDesktopSidebarExpand() {
+      this.cancelDesktopSidebarExpand()
+      this.isDesktopSidebarExpanding = false
+    },
+    cancelDesktopSidebarExpand() {
+      if (this._desktopSidebarExpandFrame) {
+        window.cancelAnimationFrame(this._desktopSidebarExpandFrame)
+        this._desktopSidebarExpandFrame = 0
+      }
+      this.isDesktopSidebarExpanding = false
+    },
+    handleDesktopSidebarMediaChange(event) {
+      // 离开可折叠区间时恢复完整布局，返回后仍保持默认展开。
+      if (!event.matches) {
+        this.isDesktopSidebarCollapsed = false
+        this.cancelDesktopSidebarExpand()
+      }
     },
     // side swipe
     onTouchStart(e) {

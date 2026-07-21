@@ -44,6 +44,10 @@ export default {
   },
 
   props: {
+    collapsed: {
+      type: Boolean,
+      default: false
+    },
     items: {
       type: Array,
       default: () => []
@@ -82,9 +86,19 @@ export default {
     this.cancelActiveLinkScroll()
   },
 
+  watch: {
+    collapsed (value) {
+      if (value) {
+        this.cancelActiveLinkScroll()
+      } else {
+        this.scheduleActiveLinkScroll()
+      }
+    }
+  },
+
   methods: {
     scheduleActiveLinkScroll () {
-      if (this._isBeingDestroyed || this._isDestroyed) return
+      if (this.collapsed || this._isBeingDestroyed || this._isDestroyed) return
       this.cancelActiveLinkScroll()
 
       // SidebarLinks 会在路由变化后展开当前分组，等待其动画结束再计算位置。
@@ -102,6 +116,7 @@ export default {
 
     scrollActiveLinkIntoView () {
       const sidebar = this.$el
+      if (sidebar.getClientRects().length === 0) return
       const activeLinks = sidebar.querySelectorAll('.sidebar-link.active')
       // hash 路由会同时激活页面和标题链接，最后一个才是当前标题。
       const activeLink = activeLinks[activeLinks.length - 1]

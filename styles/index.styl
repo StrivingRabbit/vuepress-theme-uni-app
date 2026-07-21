@@ -96,6 +96,12 @@ main.page
 	padding-bottom 0px
 	padding-right 0px
 
+.desktop-sidebar-toggle
+	display none
+
+.desktop-sidebar-expand-rail
+	display none
+
 .table-of-contents
 	@media (min-width $vuepress-display-min-width)
 		&
@@ -111,6 +117,7 @@ main.page
 		align-items flex-start
 
 	.content-container > .sidebar-column
+		position relative
 		flex 0 0 $sidebarWidth
 		width $sidebarWidth
 		height s('calc(100vh - %s)', $navbarHeight)
@@ -122,6 +129,7 @@ main.page
 		top auto
 		left auto
 		bottom auto
+		transition opacity .15s ease
 
 	.content-container > .page
 		flex 1 1 $page-column-width
@@ -160,6 +168,114 @@ main.page
 	.theme-container.no-navbar .content-container > .sidebar-column > .sidebar
 		top 0
 
+@media (min-width: ($MQMobile + 1px)) and (max-width: ($page-layout-width - 1px))
+	.desktop-sidebar-toggle
+		position absolute
+		z-index 11
+		top 50%
+		left auto
+		display flex
+		align-items center
+		justify-content center
+		width 30px
+		height 30px
+		margin-left $sidebarWidth - 14px
+		padding 0
+		border 1px solid #dce5e0
+		border-radius 50%
+		background-color #fff
+		box-shadow 0 2px 8px rgba(31, 54, 42, 0.1)
+		cursor pointer
+		transform translateY(-50%)
+		transition background-color .15s ease, border-color .15s ease, box-shadow .15s ease
+		&:hover
+			border-color #9fc9b3
+			background-color #f2faf6
+			box-shadow 0 3px 10px rgba(31, 54, 42, 0.14)
+		&:active
+			box-shadow 0 1px 4px rgba(31, 54, 42, 0.1)
+		&:focus-visible
+			outline 2px solid $accentColor
+			outline-offset 2px
+
+	.navbar-collapsed ~ .content-container .desktop-sidebar-toggle,
+	.navbar:not(.navbar-with-subnav) ~ .content-container .desktop-sidebar-toggle,
+	.theme-container.no-navbar .desktop-sidebar-toggle
+		position fixed
+
+	.navbar-collapsed ~ .content-container .desktop-sidebar-toggle
+		top s('calc(50% + %s)', $navbar-sub-navbar-height / 2)
+
+	.navbar:not(.navbar-with-subnav) ~ .content-container .desktop-sidebar-toggle
+		top s('calc(50% + %s)', $navbar-main-height / 2)
+
+	.theme-container.no-navbar .desktop-sidebar-toggle
+		top 50%
+
+	.theme-container.sidebar-collapsed .content-container
+		max-width $page-column-width
+
+	.theme-container.sidebar-collapsed .content-container > .sidebar-column
+		flex-basis 0
+		width 0
+
+	.theme-container.sidebar-collapsed .content-container > .sidebar-column > .sidebar
+		opacity 0
+		visibility hidden
+		pointer-events none
+
+	.theme-container.sidebar-expanding .content-container > .sidebar-column > .sidebar
+		opacity 0
+		visibility hidden
+		pointer-events none
+
+	.desktop-sidebar-expand-rail
+		position fixed
+		z-index 11
+		top 0
+		bottom 0
+		left 0
+		display block
+		width 24px
+		margin 0
+		padding 0
+		border 0
+		background transparent
+		cursor pointer
+		&::before
+			content ''
+			position absolute
+			top 0
+			bottom 0
+			left 0
+			width 3px
+			background-color $accentColor
+			transition width .3s cubic-bezier(0.4, 0, 0.2, 1)
+		&:hover::before,
+		&:focus-visible::before
+			width 24px
+		&:focus-visible
+			outline 0
+		&:hover .desktop-sidebar-expand-rail__label,
+		&:focus-visible .desktop-sidebar-expand-rail__label
+			opacity 1
+
+	.desktop-sidebar-expand-rail__label
+		position absolute
+		left 30px
+		top 50%
+		padding 4px 6px
+		border-radius 3px
+		background-color #2c2c2a
+		color #f7f7f7
+		font-size 11px
+		line-height 1.2
+		white-space nowrap
+		opacity 0
+		pointer-events none
+		transform translateY(-50%)
+		transition opacity .2s ease
+
 @media (min-width: $vuepress-display-min-width)
 	.content-container
 		max-width $page-layout-width
@@ -197,6 +313,13 @@ main.page
 
 	.theme-container.no-sidebar.no-toc .content-container
 		max-width $page-column-width
+
+	@media (max-width: ($page-layout-width - 1px))
+		.theme-container.sidebar-collapsed .content-container
+			max-width $page-layout-without-sidebar-width
+
+		.theme-container.sidebar-collapsed.no-toc .content-container
+			max-width $page-column-width
 
 	// Toc 与 Sidebar 使用同一个折叠状态切换 fixed，不再由滚动事件逐帧修改 top。
 	.navbar-collapsed ~ .content-container > .toc-column > .vuepress-toc,

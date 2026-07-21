@@ -1,5 +1,19 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.40
+
+### Patch Changes
+
+- refactor: 布局重构，将 Sidebar、Toc 和 Page 在大屏中整体居中显示
+  refactor: 重构移动端导航展示，现在 sidebar 会作为子项在二级导航下展开，层级更清晰
+  fix(sidebar): 优化 Sidebar 激活项定位与桌面端样式
+  - 将激活链接滚动逻辑收敛到 Sidebar
+  - 修复 hash 链接定位和分组展开时序
+  - 优化非移动端层级、交互状态和滚动条样式
+    feat(sidebar): PC 上 sidebar 支持收起
+    fix(toc-top): 顶部 TOC 在路由到其他页面时重置展开状态
+    feat: 优化移动端 sidebar 选中样式
+
 ## 1.6.39
 
 ### Patch Changes

@@ -1,3 +1,5 @@
+import tocConfig from '@theme-config/toc'
+
 export default {
   data() {
     return {
@@ -7,11 +9,9 @@ export default {
   },
   computed: {
     visible() {
-      return (
-        this.$frontmatter &&
-        this.$frontmatter.toc !== false &&
-        !!(this.$page && this.$page.headers && this.$page.headers.length)
-      );
+      const hasHeaders = this.$page && this.$page.headers && this.$page.headers.length
+      const hasAds = Array.isArray(tocConfig.ads) && tocConfig.ads.length > 0
+      return this.$frontmatter && this.$frontmatter.toc !== false && (hasHeaders || hasAds)
     },
     formatTitlePageHeaders() {
       return (this.pageHeaders || []).map(item => {

@@ -1,14 +1,16 @@
 <template>
-  <Sticker ref="sticker" :class="['vuepress-toc', visible ? '' : 'table-of-contents-sticker']" v-bind="$attrs">
-    <h5>{{ onThisPage }}</h5>
-    <div v-for="(item, index) in formatTitlePageHeaders" ref="chairTocItem" class="vuepress-toc-item"
-      :class="[`vuepress-toc-h${item.level}`, { active: activeIndex === index }]">
-      <RouterLink :style="{ paddingLeft: createPaddingLeft(item.level) }" :to="`#${item.slug}`"
-        :title="item.title">
-        <span v-html="item.title"></span>
-      </RouterLink>
-    </div>
-    <div v-if="ads && ads.length" class="vuepress-toc-ads">
+  <Sticker ref="sticker" :class="['vuepress-toc', realVisible ? '' : 'table-of-contents-sticker']" v-bind="$attrs">
+    <template v-if="formatTitlePageHeaders.length > 0">
+      <h5>{{ onThisPage }}</h5>
+      <div v-for="(item, index) in formatTitlePageHeaders" ref="chairTocItem" class="vuepress-toc-item"
+        :class="[`vuepress-toc-h${item.level}`, { active: activeIndex === index }]">
+        <RouterLink :style="{ paddingLeft: createPaddingLeft(item.level) }" :to="`#${item.slug}`"
+          :title="item.title">
+          <span v-html="item.title"></span>
+        </RouterLink>
+      </div>
+    </template>
+    <div v-if="ads && ads.length > 0" class="vuepress-toc-ads">
       <a
         v-for="(ad, i) in ads"
         :key="i"
@@ -28,7 +30,7 @@ import Sticker from './Sticker.vue'
 import toc from '../mixin/toc'
 import tocConfig from '@theme-config/toc'
 
-const { onThisPage } = tocConfig
+const { onThisPage, ads } = tocConfig
 
 // get offset top
 function getAbsoluteTop(dom) {
@@ -46,7 +48,7 @@ export default {
       activeIndex: 0,
       tocConfig,
       onThisPage,
-      ads: tocConfig.ads || [],
+      ads: ads || [],
       headingPositions: [],
       scrollRafId: 0,
     }
@@ -70,6 +72,13 @@ export default {
         this.refreshHeadingPositions()
         this.syncActiveByScroll()
       })
+    },
+  },
+  computed: {
+    realVisible() {
+      return this.visible && (
+        this.formatTitlePageHeaders.length > 0 || this.ads.length > 0
+      )
     },
   },
   mounted() {

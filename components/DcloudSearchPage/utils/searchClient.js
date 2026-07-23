@@ -7,6 +7,50 @@ import { removeHighlightTags, groupBy } from './searchUtils';
  */
 
 let searchIndex;
+const activeRequests = [];
+
+function createCancelableRequester() {
+	return {
+		send(request) {
+			let xhr;
+			let completed = false;
+			let resolveRequest;
+			let timeoutId;
+			const finish = response => {
+				if (completed) return;
+				completed = true;
+				window.clearTimeout(timeoutId);
+				const index = activeRequests.indexOf(cancel);
+				if (index !== -1) activeRequests.splice(index, 1);
+				resolveRequest(response);
+			};
+			const cancel = () => {
+				if (xhr) xhr.abort();
+				finish({ status: 400, content: 'Request cancelled', isTimedOut: false });
+			};
+
+			const promise = new Promise(resolve => {
+				resolveRequest = resolve;
+				xhr = new XMLHttpRequest();
+				xhr.open(request.method, request.url, true);
+				Object.keys(request.headers).forEach(key => xhr.setRequestHeader(key, request.headers[key]));
+				xhr.onerror = () => finish({ status: xhr.status, content: xhr.responseText || 'Network request failed', isTimedOut: false });
+				xhr.onload = () => finish({ status: xhr.status, content: xhr.responseText, isTimedOut: false });
+				xhr.send(request.data);
+				timeoutId = window.setTimeout(() => {
+					xhr.abort();
+					finish({ status: 0, content: 'Request timeout', isTimedOut: true });
+				}, request.responseTimeout * 1000);
+			});
+			activeRequests.push(cancel);
+			return promise;
+		}
+	};
+}
+
+export function abortSearchRequests() {
+	activeRequests.slice().forEach(cancel => cancel());
+}
 
 /**
  *
@@ -16,7 +60,7 @@ let searchIndex;
  */
 function getSearchIndex(appId, apiKey, indexName) {
 	if (searchIndex) return searchIndex;
-	const searchClient = algoliasearch(appId, apiKey);
+	const searchClient = algoliasearch(appId, apiKey, { requester: createCancelableRequester() });
 	searchIndex = searchClient.initIndex(indexName);
 	aa('init', { appId, apiKey });
 	searchClient.addAlgoliaAgent('dcloudsearch', '1.0.0');

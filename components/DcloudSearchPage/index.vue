@@ -27,19 +27,10 @@
 					<div class="sub-navbar">
 						<div class="search-wrap">
 							<div class="input-wrap">
-								<input ref="searchInput" class="search-input" :placeholder="placeholder" type="text" @keydown.enter="
-									() => {
-										resetSearch();
-										search();
-									}
-								" v-model="searchValue" />
+								<input ref="searchInput" class="search-input" :placeholder="placeholder" type="text"
+									@keydown.enter="submitSearch" v-model="searchValue" />
 								<span class="search-input-btn">
-									<button @click="
-										() => {
-											resetSearch();
-											search();
-										}
-									">
+									<button @click="submitSearch">
 										<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
 											<path
 												d="M11.33 10.007l4.273 4.273a.502.502 0 0 1 .005.709l-.585.584a.499.499 0 0 1-.709-.004L10.046 11.3a6.278 6.278 0 1 1 1.284-1.294zm.012-3.729a5.063 5.063 0 1 0-10.127 0 5.063 5.063 0 0 0 10.127 0z">
@@ -142,8 +133,8 @@ import pagination from './components/pagination.vue';
 import AIChat from './AIChat/index.vue';
 import AIAnswer from './components/AIAnswer.vue';
 import MainNavbarLink from '../MainNavbarLink.vue';
-import { search as searchClient } from './utils/searchClient';
-import { postExt, postAsk } from './utils/postDcloudServer';
+import { abortSearchRequests, search as searchClient } from './utils/searchClient';
+import { abortAjaxRequests, postExt, postAsk } from './utils/postDcloudServer';
 import { forbidScroll } from '../../util';
 import { removeHighlightTags, isEditingContent } from './utils/searchUtils';
 import Base64 from './utils/Base64';
@@ -165,6 +156,15 @@ const {
 const crawlerUrl = 'https://zh.uniapp.dcloud.io/'
 const unidocsUrl = 'https://uniapp.dcloud.io/'
 const docDcloudNetUrl = 'https://doc.dcloud.net.cn'
+
+function createAIMessage() {
+	return {
+		uni_ai_feedback_id: '',
+		isAI: true,
+		title: 'AI 助手回答',
+		msg: ''
+	}
+}
 
 const resolveRoutePathFromUrl = (url, base = '/') => {
 	// uni-app-x、uniCloud (doc.dcloud.net.cn 域名下) 等独立站点不需要转换，只需要将爬虫的域名替换为正确域名即可
@@ -197,6 +197,14 @@ export default {
 			searchBy,
 			snippetLength: 30,
 			searchValue: '',
+			// 同一分类、关键词和页码的请求未完成前，不允许重复发起。
+			searchRequestKeys: Object.create(null),
+			// 请求递增后，旧请求的回调不会覆盖当前搜索结果。
+			searchRequestVersion: 0,
+			// 搜索框关闭前，相同问题和分类只允许请求一次 AI。
+			aiRequestKeys: Object.create(null),
+			// 每个分类的 AI 请求独立进行，切换分类不会中止其他分类的请求。
+			aiRequests: Object.create(null),
 			category: Object.freeze(category),
 			categoryIndex: 0,
 			resultList: [],
@@ -212,13 +220,10 @@ export default {
 			curPage: 1, // 当前页
 			pageSize: 0, // 每页条数
 
-			searchAIResult: Promise.resolve(null),
-			aiMessage: {
-				uni_ai_feedback_id: '',
-				isAI: true,
-				title: 'AI 助手回答',
-				msg: ''
-			}
+			aiMessages: category.reduce((messages, item) => {
+				messages[item.text] = createAIMessage()
+				return messages
+			}, {})
 		};
 	},
 
@@ -258,6 +263,9 @@ export default {
 			const wordLimitExceeded = searchText.length >= MAX_AI_ANSWER_LENGTH
 			const hasChineseCharacters = /[\u4e00-\u9fa5]/.test(searchText)
 			return this.enableAI && ((wordLimitExceeded && hasChineseCharacters) || hasAIMessageHistory)
+		},
+		aiMessage() {
+			return this.aiMessages[this.currentCategory.text]
 		}
 	},
 
@@ -277,6 +285,11 @@ export default {
 		resultList() {
 			this.$refs.pageContainer.scrollTop = 0;
 		},
+		categoryIndex(index, previousIndex) {
+			if (index === previousIndex || !this.openSearch || !this.searchValue.trim()) return;
+			this.searchPage = 0;
+			this.search();
+		},
 
 		openSearch(val) {
 			this.$nextTick(() => {
@@ -294,11 +307,6 @@ export default {
 				}
 			});
 		},
-
-		/* searchValue: debounce(function () {
-			this.resetSearch();
-			this.search();
-		}, 300), */
 
 		$route: {
 			immediate: true,
@@ -357,36 +365,53 @@ export default {
 			}
 		},
 
-		resetSearch() {
-			this.searchPage = 0;
-			this.resetAI();
-		},
-
-		resetAI() {
-			if (this.searchAIResult && typeof this.searchAIResult.abort === 'function') {
-				this.searchAIResult.abort()
-			}
-			this.aiMessage.msg = ''
-			this.searchAIResult = null
-			if (this.showAIMessage) {
-				this.searchByAI()
-			}
-		},
-
 		research(curPage) {
+			if (this.showLoading) return;
 			this.searchPage = curPage - 1;
 			this.search();
 		},
 
+		submitSearch() {
+			this.searchPage = 0;
+			this.search();
+		},
+
+		createSearchRequest() {
+			const query = this.searchValue.trim();
+			if (!query) return;
+
+			const key = JSON.stringify([this.categoryIndex, query, this.searchPage]);
+			if (this.searchRequestKeys[key]) return;
+
+			this.searchRequestVersion++;
+			this.searchRequestKeys[key] = this.searchRequestVersion;
+			return this.searchRequestVersion;
+		},
+
+		finishSearchRequest(requestVersion) {
+			Object.keys(this.searchRequestKeys).forEach(key => {
+				if (this.searchRequestKeys[key] === requestVersion) {
+					delete this.searchRequestKeys[key];
+				}
+			});
+		},
+
+		isCurrentSearch(requestVersion) {
+			return requestVersion === this.searchRequestVersion;
+		},
+
 		search() {
-			if (!this.searchValue || !this.searchValue.trim().length) return;
+			const requestVersion = this.createSearchRequest();
+			if (!requestVersion) return;
+
+			if (this.searchPage === 0) this.searchByAI();
 			const { type } = this.currentCategory;
 			switch (type) {
 				case 'algolia':
 					this.showLoading = true;
 					this.searchByAlgolia()
 						.then(({ hitsPerPage, nbHits, nbPages, page, hits, queryID, indexName }) => {
-							debugger;
+							if (!this.isCurrentSearch(requestVersion)) return;
 							this.curHits = nbHits;
 							this.pageSize = hitsPerPage;
 							this.totalPage = nbPages;
@@ -424,16 +449,22 @@ export default {
 								this.resultList.splice(1, 0, this.aiMessage);
 							}
 						})
+						.catch(() => {})
 						.finally(() => {
+							this.finishSearchRequest(requestVersion);
+							if (!this.isCurrentSearch(requestVersion)) return;
 							this.showLoading = false
 							this.$nextTick(() => {
-								this.$refs.searchResult.scrollTo({ top: 0, behavior: 'auto' })
+								if (this.$refs.searchResult) this.$refs.searchResult.scrollTo({ top: 0, behavior: 'auto' })
 							})
 						});
 					break;
 				case 'server':
 					this.showLoading = true;
-					this.searchByServer().finally(() => (this.showLoading = false));
+					this.searchByServer(false, requestVersion).catch(() => {}).finally(() => {
+						this.finishSearchRequest(requestVersion);
+						if (this.isCurrentSearch(requestVersion)) this.showLoading = false;
+					});
 					break;
 			}
 		},
@@ -445,7 +476,7 @@ export default {
 			categoryArr = [categoryArr];
 			return searchClient(
 				Object.assign({}, this.options, {
-					query: `'${this.searchValue}'`,
+					query: `'${this.searchValue.trim()}'`,
 					page: this.searchPage,
 					snippetLength: this.snippetLength,
 					searchParameters: {
@@ -470,41 +501,55 @@ export default {
 		},
 
 		searchByAI() {
+			if (!this.showAIMessage) return;
+			const question = this.searchValue.trim()
+			const categoryText = this.currentCategory.text
+			const message = this.aiMessages[categoryText]
+			const key = JSON.stringify([categoryText, question])
+			if (this.aiRequestKeys[key]) return;
+
 			try {
-				if (!this.showAIMessage) return;
-				this.searchAIResult = ajax(aiChatForDocSearch, 'POST', {
-					"question": this.searchValue,
-					"group_name": this.currentCategory.text
-				}).then(res => {
-					this.aiMessage.uni_ai_feedback_id = res.uni_ai_feedback_id || ''
+				this.aiRequestKeys[key] = true
+				message.uni_ai_feedback_id = ''
+				message.msg = ''
+				const request = ajax(aiChatForDocSearch, 'POST', {
+					"question": question,
+					"group_name": categoryText
+				})
+				this.aiRequests[key] = request
+				request.then(res => {
+					if (this.aiRequests[key] !== request) return ''
+					message.uni_ai_feedback_id = res.uni_ai_feedback_id || ''
 					if (res.errorCode === 0) {
 						return renderMarkdown(res.chunk)
-					} else {
-						this.aiMessage.msg = res.errorMsg || AI_ERROR_MSG;
-						return ''
 					}
+					return res.errorMsg || AI_ERROR_MSG
 				})
-					.catch((err) => {
-						console.log('err :>> ', err);
-						return ''
+					.catch(() => {
+						return this.aiRequests[key] === request ? AI_ERROR_MSG : ''
 					})
 					.then(msg => {
-						this.aiMessage.msg = msg || AI_ERROR_MSG;
+						if (this.aiRequests[key] !== request) return
+						message.msg = msg || AI_ERROR_MSG;
+					})
+					.finally(() => {
+						if (this.aiRequests[key] === request) delete this.aiRequests[key]
 					})
 			} catch (err) {
-				console.log('err :>> ', err);
-				this.aiMessage.msg = err.message || AI_ERROR_MSG;
+				delete this.aiRequestKeys[key]
+				message.msg = err.message || AI_ERROR_MSG;
 				return ''
 			}
 		},
 
-		searchByServer(append = false) {
+		searchByServer(append = false, requestVersion) {
 			const { tag } = this.currentCategory;
-			const query = this.searchValue || '';
+			const query = this.searchValue.trim();
 
 			switch (tag) {
 				case 'ext':
 					return postExt(query).then(({ html, hits }) => {
+						if (!this.isCurrentSearch(requestVersion)) return;
 						this.serverHtml = html;
 						this.curHits = hits;
 						this.noResult = !hits;
@@ -514,6 +559,7 @@ export default {
 					this.searchPage === 0 && (this.searchPage = 1);
 					return postAsk(query, this.searchPage)
 						.then(res => {
+							if (!this.isCurrentSearch(requestVersion)) return;
 							if (res) {
 								const { html = '', hits } = res;
 								if (append) {
@@ -532,14 +578,20 @@ export default {
 								}
 							}
 						})
-						.finally(() => (this.showServerLoading = false));
+						.finally(() => {
+							if (this.isCurrentSearch(requestVersion)) this.showServerLoading = false;
+						});
 			}
 		},
 
 		moreAskResult() {
-			if (this.hasNoMoreServerResult) return;
+			if (this.hasNoMoreServerResult || this.showServerLoading) return;
 			this.searchPage === 0 ? (this.searchPage = 2) : this.searchPage++;
-			this.searchByServer(true);
+			const requestVersion = this.createSearchRequest();
+			if (!requestVersion) return;
+			this.searchByServer(true, requestVersion).catch(() => {}).finally(() => {
+				this.finishSearchRequest(requestVersion);
+			});
 		},
 
 		mainNavLinkClass(index) {
@@ -563,16 +615,26 @@ export default {
 
 		switchCategory(index) {
 			this.categoryIndex = index;
-			this.research(1);
 		},
 
 		cancel() {
+			abortSearchRequests();
+			abortAjaxRequests();
+			this.searchRequestVersion++;
+			this.searchRequestKeys = Object.create(null);
+			this.aiRequestKeys = Object.create(null);
+			this.aiRequests = Object.create(null);
+			Object.keys(this.aiMessages).forEach(key => {
+				this.aiMessages[key] = createAIMessage();
+			});
 			this.resultList.length = 0;
 			this.searchValue = '';
 			this.curHits = 0;
 			this.totalPage = 0;
 			this.serverHtml = '';
 			this.noResult = false;
+			this.showLoading = false;
+			this.showServerLoading = false;
 		},
 
 		onSearchOpen() {

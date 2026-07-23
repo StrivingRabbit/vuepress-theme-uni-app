@@ -2,13 +2,24 @@ const isProduction = process.env.NODE_ENV === 'production';
 const isMock = false;
 import mock from './mock';
 
+const activeXhrs = [];
+
+export function abortAjaxRequests() {
+	activeXhrs.slice().forEach(xhr => xhr.abort());
+}
+
 export function ajax(url = '', method = 'get', data = {}) {
 	if (!url) return Promise.reject('url 不可为空');
 	const xhr = new XMLHttpRequest();
 	const p = new Promise((resolve, reject) => {
+		const removeXhr = () => {
+			const index = activeXhrs.indexOf(xhr);
+			if (index !== -1) activeXhrs.splice(index, 1);
+		};
 		xhr.open(method, url);
 		xhr.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
+				removeXhr();
 				try {
 					resolve(JSON.parse(this.response));
 				} catch (error) {
@@ -16,6 +27,15 @@ export function ajax(url = '', method = 'get', data = {}) {
 				}
 			}
 		};
+		xhr.onerror = () => {
+			removeXhr();
+			reject(new Error('Network request failed'));
+		};
+		xhr.onabort = () => {
+			removeXhr();
+			reject(new Error('Request cancelled'));
+		};
+		activeXhrs.push(xhr);
 		if (method.toLowerCase() === 'post') {
 			xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 			xhr.send(JSON.stringify(data));

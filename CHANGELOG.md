@@ -1,5 +1,14 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.41
+
+### Patch Changes
+
+- feat: 即使没有导读如果有 ads 也显示
+  feat(search): 同一内容不再重复发送请求
+  feat: 支持 AI 流式回答
+  fix: 问 AI 在输入内容时会比无内容时高一点
+
 ## 1.6.40
 
 ### Patch Changes

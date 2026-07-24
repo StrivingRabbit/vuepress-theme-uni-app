@@ -11,11 +11,15 @@ const props = defineProps({
     type: Array,
     required: false,
     default: () => []
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
 const notSupportBackdrop = ref(false);
-if (!(CSS && typeof CSS.supports === 'function' && CSS.supports('backdrop-filter', 'blur(10px)'))) {
+if (!(typeof CSS !== 'undefined' && typeof CSS.supports === 'function' && CSS.supports('backdrop-filter', 'blur(10px)'))) {
   // 不支持 backdrop-filter，则使用更简单的样式
   notSupportBackdrop.value = true;
 }
@@ -29,11 +33,14 @@ const platform = ref(
 )
 
 watch(platform, (v) => emit('change', v))
+watch(() => props.currentCategory, category => {
+  if (props.platforms.includes(category)) platform.value = category
+})
 </script>
 
 <template>
   <div class="select-platform">
-    <select name="select" v-model="platform" :class="{ 'not-support-backdrop-filter': notSupportBackdrop }">
+    <select name="select" v-model="platform" :disabled="disabled" :class="{ 'not-support-backdrop-filter': notSupportBackdrop }">
       <template v-for="value in props.platforms">
         <option :key="value" :value="value">{{ value }}</option>
       </template>
@@ -64,4 +71,8 @@ watch(platform, (v) => emit('change', v))
 
     &:active
       border-color $accentColor
+
+    &:disabled
+      cursor not-allowed
+      opacity .6
 </style>

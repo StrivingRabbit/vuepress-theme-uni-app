@@ -78,7 +78,7 @@
 										<Results v-if="!item.isAI" :key="item.sourceId" :title="item.title" :results="item.items"
 											:onSelect="item.onSelect" />
 										<template v-else>
-											<AIAnswer :item="item" />
+											<AIAnswer :item="item" @stop="stopAIRequest(item.requestKey)" />
 										</template>
 									</template>
 								</template>
@@ -117,7 +117,7 @@
 
 				<!-- AI 界面 -->
 				<div v-show="isAI" class="search-ai-content">
-					<AIChat :visible="isAI" :currentCategory="currentCategory.text" />
+					<AIChat ref="aiChat" :visible="isAI" :currentCategory="currentCategory.text" />
 				</div>
 			</div>
 		</div>
@@ -134,13 +134,13 @@ import AIChat from './AIChat/index.vue';
 import AIAnswer from './components/AIAnswer.vue';
 import MainNavbarLink from '../MainNavbarLink.vue';
 import { abortSearchRequests, search as searchClient } from './utils/searchClient';
-import { abortAjaxRequests, postExt, postAsk } from './utils/postDcloudServer';
+import { abortAjaxRequests, normalizeAIClassification, postExt, postAsk } from './utils/postDcloudServer';
+import { createDocSearchAIRequest } from './utils/aiStream';
 import { forbidScroll } from '../../util';
 import { removeHighlightTags, isEditingContent } from './utils/searchUtils';
 import Base64 from './utils/Base64';
-import { ajax } from './utils/postDcloudServer';
 import { renderMarkdown } from "./AIChat/markdown-loader";
-import { DEFAULT_ENABLE_AI, MAX_AI_ANSWER_LENGTH, AI_CHAT_FOR_DOC_SEARCH_URL, AI_ERROR_MSG } from './constants';
+import { DEFAULT_ENABLE_AI, MAX_AI_ANSWER_LENGTH, AI_CHAT_FOR_DOC_SEARCH_STREAM_URL, AI_STOP_CHAT_FOR_DOC_SEARCH_STREAM_URL, AI_ERROR_MSG } from './constants';
 import 'highlight.js/styles/github.min.css'
 
 const {
@@ -151,18 +151,22 @@ const {
 		resultsScreen: { resultsText, noResultsText, askNoResultsText },
 	},
 	extraFacetFilters = [],
-	aiChatForDocSearch = AI_CHAT_FOR_DOC_SEARCH_URL,
+	aiChatForDocSearchStream = AI_CHAT_FOR_DOC_SEARCH_STREAM_URL,
+	stopChatForDocSearchStream = AI_STOP_CHAT_FOR_DOC_SEARCH_STREAM_URL,
 } = searchPageConfig;
 const crawlerUrl = 'https://zh.uniapp.dcloud.io/'
 const unidocsUrl = 'https://uniapp.dcloud.io/'
 const docDcloudNetUrl = 'https://doc.dcloud.net.cn'
-
 function createAIMessage() {
 	return {
 		uni_ai_feedback_id: '',
 		isAI: true,
 		title: 'AI 助手回答',
-		msg: ''
+		msg: '',
+		raw: '',
+		streaming: false,
+		stopped: false,
+		requestKey: ''
 	}
 }
 
@@ -220,10 +224,7 @@ export default {
 			curPage: 1, // 当前页
 			pageSize: 0, // 每页条数
 
-			aiMessages: category.reduce((messages, item) => {
-				messages[item.text] = createAIMessage()
-				return messages
-			}, {})
+			aiMessages: Object.create(null)
 		};
 	},
 
@@ -265,7 +266,7 @@ export default {
 			return this.enableAI && ((wordLimitExceeded && hasChineseCharacters) || hasAIMessageHistory)
 		},
 		aiMessage() {
-			return this.aiMessages[this.currentCategory.text]
+			return this.aiMessages[this.createAIRequestKey(this.currentCategory.text, this.searchValue.trim())] || createAIMessage()
 		}
 	},
 
@@ -504,42 +505,67 @@ export default {
 			if (!this.showAIMessage) return;
 			const question = this.searchValue.trim()
 			const categoryText = this.currentCategory.text
-			const message = this.aiMessages[categoryText]
-			const key = JSON.stringify([categoryText, question])
+			const key = this.createAIRequestKey(categoryText, question)
+			const message = this.ensureAIMessage(key)
 			if (this.aiRequestKeys[key]) return;
 
-			try {
-				this.aiRequestKeys[key] = true
-				message.uni_ai_feedback_id = ''
-				message.msg = ''
-				const request = ajax(aiChatForDocSearch, 'POST', {
-					"question": question,
-					"group_name": categoryText
-				})
-				this.aiRequests[key] = request
-				request.then(res => {
-					if (this.aiRequests[key] !== request) return ''
-					message.uni_ai_feedback_id = res.uni_ai_feedback_id || ''
-					if (res.errorCode === 0) {
-						return renderMarkdown(res.chunk)
+			this.aiRequestKeys[key] = true
+			message.uni_ai_feedback_id = ''
+			message.msg = ''
+			message.raw = ''
+			message.streaming = true
+			message.stopped = false
+			message.requestKey = key
+			const request = this.createAIStreamRequest(key, message)
+			this.aiRequests[key] = request
+			request.start({
+				question,
+				classification: normalizeAIClassification(categoryText),
+				conversation_id: ''
+			})
+		},
+
+		createAIRequestKey(categoryText, question) {
+			return JSON.stringify([categoryText, question])
+		},
+
+		ensureAIMessage(key) {
+			if (!this.aiMessages[key]) this.$set(this.aiMessages, key, createAIMessage())
+			return this.aiMessages[key]
+		},
+
+		createAIStreamRequest(key, message) {
+			return createDocSearchAIRequest({
+				message,
+				conversationId: '',
+				streamUrl: aiChatForDocSearchStream,
+				stopUrl: stopChatForDocSearchStream,
+				isActive: request => this.aiRequests[key] === request,
+				render: request => this.renderAIMessage(request),
+				onError(request, error) {
+					if (!request.message.raw && !request.pendingText) {
+						request.message.raw = error || AI_ERROR_MSG
 					}
-					return res.errorMsg || AI_ERROR_MSG
-				})
-					.catch(() => {
-						return this.aiRequests[key] === request ? AI_ERROR_MSG : ''
-					})
-					.then(msg => {
-						if (this.aiRequests[key] !== request) return
-						message.msg = msg || AI_ERROR_MSG;
-					})
-					.finally(() => {
-						if (this.aiRequests[key] === request) delete this.aiRequests[key]
-					})
-			} catch (err) {
-				delete this.aiRequestKeys[key]
-				message.msg = err.message || AI_ERROR_MSG;
-				return ''
-			}
+				},
+				onFinish: request => {
+					if (this.aiRequests[key] === request) delete this.aiRequests[key]
+				}
+			})
+		},
+
+		renderAIMessage(request) {
+			// 每次上屏都重新解析 Markdown，保证流式内容的格式与完整回答一致。
+			request.message.msg = renderMarkdown(request.message.raw)
+		},
+
+		stopAIRequest(key) {
+			const request = this.aiRequests[key]
+			if (!request) return
+			request.stop()
+		},
+
+		stopAllAIRequests() {
+			Object.keys(this.aiRequests).forEach(key => this.stopAIRequest(key))
 		},
 
 		searchByServer(append = false, requestVersion) {
@@ -618,15 +644,15 @@ export default {
 		},
 
 		cancel() {
+			this.stopAllAIRequests();
+			if (this.$refs.aiChat && this.$refs.aiChat.stopAllGenerations) this.$refs.aiChat.stopAllGenerations();
 			abortSearchRequests();
 			abortAjaxRequests();
 			this.searchRequestVersion++;
 			this.searchRequestKeys = Object.create(null);
 			this.aiRequestKeys = Object.create(null);
 			this.aiRequests = Object.create(null);
-			Object.keys(this.aiMessages).forEach(key => {
-				this.aiMessages[key] = createAIMessage();
-			});
+			this.aiMessages = Object.create(null);
 			this.resultList.length = 0;
 			this.searchValue = '';
 			this.curHits = 0;

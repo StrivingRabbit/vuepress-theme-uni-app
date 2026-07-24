@@ -8,20 +8,25 @@
 
         <div v-for="m in messages" :key="m.id" :class="['msg', m.role]">
 
-          <div class="bubble" v-html="m.rendered"></div>
+          <div class="bubble">
+            <div v-if="m.raw" class="bubble-content" v-html="m.rendered"></div>
+            <div v-else-if="m.streaming" class="thinking-placeholder">
+              <Skeleton />
+            </div>
+          </div>
 
           <div class="meta">
             <span class="time">{{ m.time }}</span>
+            <span v-if="m.streaming" class="stream-status">{{ getDocSearchGenerationText(m, 'streaming') }}</span>
+            <span v-else-if="m.stopped" class="stream-status">{{ getDocSearchGenerationText(m, 'stopped') }}</span>
 
-            <div class="actions" v-if="m.role === 'assistant' && typeof m.uni_ai_feedback_id === 'string' && m.uni_ai_feedback_id.length > 0">
+            <div class="actions" v-if="m.role === 'assistant' && !m.streaming && typeof m.uni_ai_feedback_id === 'string' && m.uni_ai_feedback_id.length > 0">
               <AIFeedback :like="m.like" :dislike="m.dislike" :uni_ai_feedback_id="m.uni_ai_feedback_id" @action="data => feedbackAction(m.id, data)"/>
             </div>
           </div>
 
         </div>
       </transition-group>
-
-      <Skeleton style="width: 60%" v-if="sending" />
     </main>
     <footer ref="footer" class="chat-input-bar"
       :style="{ top: !hasMessage ? '50%' : 'auto', bottom: !hasMessage ? 'auto' : '0' }">
@@ -30,12 +35,12 @@
         <form>
           <textarea ref="input" v-model="inputText" name="input-container_input" class="chat-input" required rows="1"
             :minlength="MAX_AI_ANSWER_LENGTH" placeholder="请输入内容…" @input="answerInput"
-            @keydown.enter.exact.prevent="send" inputmode="text" enterkeyhint="newline"></textarea>
+            @keydown.enter.exact.prevent="send" inputmode="text" enterkeyhint="newline" :disabled="sending"></textarea>
         </form>
 
         <div class="footer-toolbar" @click.self="inputBottomClick">
           <div class="footer-toolbar_left">
-            <SelectPlatform :currentCategory="currentCategory" :platforms="aiPlatforms" @change="platformChange" />
+            <SelectPlatform :currentCategory="currentCategory" :platforms="aiPlatforms" :disabled="sending" @change="platformChange" />
           </div>
           <div class="footer-toolbar_right">
             <span v-if="inputError" class="error-tips">
@@ -44,7 +49,10 @@
             <span class="tips">
               ↵ 发送 / shift + ↵ 换行
             </span>
-            <button class="send-btn" :disabled="sending" @click="send">
+            <button v-if="isThinking" type="button" class="stop-btn" @click="stopGeneration">
+              {{ getDocSearchGenerationText(activeRequest.message, 'stop') }}
+            </button>
+            <button v-else type="button" class="send-btn" :disabled="sending" @click="send">
               发送
             </button>
           </div>
@@ -55,16 +63,18 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watchEffect, onMounted, computed } from 'vue'
+import { ref, nextTick, watchEffect, onMounted, onBeforeUnmount, computed } from 'vue'
 import searchPageConfig from '@theme-config/searchPage';
 import { renderMarkdown } from "./markdown-loader";
-import { MAX_AI_ANSWER_LENGTH, AI_CHAT_FOR_DOC_SEARCH_URL, AI_UPDATE_FEEDBACK_URL } from '../constants';
-import { ajax } from '../utils/postDcloudServer';
+import { MAX_AI_ANSWER_LENGTH, AI_CHAT_FOR_DOC_SEARCH_STREAM_URL, AI_STOP_CHAT_FOR_DOC_SEARCH_STREAM_URL } from '../constants';
+import { normalizeAIClassification } from '../utils/postDcloudServer';
+import { createDocSearchAIRequest, getDocSearchGenerationText } from '../utils/aiStream';
 import SelectPlatform from '../components/SelectPlatform.vue';
 import AIFeedback from '../components/AIFeedback.vue';
 import Skeleton from '../components/Skeleton.vue';
 
-const { aiPlatforms = [], aiChatForDocSearch = AI_CHAT_FOR_DOC_SEARCH_URL, aiUpdateFeedbackUrl = AI_UPDATE_FEEDBACK_URL } = searchPageConfig;
+const { aiPlatforms = [], aiChatForDocSearchStream = AI_CHAT_FOR_DOC_SEARCH_STREAM_URL, stopChatForDocSearchStream = AI_STOP_CHAT_FOR_DOC_SEARCH_STREAM_URL } = searchPageConfig;
+const SESSION_KEY = '__UNIDOC_MESSAGES__';
 
 const props = defineProps({
   currentCategory: {
@@ -83,33 +93,63 @@ const messages = ref([])
 const inputText = ref('')
 const sending = ref(false)
 const sendPlatform = ref(props.currentCategory)
+const conversations = ref({})
+const activeRequest = ref(null)
+const requests = new Set()
+let messageSequence = 0
+let scrollFrame = 0
 
 const msgList = ref(null)
 const input = ref(null)
 const footer = ref(null)
 
 const hasMessage = computed(() => messages.value.length > 0)
+const isThinking = computed(() => {
+  const request = activeRequest.value
+  return !!(request && request.message.streaming)
+})
 const inputError = computed(() => {
-  const inputTextTrimmed = inputText.value.trim();
-  if (inputTextTrimmed.length === 0) return false
-  return inputTextTrimmed.length < MAX_AI_ANSWER_LENGTH || !/[\u4e00-\u9fa5]/.test(inputTextTrimmed);
+	const inputTextTrimmed = inputText.value.trim();
+	if (inputTextTrimmed.length === 0) return false
+	return inputTextTrimmed.length < MAX_AI_ANSWER_LENGTH || !/[\u4e00-\u9fa5]/.test(inputTextTrimmed);
 })
 
 const notSupportBackdrop = ref(false);
-if (!(CSS && typeof CSS.supports === 'function' && CSS.supports('backdrop-filter', 'blur(10px)'))) {
+if (!(typeof CSS !== 'undefined' && typeof CSS.supports === 'function' && CSS.supports('backdrop-filter', 'blur(10px)'))) {
   // 不支持 backdrop-filter，则使用更简单的样式
   notSupportBackdrop.value = true;
 }
 
-function setSessionMessages(value) {
-  sessionStorage.setItem('__UNIDOC_MESSAGES__', JSON.stringify(value));
+function saveSession() {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+    messages: messages.value,
+    conversations: conversations.value
+  }));
 }
 
 onMounted(() => {
-  const savedMessages = sessionStorage.getItem('__UNIDOC_MESSAGES__')
-  if (savedMessages) {
-    messages.value = JSON.parse(savedMessages)
-    scrollToBottom()
+  const savedSession = sessionStorage.getItem(SESSION_KEY)
+  if (savedSession) {
+    try {
+      const data = JSON.parse(savedSession)
+      if (Array.isArray(data)) {
+        messages.value = data
+      } else if (data && Array.isArray(data.messages)) {
+        messages.value = data.messages
+        conversations.value = data.conversations || {}
+      }
+      messages.value.forEach(message => {
+        if (typeof message.raw !== 'string') message.raw = ''
+        if (message.streaming) {
+          message.streaming = false
+          message.stopped = true
+        }
+      })
+      saveSession()
+      scrollToBottom()
+    } catch (error) {
+      sessionStorage.removeItem(SESSION_KEY)
+    }
   }
 })
 
@@ -118,7 +158,7 @@ watchEffect(() => {
     nextTick(() => {
       scrollToBottom()
       autoGrow()
-      input.value.focus()
+      if (input.value) input.value.focus()
     })
   }
 })
@@ -141,6 +181,7 @@ function formatTime() {
 
 function autoGrow() {
   const el = input.value
+  if (!el) return
   el.style.height = 'auto'
   scrollToBottom()
   if (inputText.value.length === 0) {
@@ -163,73 +204,59 @@ function inputBottomClick() {
 }
 
 function scrollToBottom() {
-  nextTick(() => {
+  if (scrollFrame) return
+  scrollFrame = scheduleFrame(() => {
+    scrollFrame = 0
     const el = msgList.value
-    if (!el) return
-    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+    if (el) el.scrollTop = el.scrollHeight
   })
 }
 
-function renderHTML(raw) {
-  const rendered = renderMarkdown(raw)
-  return rendered
+function scheduleFrame(callback) {
+  return typeof requestAnimationFrame === 'function'
+    ? requestAnimationFrame(callback)
+    : setTimeout(callback, 0)
 }
 
-function fakeAITyping(text, msgObj) {
-  return new Promise(resolve => {
-    let i = 0
-    const timer = setInterval(async () => {
-      if (i >= text.length) {
-        clearInterval(timer)
-        msgObj.raw = text
-        msgObj.rendered = renderHTML(text)
-        msgObj.isTyping = false
-        resolve()
-        return
-      }
-
-      msgObj.raw += text[i]
-      msgObj.rendered = renderHTML(msgObj.raw)
-      i++
-      scrollToBottom()
-    }, 25)
-  })
+function cancelFrame(frame) {
+  if (typeof cancelAnimationFrame === 'function') {
+    cancelAnimationFrame(frame)
+  } else {
+    clearTimeout(frame)
+  }
 }
 
 function platformChange(newPlatform) {
   sendPlatform.value = newPlatform
 }
 
-// 限制只取最近 6 条消息
-function getChatHistory() {
-  return messages.value.slice(-5).map(m => ({
-    role: m.role,
-    contentType: 'text',
-    content: m.raw
-  }))
+function createMessageId() {
+  messageSequence += 1
+  return `${Date.now()}-${messageSequence}`
 }
 
 // 创建用户消息
 function createUserMessage(text) {
   return {
-    id: Date.now(),
+    id: createMessageId(),
     role: 'user',
     raw: text,
-    rendered: renderHTML(text),
+    rendered: renderMarkdown(text),
     time: formatTime(),
   }
 }
 
 // 创建 AI 消息
-function createAIMessage(text, feedbackId = '') {
+function createAIMessage() {
   return {
-    id: Date.now() + 1,
+    id: createMessageId(),
     role: 'assistant',
-    raw: text,
-    uni_ai_feedback_id: feedbackId,
-    rendered: renderHTML(text),
+    raw: '',
+    uni_ai_feedback_id: '',
+    rendered: '',
     time: formatTime(),
-    isTyping: false,
+    streaming: false,
+    stopped: false,
     like: false,
     dislike: false
   }
@@ -238,7 +265,51 @@ function createAIMessage(text, feedbackId = '') {
 // 添加消息并保存到会话
 function addMessage(message) {
   messages.value.push(message)
-  setSessionMessages(messages.value)
+  saveSession()
+}
+
+function renderStreamMessage(message) {
+  message.rendered = renderMarkdown(message.raw)
+  saveSession()
+  scrollToBottom()
+}
+
+function removeMessage(message) {
+  const index = messages.value.indexOf(message)
+  if (index !== -1) messages.value.splice(index, 1)
+  saveSession()
+}
+
+function createStreamRequest(message, platform) {
+  const request = createDocSearchAIRequest({
+    message,
+    conversationId: conversations.value[platform] || '',
+    streamUrl: aiChatForDocSearchStream,
+    stopUrl: stopChatForDocSearchStream,
+    isActive: request => requests.has(request),
+    render: request => renderStreamMessage(request.message),
+    onMetadata(request) {
+      conversations.value[platform] = request.conversationId
+      saveSession()
+    },
+    onCompleted(request) {
+      if (activeRequest.value === request) sending.value = false
+    },
+    onError(request, error) {
+      if (!request.message.raw && !request.pendingText) {
+        request.message.raw = `抱歉，AI 助手出错了：${error || '未知错误'}`
+      }
+    },
+    onFinish(request) {
+      requests.delete(request)
+      if (activeRequest.value === request) {
+        activeRequest.value = null
+        sending.value = false
+      }
+    }
+  })
+  requests.add(request)
+  return request
 }
 
 function send() {
@@ -250,49 +321,33 @@ function send() {
   inputText.value = ''
   answerInput()
 
-  // 用户消息
   addMessage(createUserMessage(userText))
-  scrollToBottom()
-
+  const aiMessage = createAIMessage()
+  aiMessage.streaming = true
+  addMessage(aiMessage)
   sending.value = true
 
-  let fakeReply = ''
-  let uni_ai_feedback_id = ''
-  try {
-    ajax(aiChatForDocSearch, 'POST', {
-      "question": userText,
-      "group_name": sendPlatform.value,
-      "history": getChatHistory()
-    }).then(res => {
-      if (res.errorCode === 0) {
-        fakeReply = res.chunk
-        uni_ai_feedback_id = res.uni_ai_feedback_id
-      } else {
-        fakeReply = `抱歉，AI 助手出错了：${res.errorMsg || '未知错误'}`
-      }
+  const platform = sendPlatform.value
+  const request = createStreamRequest(aiMessage, platform)
+  activeRequest.value = request
+  request.start({
+    question: userText,
+    classification: normalizeAIClassification(platform),
+    conversation_id: request.conversationId
+  })
+}
 
-      sending.value = false
+function stopGeneration() {
+  const request = activeRequest.value
+  if (!request) return
+  if (!request.stop()) removeMessage(request.message)
+}
 
-      // AI 消息对象
-      const aiMsg = createAIMessage(fakeReply, uni_ai_feedback_id)
-      addMessage(aiMsg)
-
-      // 动态打字
-      // await fakeAITyping(fakeReply, aiMsg)
-    }).catch(error => {
-      sending.value = false
-      fakeReply = `抱歉，AI 助手出错了：${error.message || '未知错误'}`
-
-      // 添加错误消息到聊天记录
-      addMessage(createAIMessage(fakeReply))
-    }).finally(() => {
-      scrollToBottom()
-    })
-  } catch (error) {
-    sending.value = false
-    fakeReply = `抱歉，AI 助手出错了：${error.message || '未知错误'}`
-    scrollToBottom()
-  }
+function stopAllGenerations() {
+  Array.from(requests).forEach(request => {
+    const hasContent = request.stop()
+    if (!hasContent) removeMessage(request.message)
+  })
 }
 
 function feedbackAction(messageId, data) {
@@ -301,11 +356,18 @@ function feedbackAction(messageId, data) {
   if (msg) {
     msg.like = data.like;
     msg.dislike = data.dislike;
-    setSessionMessages(messages.value)
+    saveSession()
   }
 }
 
-window.addEventListener('resize', scrollToBottom)
+onMounted(() => window.addEventListener('resize', scrollToBottom))
+onBeforeUnmount(() => {
+  stopAllGenerations()
+  if (scrollFrame) cancelFrame(scrollFrame)
+  window.removeEventListener('resize', scrollToBottom)
+})
+
+defineExpose({ stopAllGenerations })
 </script>
 
 <style lang="stylus">
@@ -385,6 +447,10 @@ window.addEventListener('resize', scrollToBottom)
       margin-top 14px
     @extend .ai-answer-style-reset
 
+  .thinking-placeholder
+    width 260px
+    max-width 100%
+
   .meta
     font-size 12px
     color #888
@@ -395,6 +461,10 @@ window.addEventListener('resize', scrollToBottom)
   .actions
     margin-left 20px
     display flex
+
+  .stream-status
+    margin-left 8px
+    color $accentColor
 
   .chat-input-bar
     padding 10px
@@ -472,6 +542,24 @@ window.addEventListener('resize', scrollToBottom)
       transform: scale(0.95)
     &:disabled
       opacity .4
+      cursor not-allowed
+
+  .stop-btn
+    margin-left 8px
+    padding 5px 10px
+    border 1px solid #d94b45
+    border-radius 8px
+    background #fff
+    color #c83d38
+    font-size 14px
+    cursor pointer
+    transition background .2s, color .2s
+    &:hover
+      background #fff1f0
+
+    &:focus-visible
+      outline 2px solid rgba($accentColor, .35)
+      outline-offset 2px
 
   /* Skeleton shimmer animation */
   @keyframes skeleton-loading
@@ -504,4 +592,9 @@ window.addEventListener('resize', scrollToBottom)
   /* Firefox */
   scrollbar-width thin
   scrollbar-color rgba(0,0,0,.25) transparent
+
+@media (max-width: 600px)
+  .chat-wrapper
+    .tips
+      display none
 </style>

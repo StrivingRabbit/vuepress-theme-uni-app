@@ -184,10 +184,7 @@ function autoGrow() {
   if (!el) return
   el.style.height = 'auto'
   scrollToBottom()
-  if (inputText.value.length === 0) {
-    return
-  }
-  // TODO +2 是解决在输入第一行时有滚动条的问题，需进一步优化
+  // 空内容和首行内容使用同一高度，避免输入后工具栏产生轻微位移。
   el.style.height = el.scrollHeight + 2 + 'px'
 }
 

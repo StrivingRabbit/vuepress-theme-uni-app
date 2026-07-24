@@ -129,7 +129,7 @@ export default {
       return resolveSidebarItems(this.$page, this.$page.regularPath, this.$site, this.$localePath)
     },
     desktopSidebarToggleLabel() {
-      return this.isDesktopSidebarCollapsed ? '展开侧边栏' : '收起侧边栏'
+      return this.isDesktopSidebarCollapsed ? '展开侧栏' : '收起侧栏'
     },
     pageClasses() {
       const userPageClass = this.$page.frontmatter.pageClass

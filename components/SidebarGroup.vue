@@ -86,33 +86,30 @@ export default {
   .sidebar-group
     padding-left 0.5em
   &:not(.collapsable)
-    & > .sidebar-heading:not(.clickable)
+    > .sidebar-heading:not(.clickable)
       cursor auto
       color inherit
   // refine styles of nested sidebar groups
   &.is-sub-group
     padding-left 0
-    & > .sidebar-heading
-      font-size 0.95em
-      line-height 1.4
+    > .sidebar-heading
+      font-size $sidebarFontSizeSub
       font-weight normal
       padding-left 2rem
       &:not(.clickable)
         opacity 0.5
-    & > .sidebar-group-items
+    > .sidebar-group-items
       padding-left 1rem
-      & > li > .sidebar-link
-        font-size: 0.95em;
+      > li > .sidebar-link
         border-left none
-  &.depth-2
-    & > .sidebar-heading
-      border-left none
+  &.depth-2 > .sidebar-heading
+    border-left none
 
 .sidebar-heading
   color $textColor
   transition color .15s ease
   cursor pointer
-  font-size 1.1em
+  font-size $sidebarFontSizeBase
   font-weight bold
   // text-transform uppercase
   padding 0.35rem 1.5rem 0.35rem 1.25rem
@@ -136,6 +133,6 @@ export default {
 
 .sidebar-group-items
   transition height .1s ease-out
-  font-size 0.95em
+  font-size $sidebarFontSizeSub
   overflow hidden
 </style>

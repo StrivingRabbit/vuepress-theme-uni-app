@@ -164,6 +164,13 @@ function findPageByNavLink (pagesByPath, link, base) {
 
 <style lang="stylus">
 .sidebar
+  font-size $sidebarFontSizeBase
+  line-height $sidebarLineHeight
+  > .nav-links > .nav-item > .nav-link,
+  > .nav-links > .nav-item > .dropdown-wrapper > .mobile-dropdown-title,
+  a.sidebar-link,
+  .sidebar-heading
+    line-height $sidebarLineHeight
   ul
     padding 0
     margin 0
@@ -174,12 +181,8 @@ function findPageByNavLink (pagesByPath, link, base) {
     display none
     border-bottom 1px solid $borderColor
     padding 0.5rem 0 0.75rem 0
-    a
-      // font-weight 600
     .nav-item, .repo-link
       display block
-      line-height 1.25rem
-      font-size 1.1em
       padding 0.5rem 0 0.5rem 1.5rem
   > .nav-links
     display block
@@ -197,29 +200,22 @@ function findPageByNavLink (pagesByPath, link, base) {
       &.current-nav-item
         display block
         padding 0
-        font-size 1em
         > .nav-link,
         > .dropdown-wrapper
           display none
     .contextual-sidebar-links
       display block
-      padding 1.5rem 0
-      a.sidebar-link
-        // font-weight 400
-        &.active
-          font-weight 600
+      padding 1rem 0
   .contextual-sidebar-links,
   > .sidebar-links-fallback
-    padding 1.5rem 0
+    padding 1rem 0
     > li > a.sidebar-link
-      font-size 1.1em
-      line-height 1.7
       font-weight bold
     > li:not(:first-child)
-      margin-top 0.5rem
+      margin-top 0.375rem
       @media (max-width: $MQMobile)
         &
-          margin-top 0rem
+          margin-top 0
 
 @media (max-width: $MQMobile)
   .sidebar
@@ -228,43 +224,37 @@ function findPageByNavLink (pagesByPath, link, base) {
       border-bottom 0
       > .nav-item
         display block
+        position relative
         margin 0
         padding 0
-        font-size 16px
-        line-height 1.4
         border-bottom 1px solid rgba(0, 0, 0, 0.06)
         > .nav-link
           display block
           width 100%
           min-width 0
           height auto
-          padding 14px 52px 14px 20px
+          padding 0.75rem 3.25rem 0.75rem 1.25rem
           box-sizing border-box
           border-radius 0
           background transparent
-          font-size 16px
-          // font-weight 500
-          line-height 1.4
         > .dropdown-wrapper
           display block
           > .mobile-dropdown-title
             display block
             width 100%
-            padding 14px 20px
+            padding 0.75rem 1.25rem
             box-sizing border-box
-            font-size 16px
-            line-height 1.4
             text-align left
         > .nav-item-toggle
           position absolute
           z-index 1
-          top 7px
-          right 12px
+          top 0.3125rem
+          right 0.75rem
           display flex
           align-items center
           justify-content center
-          width 36px
-          height 36px
+          width 2.25rem
+          height 2.25rem
           padding 0
           border 0
           background transparent
@@ -277,7 +267,6 @@ function findPageByNavLink (pagesByPath, link, base) {
           display block
         &.current-nav-item
           padding 0
-          font-size 16px
           > .nav-link,
           > .dropdown-wrapper
             display block
@@ -290,38 +279,33 @@ function findPageByNavLink (pagesByPath, link, base) {
         top calc(1rem - 2px)
       .contextual-sidebar-links
         display block
-        margin 0 16px 10px 28px
-        padding 4px 0 8px 12px
+        margin 0 1rem 0.625rem 1.75rem
+        padding 0.25rem 0 0.5rem 0.75rem
         border-left 1px solid #d9e4de
-        font-size 14px
+        font-size $sidebarFontSizeSub
         .sidebar-heading
           position relative
-          padding 9px 32px 9px 12px
+          font-size inherit
+          padding 0.5rem 2rem 0.5rem 0.75rem
           border-left 0
-          font-size 14px
-          // font-weight 500
-          line-height 1.5
           .arrow
             position absolute
             top 50%
-            right 12px
+            right 0.75rem
             left auto
             margin-top -3px
         .sidebar-group.is-sub-group
-          padding-left 8px
+          padding-left 0.5rem
           > .sidebar-heading
-            padding-left 12px
+            padding-left 0.75rem
         .sidebar-group-items a.sidebar-link
-          padding-left 20px
+          padding-left 1.25rem
         a.sidebar-link
           width 100%
-          padding 8px 10px 8px 12px
+          padding 0.5rem 0.625rem 0.5rem 0.75rem
           border-left 0
           border-radius 4px
           box-sizing border-box
-          font-size 14px
-          // font-weight 400
-          line-height 1.5
           &.active
             background-color #edf7f1
             font-weight 600
@@ -345,12 +329,11 @@ function findPageByNavLink (pagesByPath, link, base) {
       background transparent
     > .nav-links .contextual-sidebar-links,
     > .sidebar-links-fallback
-      padding 1.5rem 1rem 2rem
+      padding 1.25rem 0.75rem 1.5rem
     // 子级背景随层级缩进，右边界保持对齐，避免层级关系被等宽背景削弱。
     .sidebar-group-items > li > a.sidebar-link,
     .sidebar-group.is-sub-group > .sidebar-heading
       width calc(100% - 0.5rem)
-      margin-left 0.5rem
     a.sidebar-link,
     .sidebar-heading.clickable,
     .sidebar-group.collapsable > .sidebar-heading

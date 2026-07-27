@@ -71,6 +71,8 @@
         <Toc />
       </div>
     </div>
+
+    <VuepressVersionCheck v-if="shouldCheckVersion" />
   </div>
 </template>
 
@@ -113,6 +115,9 @@ export default {
     }
   },
   computed: {
+    shouldCheckVersion() {
+      return this.$site.themeConfig.versionCheck !== false
+    },
     shouldShowNavbar() {
       const { themeConfig } = this.$site
       const { frontmatter } = this.$page

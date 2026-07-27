@@ -87,6 +87,9 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 	ctx.siteConfig.patterns = ctx.siteConfig.patterns || ['**/!(_sidebar).md', '**/*.vue']
 
 	const klass = 'info'
+	const versionCheckPlugin = themeConfig.versionCheck === false
+		? []
+		: [['version-check', { buildId: nowString }]]
 	const config = {
 		extend: '@vuepress/theme-default',
 		plugins: [
@@ -174,6 +177,7 @@ module.exports = (themeConfig, ctx, pluginAPI) => {
 				}
 			}],
 			'expandable-row',
+			...versionCheckPlugin,
 			['noscript-code', {
 				AIPrompt: 'AI Prompt：示例源码如下（仅在无脚本环境下可见）'
 			}]

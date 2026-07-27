@@ -359,30 +359,3 @@ $mobile-nav-arrow-image = url("data:image/svg+xml;charset=UTF-8,%3csvg width='12
             background-repeat no-repeat
             background-image $mobile-nav-arrow-image
             transform rotate(90deg)
-
-emphasize()
-  position relative
-  &::before
-    @media (max-width: $MQMobile)
-      &
-        top: 8px;
-    content: "";
-    display: block;
-    width: 4px;
-    height: 4px;
-    border-radius: 2px;
-    background-color: #07c160;
-    position: absolute;
-    top: 13px;
-    left: 18px;
-
-.sidebar>ul.sidebar-links>li>.active + ul>li .sidebar-link.active
-  &::before
-    left: 10px;
-
-.sidebar-links ul.sidebar-sub-headers .sidebar-link.active
-  emphasize()
-
-.sidebar-group.depth-1
-  .sidebar-links>li>.sidebar-link.active:not(.data-no-emphasize)
-    emphasize()

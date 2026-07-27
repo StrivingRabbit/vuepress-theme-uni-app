@@ -23,6 +23,14 @@ export default {
     // use custom active class matching logic
     // due to edge case of paths ending with / + hash
     const selfActive = isActive($route, item.path)
+    // for sidebar: auto pages, a hash link should be active if one of its child
+    // matches
+    const active = item.type === 'auto'
+      ? selfActive || item.children.some(c => isActive($route, item.basePath + '#' + c.slug))
+      : selfActive
+    const link = item.type === 'external'
+      ? renderExternal(h, item.path, item.title || item.path)
+      : renderLink(h, item.path, item.title || item.path, active)
 
     const maxDepth = [
       $page.frontmatter.sidebarDepth,
@@ -31,15 +39,6 @@ export default {
       $themeConfig.sidebarDepth,
       1
     ].find(depth => depth !== undefined)
-
-    // for sidebar: auto pages, a hash link should be active if one of its child
-    // matches
-    const active = item.type === 'auto'
-      ? selfActive || item.children.some(c => isActive($route, item.basePath + '#' + c.slug))
-      : selfActive
-    const link = item.type === 'external'
-      ? renderExternal(h, item.path, item.title || item.path)
-      : renderLink(h, item.path, item.title || item.path, active, undefined, item.headers)
 
     const displayAllHeaders = $themeLocaleConfig.displayAllHeaders
       || $themeConfig.displayAllHeaders
@@ -55,14 +54,7 @@ export default {
   }
 }
 
-let beforeActiveLinkText = ''
-function renderLink (h, to, text, active, level, headers) {
-  let VNode
-  let firstRender
-  if(headers && active){
-    firstRender = beforeActiveLinkText !== text
-    beforeActiveLinkText = text
-  }
+function renderLink (h, to, text, active, level) {
   const component = {
     props: {
       to,
@@ -71,18 +63,7 @@ function renderLink (h, to, text, active, level, headers) {
     },
     class: {
       active,
-      'sidebar-link': true,
-      'data-no-emphasize': headers && headers.some(item => item.level < 3)
-    },
-    nativeOn: {
-      click: (e) => {
-        if (firstRender) { firstRender = false; return; }
-        if (e.target.className.indexOf('data-no-emphasize') === -1) return;
-        const child = VNode.componentOptions.children[0].elm.parentElement.nextElementSibling
-        if(!child) return
-        const originDisplay = child.style.display
-        child.style.display = originDisplay === 'none' ? 'block' : 'none'
-      }
+      'sidebar-link': true
     }
   }
 
@@ -91,8 +72,8 @@ function renderLink (h, to, text, active, level, headers) {
       'padding-left': level + 'rem'
     }
   }
-  VNode = h('RouterLink', component, text)
-  return VNode
+
+  return h('RouterLink', component, text)
 }
 
 function renderChildren (h, children, path, route, maxDepth, depth = 1) {

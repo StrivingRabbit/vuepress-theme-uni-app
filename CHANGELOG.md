@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.42
+
+### Patch Changes
+
+- feat: 优化 sidebar 样式
+  feat: 添加自动版本检测提示更新功能
+
 ## 1.6.41
 
 ### Patch Changes

@@ -1,6 +1,23 @@
 @import './custom-block'
 @import './animation'
 
+// 统一横向和纵向滚动条外观，不改变各元素自身的滚动行为。
+*
+	scrollbar-width thin
+	scrollbar-color #cbd5d0 transparent
+
+*::-webkit-scrollbar
+	width 6px
+	height 6px
+
+*::-webkit-scrollbar-thumb
+	border-radius 3px
+	background-color #cbd5d0
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner
+	background transparent
+
 $navbar-main-height = $navbarHeight - $navbar-sub-navbar-height
 // 三列宽度统一使用 px，避免 Stylus 混合计算 px/rem 时生成错误的媒体查询。
 $page-column-width = $contentWidth + 80px

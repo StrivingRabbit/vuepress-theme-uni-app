@@ -318,15 +318,6 @@ function findPageByNavLink (pagesByPath, link, base) {
       // 移动端的折叠状态不能隐藏桌面端 Sidebar。
       display block !important
     border-right 1px solid #e5eae7
-    scrollbar-width thin
-    scrollbar-color #cbd5d0 transparent
-    &::-webkit-scrollbar
-      width 6px
-    &::-webkit-scrollbar-thumb
-      border-radius 3px
-      background-color #cbd5d0
-    &::-webkit-scrollbar-track
-      background transparent
     > .nav-links .contextual-sidebar-links,
     > .sidebar-links-fallback
       padding 1.25rem 0.75rem 1.5rem

@@ -19,7 +19,7 @@ const changeLoaderOptions = (options, key = 'name') => {
 	return options;
 };
 
-module.exports = (themeConfig, ctx, pluginAPI) => {
+module.exports = (themeConfig = {}, ctx, pluginAPI) => {
 	pluginAPI.options.chainWebpack.add('assets-chunk-timestamp', (config, isServer) => {
 		config.output.filename(`${nowString}/${config.output.get('filename')}`); //输出文件名
 		config.module.rule('images').use('url-loader').tap(changeLoaderOptions);

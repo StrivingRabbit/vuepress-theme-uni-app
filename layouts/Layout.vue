@@ -116,7 +116,8 @@ export default {
   },
   computed: {
     shouldCheckVersion() {
-      return this.$site.themeConfig.versionCheck !== false
+      const themeConfig = this.$site && this.$site.themeConfig
+      return !themeConfig || themeConfig.versionCheck !== false
     },
     shouldShowNavbar() {
       const { themeConfig } = this.$site

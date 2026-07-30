@@ -1,3 +1,5 @@
+const path = require('path');
+
 function getFormattedDate() {
 	const now = new Date();
 
@@ -38,6 +40,48 @@ module.exports = (themeConfig = {}, ctx, pluginAPI) => {
 				);
 			}
 		}
+	})
+
+	// markstream 的 ESM 构建使用 import.meta，Webpack 4 无法解析，改用 CommonJS 构建并转译其现代语法。
+	pluginAPI.options.chainWebpack.add('markstream-vue2-webpack4-compat', config => {
+		const markstreamPath = require.resolve('markstream-vue2')
+		const markstreamDirectory = path.dirname(markstreamPath)
+		const resolveMarkstreamDependency = dependency => require.resolve(dependency, { paths: [markstreamDirectory] })
+		const parserPath = resolveMarkstreamDependency('stream-markdown-parser')
+		const corePath = resolveMarkstreamDependency('markstream-core')
+		const vueDemiPath = resolveMarkstreamDependency('vue-demi/lib/v2.7/index.cjs')
+		const vuepressDirectory = path.dirname(require.resolve('vuepress', { paths: [ctx.sourceDir] }))
+		const resolveVuepressDependency = dependency => require.resolve(dependency, { paths: [vuepressDirectory] })
+		const webpack = require(resolveVuepressDependency('webpack'))
+		const emptyModulePath = path.resolve(__dirname, 'components/DcloudSearchPage/utils/empty-module.js')
+
+		config.resolve.alias.set('markstream-vue2$', markstreamPath)
+		config.resolve.alias.set('stream-markdown-parser$', parserPath)
+		config.resolve.alias.set('markstream-core$', corePath)
+		config.resolve.alias.set('vue-demi$', vueDemiPath)
+		config.resolve.alias.set(
+			'markstream-vue2/index.css$',
+			require.resolve('markstream-vue2/index.css')
+		)
+		config.resolve.alias.set(
+			'markstream-vue2/index.px.css$',
+			require.resolve('markstream-vue2/index.px.css')
+		)
+		config.plugin('markstream-vue2-optional-renderers').use(webpack.NormalModuleReplacementPlugin, [
+			/^(?:@antv\/infographic|@terrastruct\/d2|katex|stream-markdown|stream-monaco\/legacy)$/,
+			resource => {
+				if (resource.context.indexOf(markstreamDirectory) === 0) resource.request = emptyModulePath
+			}
+		])
+		config.module
+			.rule('markstream-vue2')
+			.test(/\.[cm]?js$/)
+			.include.add(markstreamDirectory).add(path.dirname(parserPath)).add(path.dirname(corePath)).end()
+			.use('babel-loader')
+			.loader(resolveVuepressDependency('babel-loader'))
+			.options({
+				presets: [[resolveVuepressDependency('@babel/preset-env'), { targets: { ie: '11' } }]]
+			})
 	})
 
 	pluginAPI.options.extendMarkdown.add('vuepress-theme-uni-app-md-plugins', (md) => {

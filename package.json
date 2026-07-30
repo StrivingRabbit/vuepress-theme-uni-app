@@ -47,16 +47,16 @@
     "markdown-it-attrs": "^4.1.6",
     "markdown-it-raw-table": "^1.0.0",
     "markdown-it-task-lists": "^2.1.1",
-    "marked": "^3.0.8",
+    "markstream-vue2": "0.0.50",
     "qr-code-with-logo": "^1.1.0",
     "search-insights": "^2.17.3",
     "vuepress-plugin-check-md2": "workspace:^",
     "vuepress-plugin-expandable-row": "workspace:^",
-    "vuepress-plugin-version-check": "workspace:^",
     "vuepress-plugin-juejin-style-copy": "^1.0.4",
     "vuepress-plugin-mermaidjs": "1.9.1",
     "vuepress-plugin-named-chunks": "^1.1.4",
     "vuepress-plugin-noscript-code": "workspace:^",
+    "vuepress-plugin-version-check": "workspace:^",
     "vuepress-plugin-zooming": "^1.1.8"
   },
   "resolutions": {

@@ -9,7 +9,7 @@
         <div v-for="m in messages" :key="m.id" :class="['msg', m.role]">
 
           <div class="bubble">
-            <div v-if="m.raw" class="bubble-content" v-html="m.rendered"></div>
+            <StreamMarkdown v-if="m.raw" class="bubble-content" :content="m.raw" :final="!m.streaming" />
             <div v-else-if="m.streaming" class="thinking-placeholder">
               <Skeleton />
             </div>
@@ -65,13 +65,13 @@
 <script setup>
 import { ref, nextTick, watchEffect, onMounted, onBeforeUnmount, computed } from 'vue'
 import searchPageConfig from '@theme-config/searchPage';
-import { renderMarkdown } from "./markdown-loader";
 import { MAX_AI_ANSWER_LENGTH, AI_CHAT_FOR_DOC_SEARCH_STREAM_URL, AI_STOP_CHAT_FOR_DOC_SEARCH_STREAM_URL } from '../constants';
 import { normalizeAIClassification } from '../utils/postDcloudServer';
 import { createDocSearchAIRequest, getDocSearchGenerationText } from '../utils/aiStream';
 import SelectPlatform from '../components/SelectPlatform.vue';
 import AIFeedback from '../components/AIFeedback.vue';
 import Skeleton from '../components/Skeleton.vue';
+import StreamMarkdown from '../components/StreamMarkdown.vue';
 
 const { aiPlatforms = [], aiChatForDocSearchStream = AI_CHAT_FOR_DOC_SEARCH_STREAM_URL, stopChatForDocSearchStream = AI_STOP_CHAT_FOR_DOC_SEARCH_STREAM_URL } = searchPageConfig;
 const SESSION_KEY = '__UNIDOC_MESSAGES__';
@@ -238,7 +238,6 @@ function createUserMessage(text) {
     id: createMessageId(),
     role: 'user',
     raw: text,
-    rendered: renderMarkdown(text),
     time: formatTime(),
   }
 }
@@ -250,7 +249,6 @@ function createAIMessage() {
     role: 'assistant',
     raw: '',
     uni_ai_feedback_id: '',
-    rendered: '',
     time: formatTime(),
     streaming: false,
     stopped: false,
@@ -266,7 +264,6 @@ function addMessage(message) {
 }
 
 function renderStreamMessage(message) {
-  message.rendered = renderMarkdown(message.raw)
   saveSession()
   scrollToBottom()
 }

@@ -11,7 +11,7 @@
     </div>
 
     <div v-if="hasMessage" class="ai-answer-msg">
-      <div v-html="item.msg" />
+      <StreamMarkdown :content="item.raw" :final="!item.streaming" />
     </div>
     <Skeleton v-else />
 
@@ -31,6 +31,7 @@
 import { computed } from 'vue';
 import Skeleton from './Skeleton.vue';
 import AIFeedback from './AIFeedback.vue';
+import StreamMarkdown from './StreamMarkdown.vue';
 import { getDocSearchGenerationText } from '../utils/aiStream';
 
 const props = defineProps({
@@ -43,7 +44,7 @@ const props = defineProps({
 defineEmits(['stop'])
 
 const hasMessage = computed(() => {
-  return props.item.msg && props.item.msg.length > 0;
+  return props.item.raw && props.item.raw.length > 0;
 })
 </script>
 

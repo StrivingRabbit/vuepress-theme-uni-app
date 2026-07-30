@@ -139,9 +139,7 @@ import { createDocSearchAIRequest } from './utils/aiStream';
 import { forbidScroll } from '../../util';
 import { removeHighlightTags, isEditingContent } from './utils/searchUtils';
 import Base64 from './utils/Base64';
-import { renderMarkdown } from "./AIChat/markdown-loader";
 import { DEFAULT_ENABLE_AI, MAX_AI_ANSWER_LENGTH, AI_CHAT_FOR_DOC_SEARCH_STREAM_URL, AI_STOP_CHAT_FOR_DOC_SEARCH_STREAM_URL, AI_ERROR_MSG } from './constants';
-import 'highlight.js/styles/github.min.css'
 
 const {
 	enableAI = DEFAULT_ENABLE_AI,
@@ -162,7 +160,6 @@ function createAIMessage() {
 		uni_ai_feedback_id: '',
 		isAI: true,
 		title: 'AI 助手回答',
-		msg: '',
 		raw: '',
 		streaming: false,
 		stopped: false,
@@ -260,7 +257,7 @@ export default {
 		},
 		showAIMessage() {
 			const searchText = this.searchValue.trim()
-			const hasAIMessageHistory = this.aiMessage.msg.trim().length > 0
+			const hasAIMessageHistory = this.aiMessage.raw.trim().length > 0
 			const wordLimitExceeded = searchText.length >= MAX_AI_ANSWER_LENGTH
 			const hasChineseCharacters = /[\u4e00-\u9fa5]/.test(searchText)
 			return this.enableAI && ((wordLimitExceeded && hasChineseCharacters) || hasAIMessageHistory)
@@ -511,7 +508,6 @@ export default {
 
 			this.aiRequestKeys[key] = true
 			message.uni_ai_feedback_id = ''
-			message.msg = ''
 			message.raw = ''
 			message.streaming = true
 			message.stopped = false
@@ -541,7 +537,6 @@ export default {
 				streamUrl: aiChatForDocSearchStream,
 				stopUrl: stopChatForDocSearchStream,
 				isActive: request => this.aiRequests[key] === request,
-				render: request => this.renderAIMessage(request),
 				onError(request, error) {
 					if (!request.message.raw && !request.pendingText) {
 						request.message.raw = error || AI_ERROR_MSG
@@ -551,11 +546,6 @@ export default {
 					if (this.aiRequests[key] === request) delete this.aiRequests[key]
 				}
 			})
-		},
-
-		renderAIMessage(request) {
-			// 每次上屏都重新解析 Markdown，保证流式内容的格式与完整回答一致。
-			request.message.msg = renderMarkdown(request.message.raw)
 		},
 
 		stopAIRequest(key) {

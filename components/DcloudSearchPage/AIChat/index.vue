@@ -413,6 +413,11 @@ defineExpose({ stopAllGenerations })
       margin-left auto
       pre
         background rgba(255,255,255,.9)
+      .link-loading, .link-node
+        --link-color #d5f5e3 !important
+        color #d5f5e3 !important
+        text-decoration underline
+        text-underline-offset 2px
     .meta
       justify-content flex-end
     .time

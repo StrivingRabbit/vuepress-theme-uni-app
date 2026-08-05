@@ -1,5 +1,13 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.43
+
+### Patch Changes
+
+- refactor: 使用 markstream-vue2 渲染 AI 流式回答，提升渲染性能
+- feat: 优化滚动条样式，统一横向和纵向外观
+- feat: 优化问 AI user 气泡中链接显示
+
 ## 1.6.42
 
 ### Patch Changes

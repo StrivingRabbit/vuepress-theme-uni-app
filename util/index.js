@@ -10,9 +10,19 @@ export function normalize(path) {
 	return decodeURI(path).replace(hashRE, '').replace(extRE, '');
 }
 
-export function normalizeNavPath(path) {
+export function normalizeNavPath(path, base) {
 	const cleanPath = normalize((path || '').split('?')[0]).replace(/\/index$/, '');
-	return cleanPath.replace(endingSlashRE, '') || '/';
+	const normalizedPath = cleanPath.replace(endingSlashRE, '') || '/';
+	if (!base) return normalizedPath;
+
+	const normalizedBase = normalizeNavPath(base);
+	if (
+		normalizedBase !== '/'
+		&& (normalizedPath === normalizedBase || normalizedPath.indexOf(`${normalizedBase}/`) === 0)
+	) {
+		return normalizedPath.slice(normalizedBase.length) || '/';
+	}
+	return normalizedPath;
 }
 
 export function getHash(path) {
@@ -189,7 +199,7 @@ export function groupHeaders(headers) {
 }
 
 export function resolveNavLinkItem(linkItem) {
-	return Object.assign(linkItem, {
+	return Object.assign({}, linkItem, {
 		type: linkItem.items && linkItem.items.length ? 'links' : 'link',
 	});
 }
@@ -206,19 +216,33 @@ export function resolveMatchingConfig(regularPath, config) {
 			config: config,
 		};
 	}
-	for (const base in config) {
-		if (ensureEndingSlash(regularPath).indexOf(encodeURI(base)) === 0) {
-			return {
-				base,
-				config: config[base],
-			};
+
+	const path = normalizeConfigPath(regularPath);
+	let matchedBase = '';
+	let matchedLength = -1;
+
+	Object.keys(config).forEach(base => {
+		const normalizedBase = normalizeConfigPath(base);
+		if (isMatchingBase(path, normalizedBase) && normalizedBase.length > matchedLength) {
+			matchedBase = base;
+			matchedLength = normalizedBase.length;
 		}
-	}
-	return {};
+	});
+
+	return matchedBase
+		? {
+			base: matchedBase,
+			config: config[matchedBase],
+		}
+		: {};
 }
 
-function ensureEndingSlash(path) {
-	return /(\.html|\/)$/.test(path) ? path : path + '/';
+function normalizeConfigPath(path) {
+	return encodeURI(decodeURI(path || '')).replace(/\/+$/, '') || '/';
+}
+
+function isMatchingBase(path, base) {
+	return base === '/' || path === base || path.indexOf(`${base}/`) === 0;
 }
 
 function resolveItem(item, pages, base, groupDepth = 1) {

@@ -1,4 +1,21 @@
 import { navbar, navbarLanguage, userNavIndex } from '@theme-config/navbar';
+import { isExternal, normalizeNavPath } from '../util'
+
+function getMatchingPathLength(currentPath, item, siteBase) {
+  const links = [item.link].concat((item.items || []).map(child => child.link))
+  let matchedLength = -1
+
+  links.forEach(link => {
+    if (!link || isExternal(link)) return
+    const itemPath = normalizeNavPath(link, siteBase)
+    const matched = itemPath === '/' || currentPath === itemPath || currentPath.indexOf(`${itemPath}/`) === 0
+    if (matched && itemPath.length > matchedLength) {
+      matchedLength = itemPath.length
+    }
+  })
+
+  return matchedLength
+}
 
 export default {
   data() {
@@ -17,9 +34,7 @@ export default {
   },
 
   created() {
-    this.customNavBar.forEach((item, index) => {
-      if (this.$route.path.indexOf(item.link) !== -1 && item.link !== '/') this.navConfig.userNavIndex = index
-    })
+    this.syncUserNavIndex()
   },
 
   computed: {
@@ -44,6 +59,24 @@ export default {
   },
 
   methods: {
+    syncUserNavIndex() {
+      const siteBase = this.$site && this.$site.base
+      const currentPath = normalizeNavPath(this.$route.path, siteBase)
+      let matchedIndex = -1
+      let matchedLength = -1
+
+      this.customNavBar.forEach((item, index) => {
+        const length = getMatchingPathLength(currentPath, item, siteBase)
+        if (length > matchedLength) {
+          matchedIndex = index
+          matchedLength = length
+        }
+      })
+
+      if (matchedIndex !== -1) {
+        this.navConfig.userNavIndex = matchedIndex
+      }
+    },
     changeUserNav(index) {
       this.navConfig.userNavIndex = index
       const curNavBar = this.customNavBar[index]
@@ -53,13 +86,8 @@ export default {
   },
 
   watch: {
-    $route(after) {
-      let navbarIndex = -1
-      this.customNavBarLinks.forEach((link, index) => {
-        if (after.path.indexOf(link) !== -1) navbarIndex = index
-      })
-      navbarIndex === -1 && (navbarIndex = 0)
-      this.navConfig.userNavIndex !== navbarIndex && navbarIndex !== -1 && (this.navConfig.userNavIndex = navbarIndex)
+    $route() {
+      this.syncUserNavIndex()
     }
   }
 }

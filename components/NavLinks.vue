@@ -20,6 +20,7 @@
       <NavLink
         v-else
         :item="item"
+        :class="{ 'router-link-active': index === currentUserLinkIndex }"
       />
       <button
         v-if="hasItemChildren(item)"
@@ -84,7 +85,8 @@ export default {
 
   computed: {
     userNav () {
-      return this.customNavBar[this.navConfig.userNavIndex].items || []
+      const currentNav = this.customNavBar[this.navConfig.userNavIndex]
+      return currentNav && currentNav.items ? currentNav.items : []
       // return this.$themeLocaleConfig.nav || this.$site.themeConfig.nav || []
     },
 
@@ -129,7 +131,8 @@ export default {
     },
 
     currentUserLinkIndex () {
-      const index = this.userLinks.indexOf(this.subNavBarItem)
+      const activeLink = this.subNavBarItem && this.subNavBarItem.link
+      const index = this.userLinks.findIndex(item => item.link === activeLink)
       return index === -1 ? 0 : index
     }
   },

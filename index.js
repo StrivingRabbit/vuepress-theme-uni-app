@@ -49,6 +49,7 @@ module.exports = (themeConfig = {}, ctx, pluginAPI) => {
 		const resolveMarkstreamDependency = dependency => require.resolve(dependency, { paths: [markstreamDirectory] })
 		const parserPath = resolveMarkstreamDependency('stream-markdown-parser')
 		const corePath = resolveMarkstreamDependency('markstream-core')
+		const floatingUiPath = resolveMarkstreamDependency('@floating-ui/dom')
 		const vueDemiPath = resolveMarkstreamDependency('vue-demi/lib/v2.7/index.cjs')
 		const vuepressDirectory = path.dirname(require.resolve('vuepress', { paths: [ctx.sourceDir] }))
 		const resolveVuepressDependency = dependency => require.resolve(dependency, { paths: [vuepressDirectory] })
@@ -58,6 +59,7 @@ module.exports = (themeConfig = {}, ctx, pluginAPI) => {
 		config.resolve.alias.set('markstream-vue2$', markstreamPath)
 		config.resolve.alias.set('stream-markdown-parser$', parserPath)
 		config.resolve.alias.set('markstream-core$', corePath)
+		config.resolve.alias.set('@floating-ui/dom$', floatingUiPath)
 		config.resolve.alias.set('vue-demi$', vueDemiPath)
 		config.resolve.alias.set(
 			'markstream-vue2/index.css$',

@@ -157,7 +157,6 @@ export default {
       this.isSidebarOpen = false
     })
     forbidScroll(this.isSidebarOpen)
-    this.renderNavLinkState()
     this._desktopSidebarMediaQuery = window.matchMedia(DESKTOP_SIDEBAR_MEDIA)
     this._desktopSidebarMediaQuery.addListener(this.handleDesktopSidebarMediaChange)
   },
@@ -228,48 +227,9 @@ export default {
         }
       }
     },
-    renderNavLinkState() {
-      this.$nextTick(() => {
-        const sidebarKeys = Object.keys(this.$themeConfig.sidebar || {}).filter(key => key !== '/')
-        const currentPath = this.$page.path
-        const matchedSidebarKey = sidebarKeys
-          .filter(key => currentPath.includes(key))
-          .sort((a, b) => b.length - a.length)[0]
-        const hasMatchedSidebarKey = typeof matchedSidebarKey === 'string' && matchedSidebarKey.length > 0
-
-        const isSubPage = /\/([\w-]+)+\//.test(this.$route.fullPath)
-        const navContainers = Array.from(document.querySelectorAll('nav.nav-links'))
-        navContainers.forEach(nav => {
-          const navLinks = Array.from(nav.querySelectorAll('a.nav-link:not(.external)'))
-          navLinks.forEach(link => {
-            link.classList.remove('router-link-active')
-
-            if (isSubPage && hasMatchedSidebarKey) {
-              const isMatchedLink = link.href.includes(matchedSidebarKey)
-              const matchWithoutMatchSidebar = sidebarKeys
-                .filter(i => i !== matchedSidebarKey && i !== this.$site.base)
-                .find(i => link.href.match(i) !== null)
-              // 当 base 不为 '/' 时，可能会出现 link.href 包含 sidebarKey，但实际并不匹配的情况，此时需要排除掉这种情况
-              const hasNoMoreSpecificMatch = typeof matchWithoutMatchSidebar === 'undefined' || matchWithoutMatchSidebar.length < matchedSidebarKey.length
-
-              if (isMatchedLink && hasNoMoreSpecificMatch) {
-                link.classList.add('router-link-active')
-              }
-            }
-          })
-
-          if ((!isSubPage || !hasMatchedSidebarKey) && navLinks.length) {
-            navLinks[0].classList.add('router-link-active')
-          }
-        })
-      })
-    },
   },
   watch: {
     isSidebarOpen: forbidScroll,
-    $route() {
-      this.renderNavLinkState()
-    },
   },
 }
 </script>

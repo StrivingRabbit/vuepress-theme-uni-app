@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.44
+
+### Patch Changes
+
+- fix: resolve navigation by sidebar base
+
 ## 1.6.43
 
 ### Patch Changes

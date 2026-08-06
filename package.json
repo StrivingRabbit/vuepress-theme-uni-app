@@ -1,6 +1,6 @@
 {
   "name": "vuepress-theme-uniapp-official",
-  "version": "1.6.43",
+  "version": "1.6.44",
   "description": "uni-app official website theme for vuepress",
   "main": "index.js",
   "repository": {

@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.45
+
+### Patch Changes
+
+- fix: 强化路由和锚定滚动行为
+
 ## 1.6.44
 
 ### Patch Changes

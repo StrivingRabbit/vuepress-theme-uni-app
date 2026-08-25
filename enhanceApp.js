@@ -3,37 +3,31 @@ import VueRouter from 'vue-router';
 import { isServer } from './util';
 import OutboundLink from '@theme/components/OutboundLink.vue';
 
+const INITIAL_HASH_DELAY = 700;
+const SCROLL_BEHAVIOR = 'instant';
 const originalPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push(location, resolve, reject) {
 	if (resolve || reject) return originalPush.call(this, location, resolve, reject);
-	return originalPush.call(this, location).catch(err => err);
+	return originalPush.call(this, location).catch(err => {
+		if (VueRouter.isNavigationFailure(err, VueRouter.NavigationFailureType.duplicated)) return err;
+		throw err;
+	});
 };
 
 function handleRedirectForCleanUrls(router, to) {
-	if (isRouteExists(router, to.path)) {
-		return to.path;
-	} else {
-		if (!/(\/|\.html)$/.test(to.path)) {
-			const endingSlashUrl = to.path + '/';
-			const endingHtmlUrl = to.path + '.html';
-			if (isRouteExists(router, endingHtmlUrl)) {
-				return endingHtmlUrl;
-			} else if (isRouteExists(router, endingSlashUrl)) {
-				return endingSlashUrl;
-			} else {
-				return to.path.replace(/\.md$/, '');
-			}
-		} else if (/\/$/.test(to.path)) {
-			const endingHtmlUrl = to.path.replace(/\/$/, '') + '.html';
-			if (isRouteExists(router, endingHtmlUrl)) {
-				return endingHtmlUrl;
-			} else {
-				return to.path;
-			}
-		} else {
-			return to.path;
-		}
+	if (isRouteExists(router, to.path)) return to.path;
+	if (!/(\/|\.html)$/i.test(to.path)) {
+		const endingSlashUrl = to.path + '/';
+		const endingHtmlUrl = to.path + '.html';
+		if (isRouteExists(router, endingHtmlUrl)) return endingHtmlUrl;
+		if (isRouteExists(router, endingSlashUrl)) return endingSlashUrl;
+		return to.path.replace(/\.md$/i, '');
 	}
+	if (/\/$/.test(to.path)) {
+		const endingHtmlUrl = to.path.replace(/\/$/, '') + '.html';
+		if (isRouteExists(router, endingHtmlUrl)) return endingHtmlUrl;
+	}
+	return to.path;
 }
 
 function isRouteExists(router, path) {
@@ -41,102 +35,83 @@ function isRouteExists(router, path) {
 	return router.options.routes.some(route => route.path.toLowerCase() === pathLower);
 }
 
-function resolveRouterBase(router, redirectPath) {
-	if (router.options.base !== '/') redirectPath = (router.options.base + redirectPath).replace(/\/\//g, '/');
-	return redirectPath;
+function normalizeHash(value) {
+	if (Array.isArray(value)) value = value[0];
+	if (typeof value !== 'string') return '';
+	let decodedValue;
+	try {
+		decodedValue = decodeURIComponent(value);
+	} catch (error) {
+		decodedValue = value;
+	}
+	return decodedValue && decodedValue.charAt(0) !== '#' ? `#${decodedValue}` : decodedValue;
+}
+
+function replaceLocation(router, target) {
+	const isExternal = /^[a-z]+:/i.test(target.path) || target.path.indexOf('//') === 0;
+	const href = isExternal ? target.path + (target.hash || '') : router.resolve(target).href;
+	location.replace(href);
+}
+
+function getHashPosition(hash, behavior) {
+	const id = normalizeHash(hash).slice(1);
+	const target = id && document.getElementById(id);
+	if (!target) return false;
+	return {
+		x: window.pageXOffset,
+		y: target.getBoundingClientRect().top + window.pageYOffset,
+		behavior,
+	};
 }
 
 function handlePath(router, to) {
-	// 重定向路由表
-	const redirectRouter = getRedirectRouter(to);
-	if (redirectRouter && !isServer) return location.replace(redirectRouter.path + (redirectRouter.hash || ''));
-
-	const id = to.query.id;
-	delete to.query.id;
-	let hash = decodeURIComponent(id || to.hash).toLowerCase();
-	if (hash && hash.indexOf('#') !== 0) hash = '#' + hash;
-	const redirectPath = handleRedirectForCleanUrls(router, to);
-	if (id) {
-		return {
-			path: resolveRouterBase(router, redirectPath),
-			replace: true,
-			hash,
-			query: to.query,
-		};
-	}
-	if (redirectPath !== to.path) {
-		return {
-			path: resolveRouterBase(router, redirectPath),
-			replace: true,
-			hash,
-			query: to.query,
-		};
-	}
-	if (/\bREADME\b/.test(to.path)) {
-		return {
-			path: to.path.replace(/\bREADME\b/, ''),
-			replace: true,
-			hash,
-			query: to.query,
-		};
-	}
+	const query = { ...to.query };
+	const id = query.id;
+	delete query.id;
+	const hash = normalizeHash(id || to.hash);
+	const readmePath = to.path.replace(/(^|\/)README(?:\.(?:md|html))?$/i, '$1');
+	const redirectPath = readmePath !== to.path ? readmePath : handleRedirectForCleanUrls(router, to);
+	if (!id && redirectPath === to.path) return;
+	return {
+		path: redirectPath,
+		replace: true,
+		hash,
+		query,
+	};
 }
 
-export default ({ Vue, options, router, siteData }) => {
-	let mounted = Vue.$vuepress.store._isMounted;
-	// debugger
-	const ScrollBehavior = 'instant';
+export default ({ Vue, router }) => {
+	let isFirstScroll = true;
 
 	router.beforeHooks.unshift((to, from, next) => {
+		const configuredRedirect = !isServer && getRedirectRouter(to);
+		if (configuredRedirect) {
+			replaceLocation(router, configuredRedirect);
+			return;
+		}
 		const _next = handlePath(router, to);
-		if (_next && /\.html$/.test(_next.path) && !isServer) return location.replace(_next.path + (_next.hash || ''));
-		else next(_next);
+		if (_next && /\.html$/i.test(_next.path) && !isServer) {
+			replaceLocation(router, _next);
+			return;
+		}
+		next(_next);
 	});
 
 	router.options.scrollBehavior = function scrollBehavior(to, from, savedPosition) {
-		if (savedPosition) {
-			return window.scrollTo({
-				top: savedPosition.y,
-				behavior: ScrollBehavior,
-			});
-		} else if (to.hash) {
-			if (Vue.$vuepress.$get('disableScrollBehavior')) {
-				return false;
-			}
-			const selector = decodeURIComponent(to.hash.toLowerCase());
-			return new Promise((resolve, reject) => {
-				setTimeout(
-					() => {
-						if (!mounted) mounted = true;
-						const targetElement = document.querySelector(selector);
-						if (targetElement) {
-							return window.scrollTo({
-								top: getElementPosition(targetElement).y,
-								behavior: ScrollBehavior,
-							});
-						}
-						return resolve(false);
-					},
-					mounted ? 0 : 700
-				);
-			});
-		} else {
-			return window.scrollTo({
-				top: 0,
-				behavior: ScrollBehavior,
-			});
-		}
+		const shouldDelayHash = isFirstScroll;
+		isFirstScroll = false;
+		if (savedPosition) return { ...savedPosition, behavior: SCROLL_BEHAVIOR };
+		if (!to.hash) return { x: 0, y: 0, behavior: SCROLL_BEHAVIOR };
+		if (Vue.$vuepress.$get('disableScrollBehavior')) return false;
+
+		// 带锚点刷新时等待页面内容稳定；页面内点击锚点则立即滚动。
+		if (!shouldDelayHash) return getHashPosition(to.hash, SCROLL_BEHAVIOR);
+		return new Promise(resolve =>
+			setTimeout(() => {
+				resolve(getHashPosition(to.hash, SCROLL_BEHAVIOR));
+			}, INITIAL_HASH_DELAY),
+		);
 	};
 
 	Vue.component('OutboundLink', OutboundLink);
 };
-
-function getElementPosition(el) {
-	const docEl = document.documentElement;
-	const docRect = docEl.getBoundingClientRect();
-	const elRect = el.getBoundingClientRect();
-	return {
-		x: elRect.left - docRect.left,
-		y: elRect.top - docRect.top,
-	};
-}

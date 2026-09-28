@@ -96,6 +96,17 @@ export function createDocSearchAIRequest(options) {
 		return Math.min(TYPEWRITER_MAX_CHARS, Math.max(1, Math.ceil(text.length / 24)));
 	}
 
+	function getMarkdownFenceStepLength(text) {
+		if (!request.message.raw || /(?:\r\n|\n|\r)$/.test(request.message.raw)) {
+			const fenceMatch = text.match(/^[ \t]{0,3}```/);
+			if (fenceMatch) {
+				const lineEnd = text.search(/[\r\n]/);
+				return lineEnd === -1 ? 0 : lineEnd + 1;
+			}
+		}
+		return -1;
+	}
+
 	function flush() {
 		if (request.typeTimer) {
 			clearTimeout(request.typeTimer);
@@ -131,7 +142,9 @@ export function createDocSearchAIRequest(options) {
 	function runTypewriter() {
 		if (!isActive()) return;
 		request.typeTimer = 0;
-		const length = getTypewriterStepLength(request.pendingText);
+		const fenceLength = getMarkdownFenceStepLength(request.pendingText);
+		if (fenceLength === 0) return;
+		const length = fenceLength > 0 ? fenceLength : getTypewriterStepLength(request.pendingText);
 		appendText(request.pendingText.slice(0, length));
 		request.pendingText = request.pendingText.slice(length);
 		render();

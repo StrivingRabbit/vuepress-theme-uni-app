@@ -4,6 +4,7 @@
     :custom-id="CUSTOM_ID"
     :final="final"
     :typewriter="false"
+    :smooth-streaming="false"
     :fade="false"
     :viewport-priority="true"
   />
@@ -13,11 +14,13 @@
 import MarkdownRender from 'markstream-vue2';
 import { setCustomComponents } from 'markstream-vue2';
 import HighlightedCodeBlock from './HighlightedCodeBlock.vue';
+import InlineCode from './InlineCode.vue';
 
 const CUSTOM_ID = 'dcloud-search-markdown';
 
 setCustomComponents(CUSTOM_ID, {
-  code_block: HighlightedCodeBlock
+  code_block: HighlightedCodeBlock,
+  inline_code: InlineCode
 });
 
 defineProps({

@@ -102,6 +102,36 @@ const tests = [
 		},
 	},
 	{
+		name: 'keeps a fenced code language on one markdown line',
+		run() {
+			const harness = createHarness()
+			const message = { raw: '', streaming: true }
+			const request = harness.create({
+				message,
+				isActive: () => true,
+			})
+
+			request.start({})
+			harness.handlers().onEvent({
+				event: 'conversation.message.delta',
+				data: '{"role":"assistant","type":"answer","content":"```u"}',
+			})
+			assert.strictEqual(message.raw, '')
+
+			harness.handlers().onEvent({
+				event: 'conversation.message.delta',
+				data: '{"role":"assistant","type":"answer","content":"vue\\nvalue"}',
+			})
+			assert.strictEqual(message.raw, '```uvue\n')
+
+			harness.handlers().onEvent({
+				event: 'conversation.chat.completed',
+				data: '{"status":"completed"}',
+			})
+			assert.strictEqual(message.raw, '```uvue\nvalue')
+		},
+	},
+	{
 		name: 'metadata after completed is still available and completed requests are not stopped',
 		run() {
 			const harness = createHarness()

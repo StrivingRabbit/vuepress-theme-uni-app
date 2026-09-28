@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.46
+
+### Patch Changes
+
+- fix: 修复 AI 流式 Markdown 代码渲染异常
+
 ## 1.6.45
 
 ### Patch Changes

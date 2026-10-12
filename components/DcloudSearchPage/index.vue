@@ -281,7 +281,7 @@ export default {
 
 	watch: {
 		resultList() {
-			this.$refs.pageContainer.scrollTop = 0;
+			if (this.$refs.pageContainer) this.$refs.pageContainer.scrollTop = 0;
 		},
 		categoryIndex(index, previousIndex) {
 			if (index === previousIndex || !this.openSearch || !this.searchValue.trim()) return;
@@ -423,20 +423,16 @@ export default {
 									items,
 									onSelect: ({ item, event }) => {
 										source.onSelect({ item, event });
-										const objectIDs = [item.objectID]
-										/* aa("convertedObjectIDsAfterSearch", {
-											eventName: `[${this.currentCategory.text}] Item Converted`,
-											index: indexName,
-											queryID,
-											objectIDs,
-										}); */
-										aa("clickedObjectIDsAfterSearch", {
-											index: indexName,
-											eventName: `[${this.currentCategory.text}] Item Clicked`,
-											queryID,
-											objectIDs,
-											positions: [(index + 1) + (page * hitsPerPage)],
-										});
+										// 点击统计失败不应影响结果链接的默认跳转。
+										try {
+											aa("clickedObjectIDsAfterSearch", {
+												index: indexName,
+												eventName: `[${this.currentCategory.text}] Item Clicked`,
+												queryID,
+												objectIDs: [item.objectID],
+												positions: [(index + 1) + (page * hitsPerPage)],
+											});
+										} catch (error) {}
 									}
 								};
 							});

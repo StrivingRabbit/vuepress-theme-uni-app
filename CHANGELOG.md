@@ -1,5 +1,12 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.47
+
+### Patch Changes
+
+- fix: 修复点击当前页面搜索结果时弹窗不关闭
+- fix: 完善搜索结果点击与弹窗关闭逻辑
+
 ## 1.6.46
 
 ### Patch Changes

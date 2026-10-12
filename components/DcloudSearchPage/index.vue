@@ -415,13 +415,14 @@ export default {
 							this.totalPage = nbPages;
 							this.curPage = page + 1;
 
-							this.resultList = hits.map((item, index) => {
-								const items = item.getItems();
+							this.resultList = hits.map((source, index) => {
+								const items = source.getItems();
 								return {
-									...item,
+									...source,
 									title: removeHighlightTags(items[0]),
 									items,
 									onSelect: ({ item, event }) => {
+										source.onSelect({ item, event });
 										const objectIDs = [item.objectID]
 										/* aa("convertedObjectIDsAfterSearch", {
 											eventName: `[${this.currentCategory.text}] Item Converted`,
@@ -436,7 +437,6 @@ export default {
 											objectIDs,
 											positions: [(index + 1) + (page * hitsPerPage)],
 										});
-										item.onSelect()
 									}
 								};
 							});

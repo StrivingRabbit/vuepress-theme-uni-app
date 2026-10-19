@@ -1,5 +1,5 @@
 <template>
-  <button class="ai-feedback-btn" :class="{ active: props.active }" @click="emit('click', $event)">
+  <button class="ai-feedback-btn" :class="{ active: props.active, 'is-dislike': isDislike }" @click="emit('click', $event)">
     <svg viewBox="0 0 24 24" class="icon">
       <path v-if="isLike"
         d="M2 10h4v12H2V10zm6.31 0L11 4.06a1 1 0 0 1 1-.56h.09c.87 0 1.6.63 1.74 1.49L14.8 10H21a1 1 0 0 1 1 1v1.09c0 .27-.06.53-.17.77l-3.14 6.58A2 2 0 0 1 16.85 20H10a1 1 0 0 1-1-1V10h-.69z"
@@ -47,6 +47,10 @@ const isDislike = computed(() => props.type === 'dislike');
 
   &.active .icon
     color $accentColor
+
+  &.is-dislike.active .icon, &.is-dislike:hover .icon
+    color #d9534f
+
   &:hover
     opacity 1
     background rgba(0,0,0,0.06)

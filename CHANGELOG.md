@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.48
+
+### Patch Changes
+
+- feat(AI): AI 返回点踩按钮使用警示红（#d9534f）
+
 ## 1.6.47
 
 ### Patch Changes

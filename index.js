@@ -256,5 +256,12 @@ module.exports = (themeConfig = {}, ctx, pluginAPI) => {
 		})
 	}
 
+	// VuePress 默认从文档项目解析插件，可能加载到与当前主题不匹配的旧版本。
+	const expandableRowPath = require.resolve('vuepress-plugin-expandable-row')
+	config.plugins = config.plugins.map(plugin => {
+		const name = Array.isArray(plugin) ? plugin[0] : plugin
+		if (name !== 'expandable-row' && name !== 'vuepress-plugin-expandable-row') return plugin
+		return Array.isArray(plugin) ? [expandableRowPath, ...plugin.slice(1)] : expandableRowPath
+	})
 	return config
 }

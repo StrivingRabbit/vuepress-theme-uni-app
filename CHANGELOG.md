@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.49
+
+### Patch Changes
+
+- feat(compatibility): 新增直接表格模式并复用多级表头渲染
+
 ## 1.6.48
 
 ### Patch Changes

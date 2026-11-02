@@ -2,9 +2,16 @@ interface Header {
   title: string
   width?: number
   align?: 'left' | 'center' | 'right'
+  group?: string
+  subtitle?: string
 }
 
 type Row = string[]
+
+export interface CompatibilityTableProps {
+  table: string
+  mode?: 'popover' | 'table'
+}
 
 export interface MdTableOptions {
   rows: Row[]

@@ -15,48 +15,34 @@ const removeRenderedTable = id => {
 </script>
 
 <script setup>
-import { computed, onBeforeUnmount } from 'vue'
+import { computed, onBeforeUnmount, watch } from 'vue'
 import Popover from './Popover.vue'
+import CompatibilityTableContent from './CompatibilityTableContent.vue'
 
 const props = defineProps({
   table: String,
+  mode: { type: String, default: 'popover', validator: value => ['popover', 'table'].includes(value) },
 })
 
 /** @type {MdTableOptions} */
-const TABLE_OPTIONS = computed(() => JSON.parse(props.table.replace(/\\/g, '')))
+const TABLE_OPTIONS = computed(() => {
+  try {
+    return JSON.parse(props.table)
+  } catch {
+    // 兼容旧子表格插入的方括号转义，但保留 JSON 字符串中的路径、引号和换行。
+    const stripDelimiterEscapes = value => value.replace(/"(?:\\.|[^"\\])*"|\\+(?=[\[\]])/g,
+      part => part[0] === '"' ? part : '')
+    try {
+      return JSON.parse(stripDelimiterEscapes(props.table))
+    } catch {
+      return JSON.parse(stripDelimiterEscapes(props.table.replace(/\\"/g, '"')))
+    }
+  }
+})
+const isDirectTable = computed(() => props.mode === 'table')
 const iconWidth = '22px'
 const currentTableId = ++compatibilityTableId
 let hideTableTimer = null
-
-const hasGroupedHeader = computed(() => TABLE_OPTIONS.value.headers.some(header => header.group))
-const primaryHeaders = computed(() => {
-  if (!hasGroupedHeader.value) return TABLE_OPTIONS.value.headers
-
-  return TABLE_OPTIONS.value.headers.reduce((headers, header, index, allHeaders) => {
-    if (!header.group) {
-      headers.push({ ...header, rowspan: 2 })
-      return headers
-    }
-
-    if (allHeaders[index - 1] && allHeaders[index - 1].group === header.group) {
-      const groupHeader = headers[headers.length - 1]
-      groupHeader.colspan = (groupHeader.colspan || 1) + 1
-    } else {
-      headers.push({ title: header.group, colspan: 1 })
-    }
-    return headers
-  }, [])
-})
-const secondaryHeaders = computed(() => TABLE_OPTIONS.value.headers
-  .filter(header => header.group)
-  .map(header => ({ ...header, title: header.subtitle || header.title })))
-
-const resolveTableCelContent = content => {
-  if (/~~.+~~/.test(content)) {
-    return `<s>${content}</s>`
-  }
-  return content
-}
 
 const SUPPORTED = 'SUPPORTED'
 const NOT_SUPPORTED = 'NOT_SUPPORTED'
@@ -64,35 +50,13 @@ const PARTIALLY_SUPPORTED = 'PARTIALLY_SUPPORTED'
 const PERCH = 'PERCH'
 
 const resolveLegacyStatus = tableOptions => {
-  let currentStatus = PARTIALLY_SUPPORTED
-
-  // 不会同时出现都是 - 或 ' ' 的情况
-  if (typeof tableOptions.rows === 'object') {
-    let hasDefaultTag = false
-    let hasNotSupportedTag = false
-    let hasSupportedTag = false
-    tableOptions.rows[0].forEach(cel => {
-      if (cel === '-' || cel === ' ') {
-        hasDefaultTag = true
-      } else if (cel === 'x') {
-        hasNotSupportedTag = true
-      } else {
-        hasSupportedTag = true
-      }
-    })
-
-    if (!hasDefaultTag && !hasNotSupportedTag && hasSupportedTag) {
-      currentStatus = SUPPORTED
-    } else if (!hasDefaultTag && hasNotSupportedTag && !hasSupportedTag) {
-      currentStatus = NOT_SUPPORTED
-    } else if (hasDefaultTag && !hasNotSupportedTag && !hasSupportedTag) {
-      currentStatus = PERCH
-    } else {
-      currentStatus = PARTIALLY_SUPPORTED
-    }
-  }
-
-  return currentStatus
+  const cells = Array.isArray(tableOptions.rows) ? tableOptions.rows.flat() : []
+  if (!cells.length) return PARTIALLY_SUPPORTED
+  const isEmpty = cell => cell == null || String(cell).trim() === '' || String(cell).trim() === '-'
+  if (cells.every(isEmpty)) return PERCH
+  if (cells.every(cell => cell === 'x')) return NOT_SUPPORTED
+  if (cells.every(cell => !isEmpty(cell) && cell !== 'x')) return SUPPORTED
+  return PARTIALLY_SUPPORTED
 }
 
 const status = computed(() => TABLE_OPTIONS.value.status || resolveLegacyStatus(TABLE_OPTIONS.value))
@@ -105,6 +69,7 @@ const clearHideTableTimer = () => {
   }
 }
 const showTable = () => {
+  if (isDirectTable.value) return
   clearHideTableTimer()
   addRenderedTable(currentTableId)
 }
@@ -115,6 +80,11 @@ const hideTable = () => {
   }, 180)
 }
 
+watch(isDirectTable, () => {
+  clearHideTableTimer()
+  removeRenderedTable(currentTableId)
+})
+
 onBeforeUnmount(() => {
   clearHideTableTimer()
   removeRenderedTable(currentTableId)
@@ -122,7 +92,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <Popover @show="showTable" @hide="hideTable">
+  <div v-if="isDirectTable" class="compatibility-table-scroll" tabindex="0" role="region" aria-label="Compatibility">
+    <CompatibilityTableContent :options="TABLE_OPTIONS" />
+  </div>
+  <Popover v-else @show="showTable" @hide="hideTable">
     <template #reference>
       <span class="info" @mouseenter.capture="showTable">
         <svg
@@ -178,47 +151,15 @@ onBeforeUnmount(() => {
         </template>
       </span>
     </template>
-    <table v-if="shouldRenderTable">
-      <thead>
-        <tr>
-          <th
-            v-for="(header, headerIndex) in primaryHeaders"
-            :colspan="header.colspan"
-            :rowspan="header.rowspan"
-            :style="header.align ? { textAlign: header.align } : ''"
-            :key="`${header.title}-${headerIndex}`"
-          >
-            {{ header.title }}
-          </th>
-        </tr>
-        <tr v-if="hasGroupedHeader">
-          <th
-            v-for="(header, headerIndex) in secondaryHeaders"
-            :style="header.align ? { textAlign: header.align } : ''"
-            :key="`${header.group}-${header.title}-${headerIndex}`"
-          >
-            {{ header.title }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in TABLE_OPTIONS.rows">
-          <td
-            v-for="(cel, celIndex) in row"
-            :key="celIndex"
-            :style="TABLE_OPTIONS.headers[celIndex].align ? { textAlign: TABLE_OPTIONS.headers[celIndex].align } : ''"
-          >
-            <span v-html="resolveTableCelContent(cel)" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <CompatibilityTableContent v-if="shouldRenderTable" :options="TABLE_OPTIONS" />
   </Popover>
 </template>
 
 <style lang="stylus" scoped>
-table {
-  margin: 0;
+.compatibility-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 1em 0;
 }
 
 .info {

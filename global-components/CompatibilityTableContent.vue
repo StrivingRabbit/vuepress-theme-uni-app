@@ -11,7 +11,7 @@ const primaryHeaders = computed(() => {
     } else if (allHeaders[index - 1] && allHeaders[index - 1].group === header.group) {
       headers[headers.length - 1].colspan++
     } else {
-      headers.push({ title: header.group, colspan: 1 })
+      headers.push({ title: header.group, href: header.href, colspan: 1 })
     }
     return headers
   }, [])
@@ -30,7 +30,8 @@ const resolveCellContent = content => typeof content === 'string'
       <tr>
         <th v-for="(header, index) in primaryHeaders" :key="index" :colspan="header.colspan" :rowspan="header.rowspan"
           :style="header.align ? { textAlign: header.align } : ''">
-          {{ header.title }}
+          <a v-if="header.href" :href="header.href" style="color:unset;" target="_blank" rel="noopener noreferrer">{{ header.title }}</a>
+          <template v-else>{{ header.title }}</template>
         </th>
       </tr>
       <tr v-if="hasGroupedHeader">

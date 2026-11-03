@@ -149,3 +149,18 @@ test('theme binds expandable-row to its own dependency and preserves plugin conf
     assert.ok(!config.plugins.includes('expandable-row'))
   }
 })
+
+test('platform documentation links appear once on grouped or single primary headers', () => {
+  const linked = { ...options, headers: options.headers.map(header => ({ ...header, href: `https://example.com/${header.group || header.title}` })) }
+  const vm = new Vue({ ...Content, propsData: { options: linked } })
+  try {
+    const root = vm._render()
+    const head = root.children.find(node => node.tag === 'thead')
+    const rows = head.children.filter(node => node.tag === 'tr')
+    const links = rows[0].children.filter(node => node.tag === 'th').flatMap(node => node.children.filter(child => child.tag === 'a'))
+    assert.equal(links.length, 2)
+    assert.deepEqual(links.map(link => link.data.attrs.href), ['https://example.com/Web', 'https://example.com/Android'])
+    assert.equal(links[0].data.staticStyle.color, 'unset')
+    assert.ok(!rows[1].children.some(node => node.children?.some(child => child.tag === 'a')))
+  } finally { vm.$destroy() }
+})

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, useSlots } from 'vue'
+import { ref, useSlots, onBeforeUnmount } from 'vue'
 import { usePopoverDirective } from '../util'
 
 const emit = defineEmits(['show', 'hide'])
@@ -12,17 +12,34 @@ const props = defineProps({
 
 const infoHover = ref(false)
 const slots = useSlots()
+let hideTimer = null
+
+const clearHideTimer = () => {
+  clearTimeout(hideTimer)
+  hideTimer = null
+}
+
+const show = () => {
+  clearHideTimer()
+  infoHover.value = true
+  emit('show')
+}
 
 const wrapperMouseEnter = (e) => {
   mouseEnter(e)
-  emit('show')
-  infoHover.value = true
+  show()
 }
 
-const mouseLeave = (e) => {
-  infoHover.value = false
-  emit('hide')
+const mouseLeave = () => {
+  clearHideTimer()
+  hideTimer = setTimeout(() => {
+    hideTimer = null
+    infoHover.value = false
+    emit('hide')
+  }, 50)
 }
+
+onBeforeUnmount(clearHideTimer)
 </script>
 
 <template>
@@ -42,7 +59,7 @@ const mouseLeave = (e) => {
       </div>
     </span>
     <transition name="fade-in">
-      <div class="popover-content-wrapper" v-show="infoHover" v-popover>
+      <div class="popover-content-wrapper" v-show="infoHover" v-popover @mouseenter="show" @mouseleave="mouseLeave">
         <slot></slot>
       </div>
     </transition>

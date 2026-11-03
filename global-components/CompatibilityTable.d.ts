@@ -4,6 +4,7 @@ interface Header {
   align?: 'left' | 'center' | 'right'
   group?: string
   subtitle?: string
+  href?: string
 }
 
 type Row = string[]

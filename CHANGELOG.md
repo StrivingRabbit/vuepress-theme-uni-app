@@ -1,5 +1,11 @@
 # vuepress-theme-uniapp-official
 
+## 1.6.50
+
+### Patch Changes
+
+- feat: 支持平台表头文档链接及本地化源码操作
+
 ## 1.6.49
 
 ### Patch Changes

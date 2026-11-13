@@ -1,6 +1,6 @@
 <template>
   <div class="chat-wrapper">
-    <main ref="msgList" class="chat-messages" :style="{ 'padding-bottom': msgListPaddingBottom + 'px' }">
+    <main ref="msgList" class="chat-messages" :style="{ 'padding-bottom': msgListPaddingBottom + 'px' }" @scroll.passive="handleMessageScroll">
       <div class="title">
         <span>DCloud 文档 AI 助手</span>
       </div>
@@ -28,6 +28,18 @@
         </div>
       </transition-group>
     </main>
+    <button
+      v-if="showScrollToBottom"
+      type="button"
+      class="scroll-bottom-btn"
+      :style="{ bottom: msgListPaddingBottom + 'px' }"
+      aria-label="回到底部"
+      title="回到底部"
+      @click="resumeAutoScroll"
+    >
+      <span aria-hidden="true">↓</span>
+      <span>回到底部</span>
+    </button>
     <footer ref="footer" class="chat-input-bar"
       :style="{ top: !hasMessage ? '50%' : 'auto', bottom: !hasMessage ? 'auto' : '0' }">
       <div class="input-container"
@@ -96,8 +108,12 @@ const sendPlatform = ref(props.currentCategory)
 const conversations = ref({})
 const activeRequest = ref(null)
 const requests = new Set()
+const followBottom = ref(true)
+const showScrollToBottom = ref(false)
+const SCROLL_BOTTOM_THRESHOLD = 8
 let messageSequence = 0
 let scrollFrame = 0
+let programmaticScroll = false
 
 const msgList = ref(null)
 const input = ref(null)
@@ -146,7 +162,7 @@ onMounted(() => {
         }
       })
       saveSession()
-      scrollToBottom()
+      scrollToBottom(true)
     } catch (error) {
       sessionStorage.removeItem(SESSION_KEY)
     }
@@ -156,7 +172,7 @@ onMounted(() => {
 watchEffect(() => {
   if (props.visible) {
     nextTick(() => {
-      scrollToBottom()
+      scrollToBottom(true)
       autoGrow()
       if (input.value) input.value.focus()
     })
@@ -200,13 +216,41 @@ function inputBottomClick() {
   })
 }
 
-function scrollToBottom() {
+function isAtBottom(el) {
+  return el.scrollHeight - el.clientHeight - el.scrollTop <= SCROLL_BOTTOM_THRESHOLD
+}
+
+function handleMessageScroll() {
+  if (programmaticScroll) return
+  const el = msgList.value
+  if (!el) return
+  followBottom.value = isAtBottom(el)
+  showScrollToBottom.value = !followBottom.value && el.scrollHeight > el.clientHeight
+}
+
+function scrollToBottom(force = false) {
+  if (!force && !followBottom.value) return
   if (scrollFrame) return
   scrollFrame = scheduleFrame(() => {
     scrollFrame = 0
     const el = msgList.value
-    if (el) el.scrollTop = el.scrollHeight
+    if (!el || (!force && !followBottom.value)) return
+    programmaticScroll = true
+    el.scrollTop = el.scrollHeight
+    followBottom.value = true
+    showScrollToBottom.value = false
+    programmaticScroll = false
   })
+}
+
+function resumeAutoScroll() {
+  followBottom.value = true
+  scrollToBottom(true)
+}
+
+function handleResize() {
+  changeMsgListPadding()
+  scrollToBottom()
 }
 
 function scheduleFrame(callback) {
@@ -312,6 +356,8 @@ function send() {
   if (!userText || sending.value) return
   if (inputError.value) return
 
+  followBottom.value = true
+  showScrollToBottom.value = false
   inputText.value = ''
   answerInput()
 
@@ -354,11 +400,13 @@ function feedbackAction(messageId, data) {
   }
 }
 
-onMounted(() => window.addEventListener('resize', scrollToBottom))
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
 onBeforeUnmount(() => {
   stopAllGenerations()
   if (scrollFrame) cancelFrame(scrollFrame)
-  window.removeEventListener('resize', scrollToBottom)
+  window.removeEventListener('resize', handleResize)
 })
 
 defineExpose({ stopAllGenerations })
@@ -400,6 +448,31 @@ defineExpose({ stopAllGenerations })
     overflow-y auto
     padding 16px 16px 120px
     box-sizing border-box
+
+  .scroll-bottom-btn
+    position absolute
+    right 24px
+    z-index 2
+    display flex
+    align-items center
+    gap 5px
+    padding 6px 10px
+    border 1px solid rgba($accentColor, .45)
+    border-radius 16px
+    background rgba(255,255,255,.96)
+    box-shadow 0 2px 8px rgba(0,0,0,.12)
+    color $accentColor
+    font-size 12px
+    cursor pointer
+    transition background .2s, box-shadow .2s
+
+    &:hover
+      background #fff
+      box-shadow 0 3px 10px rgba(0,0,0,.16)
+
+    &:focus-visible
+      outline 2px solid rgba($accentColor, .35)
+      outline-offset 2px
 
   .msg
     display flex
